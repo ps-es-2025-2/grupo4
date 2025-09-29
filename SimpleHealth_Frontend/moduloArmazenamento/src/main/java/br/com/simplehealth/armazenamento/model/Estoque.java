@@ -1,7 +1,11 @@
 package br.com.simplehealth.armazenamento.model;
 
+import br.com.simplehealth.armazenamento.util.FlexibleLocalDateDeserializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -19,6 +23,11 @@ public class Estoque {
     
     @JsonProperty("item")
     private Item item;
+    
+    @JsonProperty("timestamp")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate timestamp;
 
     // Construtores
     public Estoque() {}
@@ -36,6 +45,9 @@ public class Estoque {
 
     public Item getItem() { return item; }
     public void setItem(Item item) { this.item = item; }
+
+    public LocalDate getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDate timestamp) { this.timestamp = timestamp; }
 
     /**
      * Método para obter o ID do item associado.

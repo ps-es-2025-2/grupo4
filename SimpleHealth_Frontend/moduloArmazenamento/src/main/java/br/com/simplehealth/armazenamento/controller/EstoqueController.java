@@ -267,4 +267,17 @@ public class EstoqueController extends AbstractCrudController<Estoque, br.com.si
             itensDoEstoque.remove(itemSelecionado);
         }
     }
+
+    @Override
+    public void atualizarSelectsEComboBoxes() {
+        try {
+            // Atualizar lista de itens disponíveis
+            List<Item> itens = itemService.buscarTodos();
+            itensDisponiveis.setAll(itens);
+            
+            logger.debug("Selects e ComboBoxes do EstoqueController atualizados");
+        } catch (IOException e) {
+            logger.error("Erro ao atualizar selects e ComboBoxes no EstoqueController", e);
+        }
+    }
 }

@@ -383,4 +383,21 @@ public class PedidoController extends AbstractCrudController<Pedido, br.com.simp
             itensDoPedido.remove(itemSelecionado);
         }
     }
+
+    @Override
+    public void atualizarSelectsEComboBoxes() {
+        try {
+            // Atualizar lista de itens disponíveis
+            List<Item> itens = itemService.buscarTodos();
+            itensDisponiveis.setAll(itens);
+            
+            // Atualizar lista de fornecedores
+            List<Fornecedor> fornecedores = fornecedorService.buscarTodos();
+            fornecedoresDisponiveis.setAll(fornecedores);
+            
+            logger.debug("Selects e ComboBoxes do PedidoController atualizados");
+        } catch (IOException e) {
+            logger.error("Erro ao atualizar selects e ComboBoxes", e);
+        }
+    }
 }

@@ -1,7 +1,9 @@
 package br.com.simplehealth.armazenamento.model;
 
+import br.com.simplehealth.armazenamento.util.FlexibleLocalDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 
@@ -32,7 +34,8 @@ public class Item {
     private Integer quantidadeTotal;
     
     @JsonProperty("validade")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate validade;
     
     @JsonProperty("lote")

@@ -474,4 +474,11 @@ public class ItemController extends AbstractCrudController<Item, br.com.simplehe
             }
         }
     }
+
+    @Override
+    public void atualizarSelectsEComboBoxes() {
+        // ItemController usa ComboBoxes estáticos (MEDICAMENTO, HOSPITALAR, ALIMENTO, etc.)
+        // Não precisa atualizar dados do servidor, apenas log para debug
+        logger.debug("ItemController: ComboBoxes são estáticos, não precisam de atualização");
+    }
 }

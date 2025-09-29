@@ -1,7 +1,9 @@
 package br.com.simplehealth.armazenamento.model;
 
+import br.com.simplehealth.armazenamento.util.FlexibleLocalDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,7 +19,8 @@ public class Pedido {
     private Long idPedido;
     
     @JsonProperty("dataPedido")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonDeserialize(using = FlexibleLocalDateDeserializer.class)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataPedido;
     
     @JsonProperty("status")

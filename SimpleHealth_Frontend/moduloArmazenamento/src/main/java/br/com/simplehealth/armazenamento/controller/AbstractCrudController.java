@@ -1,5 +1,6 @@
 package br.com.simplehealth.armazenamento.controller;
 
+import br.com.simplehealth.armazenamento.util.RefreshManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -159,6 +160,7 @@ public abstract class AbstractCrudController<E, V, ID> {
     @FXML
     public void initialize() {
         activeControllers.add(this);
+        RefreshManager.registrarControlador(this);
         configurarTabela();
         configurarBotoes();
         carregarDados();
@@ -267,24 +269,7 @@ public abstract class AbstractCrudController<E, V, ID> {
         if (cancelarButton != null) cancelarButton.setDisable(!editando);
     }
 
-    private void carregarDados() {
-        try {
-            List<E> entidades = buscarTodosViaApi();
-            ObservableList<V> viewModels = FXCollections.observableArrayList();
-            
-            for (E entidade : entidades) {
-                viewModels.add(modelToView(entidade));
-            }
-            
-            if (tabela != null) {
-                tabela.setItems(viewModels);
-            }
-            
-        } catch (IOException e) {
-            logger.error("Erro ao carregar dados: ", e);
-            mostrarAlerta("Erro", "Erro ao carregar dados: " + e.getMessage());
-        }
-    }
+
 
     private void confirmarNovo() throws IOException {
         if (!validarCampos()) {
@@ -380,8 +365,19 @@ public abstract class AbstractCrudController<E, V, ID> {
         for (AbstractCrudController<?, ?, ?> controller : activeControllers) {
             if (controller != this) {
                 controller.carregarDados();
+                controller.atualizarSelectsEComboBoxes();
             }
         }
+    }
+
+    /**
+     * Método que deve ser implementado pelas classes filhas para atualizar
+     * todos os ComboBoxes e selects da tela após operações CRUD.
+     * Este método é chamado automaticamente quando outras telas fazem alterações.
+     */
+    public void atualizarSelectsEComboBoxes() {
+        // Implementação padrão vazia - classes filhas podem sobrescrever
+        logger.debug("Atualizando selects e comboboxes da tela");
     }
 
     /**
@@ -390,5 +386,29 @@ public abstract class AbstractCrudController<E, V, ID> {
      */
     public void fecharTela() {
         activeControllers.remove(this);
+        RefreshManager.removerControlador(this);
+    }
+
+    /**
+     * Método público para forçar o carregamento de dados da tabela.
+     * Usado pelo RefreshManager para atualizações externas.
+     */
+    public void carregarDados() {
+        try {
+            List<E> entidades = buscarTodosViaApi();
+            ObservableList<V> viewModels = FXCollections.observableArrayList();
+            
+            for (E entidade : entidades) {
+                viewModels.add(modelToView(entidade));
+            }
+            
+            if (tabela != null) {
+                tabela.setItems(viewModels);
+            }
+            
+        } catch (IOException e) {
+            logger.error("Erro ao carregar dados: ", e);
+            mostrarAlerta("Erro", "Erro ao carregar dados: " + e.getMessage());
+        }
     }
 }

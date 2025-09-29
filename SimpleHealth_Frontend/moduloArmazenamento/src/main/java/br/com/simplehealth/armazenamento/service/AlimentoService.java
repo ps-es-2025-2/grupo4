@@ -33,6 +33,10 @@ public class AlimentoService {
         this.httpClient = HttpClients.createDefault();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
+        // Configurar para não falhar em propriedades desconhecidas
+        this.objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        // Desabilitar escrita de datas como timestamps
+        this.objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     /**

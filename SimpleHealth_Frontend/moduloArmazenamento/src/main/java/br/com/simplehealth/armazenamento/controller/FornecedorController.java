@@ -147,5 +147,10 @@ public class FornecedorController extends AbstractCrudController<Fornecedor, br.
         return fornecedor;
     }
 
-
+    @Override
+    public void atualizarSelectsEComboBoxes() {
+        // FornecedorController não possui ComboBoxes que dependem de dados externos
+        // Apenas log para debug
+        logger.debug("FornecedorController: Não possui ComboBoxes para atualizar");
+    }
 }
