@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.simplehealth.armazenamento.controller.ItemController">
+   <children>
+      <SplitPane dividerPositions="0.6" prefHeight="800.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <TableView fx:id="tabela" prefHeight="798.0" prefWidth="715.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
+                      <TableColumn fx:id="nomeColumn" prefWidth="200.0" text="Nome" />
+                      <TableColumn fx:id="tipoColumn" prefWidth="120.0" text="Tipo" />
+                      <TableColumn fx:id="unidadeMedidaColumn" prefWidth="100.0" text="Un. Medida" />
+                      <TableColumn fx:id="quantidadeColumn" prefWidth="80.0" text="Qtd" />
+                      <TableColumn fx:id="validadeColumn" prefWidth="100.0" text="Validade" />
+                      <TableColumn fx:id="loteColumn" prefWidth="80.0" text="Lote" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <ScrollPane fitToWidth="true" prefHeight="800.0" prefWidth="480.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <content>
+                        <VBox spacing="15.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <Label text="Gerenciamento de Itens">
+                                 <font>
+                                    <Font name="System Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              
+                              <!-- Botões de ação -->
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <Button fx:id="novoButton" mnemonicParsing="false" onAction="#onNovoClick" text="Novo" />
+                                    <Button fx:id="atualizarButton" mnemonicParsing="false" onAction="#onAtualizarClick" text="Atualizar" />
+                                    <Button fx:id="deletarButton" mnemonicParsing="false" onAction="#onDeletarClick" text="Deletar" />
+                                    <Button fx:id="confirmarButton" mnemonicParsing="false" onAction="#onConfirmarClick" text="Confirmar" />
+                                    <Button fx:id="cancelarButton" mnemonicParsing="false" onAction="#onCancelarClick" text="Cancelar" />
+                                 </children>
+                              </HBox>
+                              
+                              <!-- Texto de confirmação -->
+                              <Text fx:id="confirmacaoText" fill="BLUE" strokeType="OUTSIDE" strokeWidth="0.0" visible="false" wrappingWidth="400.0" />
+                              
+                              <!-- Campos básicos -->
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Nome*" GridPane.rowIndex="0" />
+                                    <TextField fx:id="nomeField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    
+                                    <Label text="Descrição" GridPane.rowIndex="1" />
+                                    <TextArea fx:id="descricaoField" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    
+                                    <Label text="Tipo*" GridPane.rowIndex="2" />
+                                    <ComboBox fx:id="tipoComboBox" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    
+                                    <Label text="Un. Medida*" GridPane.rowIndex="3" />
+                                    <TextField fx:id="unidadeMedidaField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    
+                                    <Label text="Quantidade" GridPane.rowIndex="4" />
+                                    <TextField fx:id="quantidadeTotalField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    
+                                    <Label text="Validade" GridPane.rowIndex="5" />
+                                    <DatePicker fx:id="validadeDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    
+                                    <Label text="Lote" GridPane.rowIndex="6" />
+                                    <TextField fx:id="loteField" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Separador -->
+                              <Separator />
+                              
+                              <!-- Campos específicos para Medicamento -->
+                              <Label text="Dados Específicos - Medicamento" visible="false">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Prescrição" GridPane.rowIndex="0" />
+                                    <TextField fx:id="prescricaoField" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    
+                                    <Label text="Composição" GridPane.rowIndex="1" />
+                                    <TextArea fx:id="composicaoField" prefRowCount="2" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    
+                                    <Label text="Bula" GridPane.rowIndex="2" />
+                                    <TextArea fx:id="bulaField" prefRowCount="2" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    
+                                    <Label text="Tarja" GridPane.rowIndex="3" />
+                                    <ComboBox fx:id="tarjaComboBox" prefWidth="200.0" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    
+                                    <Label text="Modo Consumo" GridPane.rowIndex="4" />
+                                    <TextField fx:id="modoConsumoField" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Campos específicos para Hospitalar -->
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Descartável" GridPane.rowIndex="0" />
+                                    <CheckBox fx:id="descartavelCheckBox" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    
+                                    <Label text="Uso" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="usoComboBox" prefWidth="200.0" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Campos específicos para Alimento -->
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Alérgenos" GridPane.rowIndex="0" />
+                                    <TextField fx:id="alergenicosField" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    
+                                    <Label text="Armazenamento" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="tipoArmazenamentoComboBox" prefWidth="200.0" visible="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                              </GridPane>
+                              
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

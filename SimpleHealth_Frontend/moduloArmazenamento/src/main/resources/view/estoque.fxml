@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.simplehealth.armazenamento.controller.EstoqueController">
+   <children>
+      <SplitPane dividerPositions="0.6" prefHeight="800.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <!-- Lado esquerdo: Tabela -->
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <TableView fx:id="tabela" prefHeight="798.0" prefWidth="715.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn fx:id="idColumn" prefWidth="60.0" text="ID" />
+                      <TableColumn fx:id="localColumn" prefWidth="200.0" text="Local" />
+                      <TableColumn fx:id="quantidadeItensColumn" prefWidth="120.0" text="Qtd. Itens" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+            
+          <!-- Lado direito: Formulário -->
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <ScrollPane fitToWidth="true" prefHeight="800.0" prefWidth="480.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <content>
+                        <VBox spacing="15.0">
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                           <children>
+                              <Label text="Gerenciamento de Estoques">
+                                 <font>
+                                    <Font name="System Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              
+                              <!-- Botões de ação -->
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <Button fx:id="novoButton" mnemonicParsing="false" onAction="#onNovoClick" text="Novo" />
+                                    <Button fx:id="atualizarButton" mnemonicParsing="false" onAction="#onAtualizarClick" text="Atualizar" />
+                                    <Button fx:id="deletarButton" mnemonicParsing="false" onAction="#onDeletarClick" text="Deletar" />
+                                    <Button fx:id="confirmarButton" mnemonicParsing="false" onAction="#onConfirmarClick" text="Confirmar" />
+                                    <Button fx:id="cancelarButton" mnemonicParsing="false" onAction="#onCancelarClick" text="Cancelar" />
+                                 </children>
+                              </HBox>
+                              
+                              <!-- Texto de confirmação -->
+                              <Text fx:id="confirmacaoText" fill="#27ae60" strokeType="OUTSIDE" strokeWidth="0.0" visible="false" wrappingWidth="400.0" />
+                              
+                              <!-- Campos básicos -->
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Local*" GridPane.rowIndex="0" />
+                                    <TextField fx:id="localField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Separador -->
+                              <Separator />
+                              
+                              <!-- Seção de itens -->
+                              <Label text="Itens do Estoque:">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              
+                              <GridPane hgap="10.0" vgap="10.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label text="Itens no Estoque" GridPane.rowIndex="0" />
+                                    <ListView fx:id="itensListView" prefHeight="120.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                    
+                                    <Label text="Adicionar Item" GridPane.rowIndex="1" />
+                                    <ComboBox fx:id="itensComboBox" prefWidth="300.0" promptText="Selecione um item..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    
+                                    <Button fx:id="adicionarItemButton" onAction="#adicionarItem" prefWidth="120.0" text="Adicionar Item" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <Button fx:id="removerItemButton" onAction="#removerItem" prefWidth="120.0" text="Remover Item" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

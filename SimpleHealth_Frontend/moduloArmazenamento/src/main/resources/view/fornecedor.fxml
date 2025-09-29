@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="br.com.simplehealth.armazenamento.controller.FornecedorController">
+   <children>
+      <SplitPane dividerPositions="0.6" prefHeight="800.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <TableView fx:id="tabela" prefHeight="798.0" prefWidth="715.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                      <TableColumn fx:id="idColumn" prefWidth="50.0" text="ID" />
+                      <TableColumn fx:id="nomeColumn" prefWidth="200.0" text="Nome" />
+                      <TableColumn fx:id="cnpjColumn" prefWidth="150.0" text="CNPJ" />
+                      <TableColumn fx:id="contatoColumn" prefWidth="150.0" text="Contato" />
+                      <TableColumn fx:id="enderecoColumn" prefWidth="245.0" text="Endereço" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0">
+               <children>
+                  <VBox spacing="15.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                     <children>
+                        <Label text="Gerenciamento de Fornecedores">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        
+                        <!-- Botões de ação -->
+                        <HBox spacing="10.0">
+                           <children>
+                              <Button fx:id="novoButton" mnemonicParsing="false" onAction="#onNovoClick" text="Novo" />
+                              <Button fx:id="atualizarButton" mnemonicParsing="false" onAction="#onAtualizarClick" text="Atualizar" />
+                              <Button fx:id="deletarButton" mnemonicParsing="false" onAction="#onDeletarClick" text="Deletar" />
+                              <Button fx:id="confirmarButton" mnemonicParsing="false" onAction="#onConfirmarClick" text="Confirmar" />
+                              <Button fx:id="cancelarButton" mnemonicParsing="false" onAction="#onCancelarClick" text="Cancelar" />
+                           </children>
+                        </HBox>
+                        
+                        <!-- Texto de confirmação -->
+                        <Text fx:id="confirmacaoText" fill="BLUE" strokeType="OUTSIDE" strokeWidth="0.0" visible="false" wrappingWidth="360.0" />
+                        
+                        <!-- Separador -->
+                        <Separator />
+                        
+                        <!-- Campos do formulário -->
+                        <GridPane hgap="10.0" vgap="15.0">
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
+                              <ColumnConstraints hgrow="ALWAYS" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                           </rowConstraints>
+                           <children>
+                              <Label text="Nome*" GridPane.rowIndex="0" />
+                              <TextField fx:id="nomeField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                              
+                              <Label text="CNPJ*" GridPane.rowIndex="1" />
+                              <TextField fx:id="cnpjField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              
+                              <Label text="Contato*" GridPane.rowIndex="2" />
+                              <TextField fx:id="contatoField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              
+                              <Label text="Endereço" GridPane.rowIndex="3" />
+                              <TextArea fx:id="enderecoField" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                           </children>
+                        </GridPane>
+                        
+                        <!-- Nota sobre campos obrigatórios -->
+                        <Label text="* Campos obrigatórios" textFill="GRAY">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Label>
+                        
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

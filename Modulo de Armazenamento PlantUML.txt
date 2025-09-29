@@ -1,0 +1,64 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+title Modulo de Armazenamento
+
+class Pedido {
+  + id_pedido : long
+  + data_pedido : Date
+  + status : String
+  + NF : String
+}
+
+class Fornecedor {
+  + id_fornecedor : long
+  + nome : String
+  + cnpj : String
+  + contato : String
+  + endereco : String
+}
+
+class Estoque {
+  + id_estoque : long
+  + local : String
+  + getItem() : Item
+}
+
+class Item {
+  + id_item : long
+  + nome : String
+  + descricao : String
+  + tipo : String
+  + unidade_medida : String
+  + quantidade_total : int
+  + validade : Date
+  + lote : String
+}
+
+class Medicamento extends Item {
+  + prescricao : String
+  + composicao : String
+  + bula : String
+  + targa : String
+  + modo_consumo : String '(Ex: Injetavel, pastilha, via oral)'
+}
+
+class Hospitalar extends Item {
+  + descricao : String
+  + descartavel : boolean
+  + uso : String '(Ex: Geral, cirúrgico, curativo)'
+}
+
+class Alimento extends Item {
+  + alergenicos : String
+  + tipo_armazenamento : String '(Ex: Perecivel, não perecivel, refrigerado)'
+}
+
+' --- Relacionamentos ---
+
+Pedido "0..*" --> "1" Fornecedor
+Pedido "1" *-- "0..*" Item
+Estoque "1" -- "0..*" Item
+
+@enduml
