@@ -1,41 +1,25 @@
 package com.simplehealth.agendamento.domain.entity;
 
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Node("Procedimento")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "procedimento")
 public class Procedimento extends Agendamento {
 
-  @Property("descricaoProcedimento")
+  @Field("descricao_procedimento")
   private String descricaoProcedimento;
 
-  @Property("salaEquipamentoNecessario")
+  @Field("sala_equipamento_necessario")
   private String salaEquipamentoNecessario;
 
-  @Property("nivelRisco")
+  @Field("nivel_risco")
   private String nivelRisco;
-
-  public String getDescricaoProcedimento() {
-    return descricaoProcedimento;
-  }
-
-  public void setDescricaoProcedimento(String descricaoProcedimento) {
-    this.descricaoProcedimento = descricaoProcedimento;
-  }
-
-  public String getSalaEquipamentoNecessario() {
-    return salaEquipamentoNecessario;
-  }
-
-  public void setSalaEquipamentoNecessario(String salaEquipamentoNecessario) {
-    this.salaEquipamentoNecessario = salaEquipamentoNecessario;
-  }
-
-  public String getNivelRisco() {
-    return nivelRisco;
-  }
-
-  public void setNivelRisco(String nivelRisco) {
-    this.nivelRisco = nivelRisco;
-  }
 }

@@ -18,7 +18,7 @@ public class ConsultaService {
     return consultaRepository.save(consulta);
   }
 
-  public Optional<Consulta> buscarPorId(String id) {
-    return consultaRepository.findById(id);
+  public Optional<Consulta> buscarPorId(Long id) {
+    return consultaRepository.findById(String.valueOf(id));
   }
 }

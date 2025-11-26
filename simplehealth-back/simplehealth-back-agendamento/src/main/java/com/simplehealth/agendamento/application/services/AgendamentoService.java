@@ -5,35 +5,32 @@ import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import com.simplehealth.agendamento.infrastructure.repositories.AgendamentoRepository;
 import com.simplehealth.agendamento.infrastructure.repositories.BloqueioAgendaRepository;
 import java.time.LocalDateTime;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AgendamentoService {
 
   private final AgendamentoRepository agendamentoRepository;
   private final BloqueioAgendaRepository bloqueioRepository;
 
-  public AgendamentoService(
-      AgendamentoRepository agendamentoRepository,
-      BloqueioAgendaRepository bloqueioRepository
-  ) {
-    this.agendamentoRepository = agendamentoRepository;
-    this.bloqueioRepository = bloqueioRepository;
-  }
+  public void verificarDisponibilidade(String medicoCrm, LocalDateTime inicio, LocalDateTime fim) throws Exception {
 
-  public void verificarDisponibilidade(
-      String medicoCrm,
-      LocalDateTime inicio,
-      LocalDateTime fim
-  ) throws Exception {
-
-    if (!agendamentoRepository.verificarConflitoHorario(medicoCrm, inicio, fim).isEmpty()) {
+    if (!agendamentoRepository.findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+        medicoCrm, inicio, fim, StatusAgendamentoEnum.ATIVO).isEmpty()) {
       throw new Exception("Horário indisponível.");
     }
 
-    if (!bloqueioRepository.findBloqueiosConflitantes(medicoCrm, inicio, fim).isEmpty()) {
+    if (!bloqueioRepository.findByMedicoCrmAndAtivoTrueAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
+        medicoCrm, inicio, fim).isEmpty()) {
       throw new Exception("Horário bloqueado.");
     }
+  }
+
+  public List<Agendamento> buscarHistorico(String cpf) {
+    return agendamentoRepository.findByPacienteCpfOrderByDataHoraInicioDesc(cpf);
   }
 
   public void validarCancelamento(Agendamento agendamento, String motivo) {

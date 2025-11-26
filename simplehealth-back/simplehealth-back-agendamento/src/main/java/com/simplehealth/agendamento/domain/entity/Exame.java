@@ -1,41 +1,25 @@
 package com.simplehealth.agendamento.domain.entity;
 
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Property;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Node("Exame")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "exame")
 public class Exame extends Agendamento {
 
-  @Property("nomeExame")
+  @Field("nome_exame")
   private String nomeExame;
 
-  @Property("requerPreparo")
+  @Field("requer_preparo")
   private Boolean requerPreparo;
 
-  @Property("instrucoesPreparo")
+  @Field("instrucoes_preparo")
   private String instrucoesPreparo;
-
-  public String getNomeExame() {
-    return nomeExame;
-  }
-
-  public void setNomeExame(String nomeExame) {
-    this.nomeExame = nomeExame;
-  }
-
-  public Boolean getRequerPreparo() {
-    return requerPreparo;
-  }
-
-  public void setRequerPreparo(Boolean requerPreparo) {
-    this.requerPreparo = requerPreparo;
-  }
-
-  public String getInstrucoesPreparo() {
-    return instrucoesPreparo;
-  }
-
-  public void setInstrucoesPreparo(String instrucoesPreparo) {
-    this.instrucoesPreparo = instrucoesPreparo;
-  }
 }
