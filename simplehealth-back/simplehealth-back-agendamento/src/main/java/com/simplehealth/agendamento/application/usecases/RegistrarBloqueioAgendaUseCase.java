@@ -3,7 +3,7 @@ package com.simplehealth.agendamento.application.usecases;
 import com.simplehealth.agendamento.application.dtos.BloqueioAgendaDTO;
 import com.simplehealth.agendamento.application.services.BloqueioAgendaService;
 import com.simplehealth.agendamento.domain.entity.BloqueioAgenda;
-import com.simplehealth.agendamento.infrastructure.redis.RedisEventPublisher;
+import com.simplehealth.agendamento.infrastructure.redis.publishers.RedisEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service

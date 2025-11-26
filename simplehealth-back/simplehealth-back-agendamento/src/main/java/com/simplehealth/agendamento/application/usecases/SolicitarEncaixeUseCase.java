@@ -5,7 +5,7 @@ import com.simplehealth.agendamento.application.services.AgendamentoService;
 import com.simplehealth.agendamento.application.services.ConsultaService;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
-import com.simplehealth.agendamento.infrastructure.redis.RedisEventPublisher;
+import com.simplehealth.agendamento.infrastructure.redis.publishers.RedisEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service

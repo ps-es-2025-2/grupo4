@@ -1,4 +1,4 @@
-package com.simplehealth.agendamento.infrastructure.redis;
+package com.simplehealth.agendamento.infrastructure.redis.publishers;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
