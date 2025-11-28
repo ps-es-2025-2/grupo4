@@ -1,5 +1,6 @@
 package com.simplehealth.agendamento.infrastructure.repositories;
 
+import com.simplehealth.agendamento.domain.entity.Agendamento;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import java.time.LocalDateTime;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ConsultaRepository extends MongoRepository<Consulta, String> {
+
+  List<Consulta> findByPacienteCpfOrderByDataHoraInicioDesc(String pacienteCpf);
 
   List<Consulta> findByMedicoCrmAndDataHoraInicioGreaterThanEqualAndDataHoraFimLessThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataInicio, LocalDateTime dataFim, StatusAgendamentoEnum status

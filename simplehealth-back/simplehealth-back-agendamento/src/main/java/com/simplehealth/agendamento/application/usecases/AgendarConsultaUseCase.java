@@ -5,7 +5,6 @@ import com.simplehealth.agendamento.application.services.AgendamentoService;
 import com.simplehealth.agendamento.application.services.ConsultaService;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
-import com.simplehealth.agendamento.infrastructure.redis.publishers.RedisEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,16 +12,11 @@ public class AgendarConsultaUseCase {
 
   private final AgendamentoService agendamentoService;
   private final ConsultaService consultaService;
-  private final RedisEventPublisher redisPublisher;
 
   public AgendarConsultaUseCase(
-      AgendamentoService agendamentoService,
-      ConsultaService consultaService,
-      RedisEventPublisher redisPublisher
-  ) {
+      AgendamentoService agendamentoService, ConsultaService consultaService) {
     this.agendamentoService = agendamentoService;
     this.consultaService = consultaService;
-    this.redisPublisher = redisPublisher;
   }
 
   public Consulta execute(AgendarConsultaDTO dto) throws Exception {
@@ -45,8 +39,6 @@ public class AgendarConsultaUseCase {
     consulta.setStatus(StatusAgendamentoEnum.ATIVO);
 
     Consulta salva = consultaService.salvar(consulta);
-
-    redisPublisher.publicar("agendamento.criado", salva);
 
     return salva;
   }

@@ -3,7 +3,15 @@ package com.simplehealth.agendamento.application.dtos;
 import com.simplehealth.agendamento.domain.enums.ModalidadeEnum;
 import com.simplehealth.agendamento.domain.enums.TipoConsultaEnum;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class AgendarConsultaDTO {
 
   private LocalDateTime dataHoraInicio;
@@ -16,84 +24,4 @@ public class AgendarConsultaDTO {
   private String convenioNome;
   private String usuarioCriadorLogin;
   private String observacoes;
-
-  public LocalDateTime getDataHoraInicio() {
-    return dataHoraInicio;
-  }
-
-  public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-    this.dataHoraInicio = dataHoraInicio;
-  }
-
-  public LocalDateTime getDataHoraFim() {
-    return dataHoraFim;
-  }
-
-  public void setDataHoraFim(LocalDateTime dataHoraFim) {
-    this.dataHoraFim = dataHoraFim;
-  }
-
-  public ModalidadeEnum getModalidade() {
-    return modalidade;
-  }
-
-  public void setModalidade(ModalidadeEnum modalidade) {
-    this.modalidade = modalidade;
-  }
-
-  public String getEspecialidade() {
-    return especialidade;
-  }
-
-  public void setEspecialidade(String especialidade) {
-    this.especialidade = especialidade;
-  }
-
-  public TipoConsultaEnum getTipoConsulta() {
-    return tipoConsulta;
-  }
-
-  public void setTipoConsulta(TipoConsultaEnum tipoConsulta) {
-    this.tipoConsulta = tipoConsulta;
-  }
-
-  public String getPacienteCpf() {
-    return pacienteCpf;
-  }
-
-  public void setPacienteCpf(String pacienteCpf) {
-    this.pacienteCpf = pacienteCpf;
-  }
-
-  public String getMedicoCrm() {
-    return medicoCrm;
-  }
-
-  public void setMedicoCrm(String medicoCrm) {
-    this.medicoCrm = medicoCrm;
-  }
-
-  public String getConvenioNome() {
-    return convenioNome;
-  }
-
-  public void setConvenioNome(String convenioNome) {
-    this.convenioNome = convenioNome;
-  }
-
-  public String getUsuarioCriadorLogin() {
-    return usuarioCriadorLogin;
-  }
-
-  public void setUsuarioCriadorLogin(String usuarioCriadorLogin) {
-    this.usuarioCriadorLogin = usuarioCriadorLogin;
-  }
-
-  public String getObservacoes() {
-    return observacoes;
-  }
-
-  public void setObservacoes(String observacoes) {
-    this.observacoes = observacoes;
-  }
 }

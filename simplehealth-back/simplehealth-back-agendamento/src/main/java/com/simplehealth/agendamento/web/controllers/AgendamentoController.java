@@ -4,6 +4,7 @@ import com.simplehealth.agendamento.application.dtos.AgendarConsultaDTO;
 import com.simplehealth.agendamento.application.dtos.CancelarAgendamentoDTO;
 import com.simplehealth.agendamento.application.usecases.AgendarConsultaUseCase;
 import com.simplehealth.agendamento.application.usecases.CancelarAgendamentoUseCase;
+import com.simplehealth.agendamento.domain.entity.Consulta;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,12 +27,12 @@ public class AgendamentoController {
   }
 
   @PostMapping
-  public ResponseEntity<?> agendar(@RequestBody AgendarConsultaDTO dto) throws Exception {
+  public ResponseEntity<Consulta> agendar(@RequestBody AgendarConsultaDTO dto) throws Exception {
     return ResponseEntity.ok(agendarConsultaUseCase.execute(dto));
   }
 
   @PostMapping("/cancelar")
-  public ResponseEntity<?> cancelar(@RequestBody CancelarAgendamentoDTO dto) throws Exception {
+  public ResponseEntity<Consulta> cancelar(@RequestBody CancelarAgendamentoDTO dto) throws Exception {
     return ResponseEntity.ok(cancelarAgendamentoUseCase.execute(dto));
   }
 }

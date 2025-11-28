@@ -1,6 +1,10 @@
 package com.simplehealth.cadastro.web.subscribers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.simplehealth.cadastro.infrastructure.redis.subscribers.HistoricoResponseSubscriber;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -18,8 +22,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
   @Bean
-  public RedisConnectionFactory redisConnectionFactory() {
-    return new LettuceConnectionFactory();
+  public MessageListenerAdapter historicoResponseListener(HistoricoResponseSubscriber subscriber) {
+    return new MessageListenerAdapter(subscriber, "onMessage");
   }
 
   @Bean
@@ -34,27 +38,30 @@ public class RedisConfig {
   @Bean
   public RedisMessageListenerContainer redisContainer(
       RedisConnectionFactory connectionFactory,
-      HistoricoResponseSubscriber subscriber) {
+      MessageListenerAdapter historicoResponseListener) {
 
     RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(connectionFactory);
 
-    container.addMessageListener(subscriber,
-        new PatternTopic("historico.agendamento.response"));
-    container.addMessageListener(subscriber,
-        new PatternTopic("historico.procedimento.response"));
-    container.addMessageListener(subscriber,
-        new PatternTopic("historico.estoque.response"));
-    container.addMessageListener(subscriber,
-        new PatternTopic("historico.pagamento.response"));
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.agendamento.response"));
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.procedimento.response"));
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.estoque.response"));
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.pagamento.response"));
 
     return container;
   }
 
   @Bean
-  public MessageListenerAdapter historicoResponseListener(HistoricoResponseSubscriber subscriber) {
-    return new MessageListenerAdapter(subscriber);
+  public ConcurrentHashMap<String, Object> cache() {
+    return new ConcurrentHashMap<>();
   }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JavaTimeModule());
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    return mapper;
+  }
+
 }
-
-

@@ -1,11 +1,13 @@
 package com.simplehealth.agendamento.application.services;
 
 import com.simplehealth.agendamento.domain.entity.Agendamento;
+import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import com.simplehealth.agendamento.infrastructure.repositories.AgendamentoRepository;
 import com.simplehealth.agendamento.infrastructure.repositories.BloqueioAgendaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,14 @@ public class AgendamentoService {
 
   private final AgendamentoRepository agendamentoRepository;
   private final BloqueioAgendaRepository bloqueioRepository;
+
+  public Agendamento salvar(Agendamento agendamento) {
+    return agendamentoRepository.save(agendamento);
+  }
+
+  public Optional<Agendamento> buscarPorId(String id) {
+    return agendamentoRepository.findById(id);
+  }
 
   public void verificarDisponibilidade(String medicoCrm, LocalDateTime inicio, LocalDateTime fim) throws Exception {
 
