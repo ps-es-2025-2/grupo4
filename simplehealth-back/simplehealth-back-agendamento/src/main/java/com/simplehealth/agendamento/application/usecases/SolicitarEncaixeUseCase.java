@@ -16,7 +16,7 @@ public class SolicitarEncaixeUseCase {
   public SolicitarEncaixeUseCase(
       ConsultaService consultaService,
       AgendamentoService agendamentoService
-      ) {
+  ) {
     this.consultaService = consultaService;
     this.agendamentoService = agendamentoService;
   }

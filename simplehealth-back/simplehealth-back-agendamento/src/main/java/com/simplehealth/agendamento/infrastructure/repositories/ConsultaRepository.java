@@ -1,6 +1,5 @@
 package com.simplehealth.agendamento.infrastructure.repositories;
 
-import com.simplehealth.agendamento.domain.entity.Agendamento;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import java.time.LocalDateTime;

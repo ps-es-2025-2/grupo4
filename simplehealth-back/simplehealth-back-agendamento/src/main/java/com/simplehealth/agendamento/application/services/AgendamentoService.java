@@ -1,7 +1,6 @@
 package com.simplehealth.agendamento.application.services;
 
 import com.simplehealth.agendamento.domain.entity.Agendamento;
-import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import com.simplehealth.agendamento.infrastructure.repositories.AgendamentoRepository;
 import com.simplehealth.agendamento.infrastructure.repositories.BloqueioAgendaRepository;

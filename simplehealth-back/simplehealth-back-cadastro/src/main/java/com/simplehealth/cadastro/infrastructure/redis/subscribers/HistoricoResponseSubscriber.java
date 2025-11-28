@@ -1,9 +1,10 @@
 package com.simplehealth.cadastro.infrastructure.redis.subscribers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simplehealth.cadastro.domain.events.*;
-import jakarta.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
+import com.simplehealth.cadastro.domain.events.HistoricoAgendamentoResponseEvent;
+import com.simplehealth.cadastro.domain.events.HistoricoEstoqueResponseEvent;
+import com.simplehealth.cadastro.domain.events.HistoricoPagamentoResponseEvent;
+import com.simplehealth.cadastro.domain.events.HistoricoProcedimentoResponseEvent;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.Message;
@@ -26,11 +27,18 @@ public class HistoricoResponseSubscriber implements MessageListener {
 
       switch (channel) {
         case "historico.agendamento.response" -> {
-          HistoricoAgendamentoResponseEvent event = mapper.readValue(payload, HistoricoAgendamentoResponseEvent.class);
-          cache.put(event.getCorrelationId() + ":ag", event);
+          HistoricoAgendamentoResponseEvent responseEvent = mapper.readValue(
+              payload,
+              HistoricoAgendamentoResponseEvent.class
+          );
+
+          if (responseEvent != null && responseEvent.getCorrelationId() != null) {
+            cache.put(responseEvent.getCorrelationId() + ":ag", responseEvent);
+          }
         }
         case "historico.procedimento.response" -> {
-          HistoricoProcedimentoResponseEvent event = mapper.readValue(payload, HistoricoProcedimentoResponseEvent.class);
+          HistoricoProcedimentoResponseEvent event = mapper.readValue(payload,
+              HistoricoProcedimentoResponseEvent.class);
           cache.put(event.getCorrelationId() + ":proc", event);
         }
         case "historico.estoque.response" -> {
@@ -46,5 +54,4 @@ public class HistoricoResponseSubscriber implements MessageListener {
       throw new RuntimeException("Erro ao processar mensagem do Redis", e);
     }
   }
-
 }
