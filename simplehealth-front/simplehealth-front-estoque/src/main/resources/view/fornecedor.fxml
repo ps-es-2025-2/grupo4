@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="br.com.simplehealth.estoque.controller.FornecedorController">
+    
+    <!-- Header -->
+    <top>
+        <VBox style="-fx-background-color: #F57C00; -fx-padding: 15;">
+            <Label text="Gestão de Fornecedores" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Controle de fornecedores" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+        </VBox>
+    </top>
+    
+    <!-- Content -->
+    <center>
+        <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+            
+            <!-- Tabela -->
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #F57C00; -fx-text-fill: white;"/>
+                    <Label text="Total de fornecedores: " style="-fx-font-weight: bold;"/>
+                </HBox>
+                
+                <TableView fx:id="tableFornecedores" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colCnpj" text="CNPJ" prefWidth="150"/>
+                        <TableColumn fx:id="colContato" text="Contato" prefWidth="180"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Formulário -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <Label text="Formulário de Fornecedor" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F57C00;"/>
+                    
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="100" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        
+                        <Label text="Nome:*" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtNome" promptText="Nome do fornecedor" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="CNPJ:*" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtCnpj" promptText="00.000.000/0000-00" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <Label text="Contato:" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtContato" promptText="Telefone ou email" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        
+                        <Label text="Endereço:" GridPane.rowIndex="3"/>
+                        <TextArea fx:id="txtEndereco" promptText="Endereço completo" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    </GridPane>
+                    
+                    <!-- Botões -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Novo" onAction="#handleNovo" prefWidth="100" style="-fx-background-color: #388E3C; -fx-text-fill: white;"/>
+                        <Button text="Salvar" onAction="#handleSalvar" prefWidth="100" style="-fx-background-color: #1976D2; -fx-text-fill: white;"/>
+                        <Button text="Deletar" onAction="#handleDeletar" prefWidth="100" style="-fx-background-color: #D32F2F; -fx-text-fill: white;"/>
+                    </HBox>
+                    
+                    <Label text="* Campos obrigatórios" style="-fx-font-size: 10px; -fx-text-fill: gray;"/>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

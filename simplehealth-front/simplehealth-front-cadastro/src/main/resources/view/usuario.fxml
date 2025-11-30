@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="br.com.simplehealth.cadastro.controller.UsuarioController"
+            prefHeight="600.0" prefWidth="900.0">
+
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #2196F3; -fx-padding: 15;">
+            <Label text="Gerenciamento de Usuários" 
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Cadastro e controle de usuários do sistema" 
+                   style="-fx-font-size: 12px; -fx-text-fill: white;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+            <!-- Painel Esquerdo: Formulário -->
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Dados do Usuário" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                
+                <GridPane hgap="10" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="100" prefWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
+                    <!-- ID -->
+                    <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtId" editable="false" 
+                              GridPane.rowIndex="0" GridPane.columnIndex="1"
+                              style="-fx-background-color: #f0f0f0;"/>
+
+                    <!-- Nome Completo -->
+                    <Label text="Nome Completo:*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNomeCompleto" 
+                              GridPane.rowIndex="1" GridPane.columnIndex="1"
+                              promptText="Digite o nome completo"/>
+
+                    <!-- Login -->
+                    <Label text="Login:*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtLogin" 
+                              GridPane.rowIndex="2" GridPane.columnIndex="1"
+                              promptText="Digite o login"/>
+
+                    <!-- Senha -->
+                    <Label text="Senha:*" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <PasswordField fx:id="txtSenha" 
+                                  GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                  promptText="Digite a senha"/>
+
+                    <!-- Telefone -->
+                    <Label text="Telefone:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtTelefone" 
+                              GridPane.rowIndex="4" GridPane.columnIndex="1"
+                              promptText="(00) 00000-0000"/>
+
+                    <!-- Email -->
+                    <Label text="Email:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtEmail" 
+                              GridPane.rowIndex="5" GridPane.columnIndex="1"
+                              promptText="email@exemplo.com"/>
+
+                    <!-- Perfil -->
+                    <Label text="Perfil:*" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cbPerfil" 
+                             GridPane.rowIndex="6" GridPane.columnIndex="1"
+                             maxWidth="Infinity" promptText="Selecione o perfil"/>
+                </GridPane>
+
+                <Label text="* Campos obrigatórios" 
+                       style="-fx-font-size: 10px; -fx-text-fill: gray;"/>
+
+                <Separator/>
+
+                <!-- Botões de Ação -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="btnNovo" text="Novo" onAction="#handleNovo"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
+                            prefWidth="100"/>
+                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"
+                            prefWidth="100" disable="true"/>
+                    <Button fx:id="btnEditar" text="Editar" onAction="#handleEditar"
+                            style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
+                            prefWidth="100" disable="true"/>
+                    <Button fx:id="btnExcluir" text="Excluir" onAction="#handleExcluir"
+                            style="-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;"
+                            prefWidth="100" disable="true"/>
+                </HBox>
+            </VBox>
+
+            <!-- Painel Direito: Tabela -->
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Lista de Usuários" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                
+                <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="150"/>
+                        <TableColumn fx:id="colLogin" text="Login" prefWidth="100"/>
+                        <TableColumn fx:id="colTelefone" text="Telefone" prefWidth="120"/>
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="150"/>
+                        <TableColumn fx:id="colPerfil" text="Perfil" prefWidth="100"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Nenhum usuário cadastrado"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox style="-fx-background-color: #f5f5f5; -fx-padding: 10;" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Total de usuários:" style="-fx-font-weight: bold;"/>
+            <Label text="0" style="-fx-text-fill: #2196F3;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

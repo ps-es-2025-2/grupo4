@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Def_Cadastro" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collab_Cad">
+    <bpmn:participant id="Part_UC01" name="UC01: Cadastro de Paciente" processRef="Process_UC01" />
+    <bpmn:participant id="Part_UC08" name="UC08: Consulta Histórico" processRef="Process_UC08" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_UC01" isExecutable="false">
+    <bpmn:laneSet><bpmn:lane id="L_Sec_01" name="Secretária"><bpmn:flowNodeRef>Start_01</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_Form</bpmn:flowNodeRef><bpmn:flowNodeRef>Gate_Conv</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_Link</bpmn:flowNodeRef><bpmn:flowNodeRef>End_01_OK</bpmn:flowNodeRef></bpmn:lane><bpmn:lane id="L_Sys_01" name="Sistema"><bpmn:flowNodeRef>Serv_ValidCPF</bpmn:flowNodeRef><bpmn:flowNodeRef>Gate_CPF</bpmn:flowNodeRef><bpmn:flowNodeRef>Serv_Persist</bpmn:flowNodeRef><bpmn:flowNodeRef>End_01_Err</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="Start_01" name="Novo" /><bpmn:sequenceFlow id="F_01_1" sourceRef="Start_01" targetRef="Task_Form" />
+    <bpmn:userTask id="Task_Form" name="Dados Pessoais" /><bpmn:sequenceFlow id="F_01_2" sourceRef="Task_Form" targetRef="Serv_ValidCPF" />
+    <bpmn:serviceTask id="Serv_ValidCPF" name="Validar CPF" /><bpmn:sequenceFlow id="F_01_3" sourceRef="Serv_ValidCPF" targetRef="Gate_CPF" />
+    <bpmn:exclusiveGateway id="Gate_CPF" name="Único?" /><bpmn:sequenceFlow id="F_01_Y" name="Sim" sourceRef="Gate_CPF" targetRef="Gate_Conv" /><bpmn:sequenceFlow id="F_01_N" name="Não" sourceRef="Gate_CPF" targetRef="End_01_Err" />
+    <bpmn:exclusiveGateway id="Gate_Conv" name="Convênio?" /><bpmn:sequenceFlow id="F_01_CY" name="Sim" sourceRef="Gate_Conv" targetRef="Task_Link" /><bpmn:sequenceFlow id="F_01_CN" name="Não" sourceRef="Gate_Conv" targetRef="Serv_Persist" />
+    <bpmn:userTask id="Task_Link" name="Vincular Convênio" /><bpmn:sequenceFlow id="F_01_4" sourceRef="Task_Link" targetRef="Serv_Persist" />
+    <bpmn:serviceTask id="Serv_Persist" name="Salvar" /><bpmn:sequenceFlow id="F_01_5" sourceRef="Serv_Persist" targetRef="End_01_OK" />
+    <bpmn:endEvent id="End_01_OK" name="Sucesso" /><bpmn:endEvent id="End_01_Err" name="Duplicado" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_UC08" isExecutable="false">
+    <bpmn:laneSet><bpmn:lane id="L_U_08" name="Usuário"><bpmn:flowNodeRef>Start_08</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_Search</bpmn:flowNodeRef><bpmn:flowNodeRef>End_08</bpmn:flowNodeRef></bpmn:lane><bpmn:lane id="L_S_08" name="Sistema"><bpmn:flowNodeRef>Serv_Get</bpmn:flowNodeRef><bpmn:flowNodeRef>Gate_Found</bpmn:flowNodeRef><bpmn:flowNodeRef>Serv_Disp</bpmn:flowNodeRef><bpmn:flowNodeRef>End_08_404</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="Start_08" name="Consulta" /><bpmn:sequenceFlow id="F_08_1" sourceRef="Start_08" targetRef="Task_Search" />
+    <bpmn:userTask id="Task_Search" name="Pesquisar" /><bpmn:sequenceFlow id="F_08_2" sourceRef="Task_Search" targetRef="Serv_Get" />
+    <bpmn:serviceTask id="Serv_Get" name="Buscar DB" /><bpmn:sequenceFlow id="F_08_3" sourceRef="Serv_Get" targetRef="Gate_Found" />
+    <bpmn:exclusiveGateway id="Gate_Found" name="Achou?" /><bpmn:sequenceFlow id="F_08_Y" sourceRef="Gate_Found" targetRef="Serv_Disp" /><bpmn:sequenceFlow id="F_08_N" sourceRef="Gate_Found" targetRef="End_08_404" />
+    <bpmn:serviceTask id="Serv_Disp" name="Exibir" /><bpmn:sequenceFlow id="F_08_4" sourceRef="Serv_Disp" targetRef="End_08" />
+    <bpmn:endEvent id="End_08" name="Exibido" /><bpmn:endEvent id="End_08_404" name="404" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="Diagram_Cad">
+    <bpmndi:BPMNPlane id="Plane_Cad" bpmnElement="Collab_Cad">
+      <bpmndi:BPMNShape id="Part_01_di" bpmnElement="Part_UC01" isHorizontal="true"><dc:Bounds x="150" y="50" width="1000" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_Sec_01_di" bpmnElement="L_Sec_01" isHorizontal="true"><dc:Bounds x="180" y="50" width="970" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_Sys_01_di" bpmnElement="L_Sys_01" isHorizontal="true"><dc:Bounds x="180" y="175" width="970" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_01_di" bpmnElement="Start_01"><dc:Bounds x="230" y="90" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Form_di" bpmnElement="Task_Form"><dc:Bounds x="300" y="68" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Serv_ValidCPF_di" bpmnElement="Serv_ValidCPF"><dc:Bounds x="300" y="200" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_CPF_di" bpmnElement="Gate_CPF"><dc:Bounds x="450" y="215" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_01_Err_di" bpmnElement="End_01_Err"><dc:Bounds x="457" y="270" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_Conv_di" bpmnElement="Gate_Conv"><dc:Bounds x="550" y="95" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Link_di" bpmnElement="Task_Link"><dc:Bounds x="650" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Serv_Persist_di" bpmnElement="Serv_Persist"><dc:Bounds x="800" y="200" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_01_OK_di" bpmnElement="End_01_OK"><dc:Bounds x="950" y="90" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_01_1_di" bpmnElement="F_01_1"><di:waypoint x="266" y="108" /><di:waypoint x="300" y="108" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_2_di" bpmnElement="F_01_2"><di:waypoint x="350" y="148" /><di:waypoint x="350" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_3_di" bpmnElement="F_01_3"><di:waypoint x="400" y="240" /><di:waypoint x="450" y="240" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_Y_di" bpmnElement="F_01_Y"><di:waypoint x="500" y="240" /><di:waypoint x="525" y="240" /><di:waypoint x="525" y="120" /><di:waypoint x="550" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_CY_di" bpmnElement="F_01_CY"><di:waypoint x="600" y="120" /><di:waypoint x="650" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_CN_di" bpmnElement="F_01_CN"><di:waypoint x="575" y="145" /><di:waypoint x="575" y="240" /><di:waypoint x="800" y="240" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_4_di" bpmnElement="F_01_4"><di:waypoint x="750" y="120" /><di:waypoint x="775" y="120" /><di:waypoint x="775" y="240" /><di:waypoint x="800" y="240" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_01_5_di" bpmnElement="F_01_5"><di:waypoint x="900" y="240" /><di:waypoint x="925" y="240" /><di:waypoint x="925" y="108" /><di:waypoint x="950" y="108" /></bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Part_08_di" bpmnElement="Part_UC08" isHorizontal="true"><dc:Bounds x="150" y="320" width="800" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_U_08_di" bpmnElement="L_U_08" isHorizontal="true"><dc:Bounds x="180" y="320" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_S_08_di" bpmnElement="L_S_08" isHorizontal="true"><dc:Bounds x="180" y="445" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_08_di" bpmnElement="Start_08"><dc:Bounds x="230" y="360" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Search_di" bpmnElement="Task_Search"><dc:Bounds x="300" y="338" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Serv_Get_di" bpmnElement="Serv_Get"><dc:Bounds x="300" y="470" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_Found_di" bpmnElement="Gate_Found"><dc:Bounds x="450" y="485" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Serv_Disp_di" bpmnElement="Serv_Disp"><dc:Bounds x="550" y="470" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_08_di" bpmnElement="End_08"><dc:Bounds x="700" y="360" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_08_404_di" bpmnElement="End_08_404"><dc:Bounds x="457" y="540" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_08_1_di" bpmnElement="F_08_1"><di:waypoint x="266" y="378" /><di:waypoint x="300" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_08_2_di" bpmnElement="F_08_2"><di:waypoint x="350" y="418" /><di:waypoint x="350" y="470" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_08_3_di" bpmnElement="F_08_3"><di:waypoint x="400" y="510" /><di:waypoint x="450" y="510" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_08_Y_di" bpmnElement="F_08_Y"><di:waypoint x="500" y="510" /><di:waypoint x="550" y="510" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_08_4_di" bpmnElement="F_08_4"><di:waypoint x="650" y="510" /><di:waypoint x="675" y="510" /><di:waypoint x="675" y="378" /><di:waypoint x="700" y="378" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

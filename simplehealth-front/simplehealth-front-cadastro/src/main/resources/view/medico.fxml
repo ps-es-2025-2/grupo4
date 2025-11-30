@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="br.com.simplehealth.cadastro.controller.MedicoController">
+    
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #009688; -fx-padding: 15;">
+            <Label text="Cadastro de Médicos" 
+                   style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            <Label text="Gerencie os médicos do sistema" 
+                   style="-fx-font-size: 14px; -fx-text-fill: white;"/>
+        </VBox>
+    </top>
+    
+    <center>
+        <SplitPane dividerPositions="0.6" orientation="VERTICAL">
+            <!-- Tabela de Médicos -->
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Lista de Médicos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <TableView fx:id="tabelaMedicos" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colunaId" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="colunaNome" text="Nome Completo" prefWidth="250"/>
+                        <TableColumn fx:id="colunaCrm" text="CRM" prefWidth="120"/>
+                        <TableColumn fx:id="colunaEspecialidade" text="Especialidade" prefWidth="200"/>
+                        <TableColumn fx:id="colunaTelefone" text="Telefone" prefWidth="130"/>
+                        <TableColumn fx:id="colunaEmail" text="Email" prefWidth="200"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Formulário -->
+            <VBox spacing="15" style="-fx-padding: 15; -fx-background-color: #f5f5f5;">
+                <Label text="Dados do Médico" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                
+                <GridPane hgap="15" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+                    
+                    <Label text="Nome Completo:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="txtNome" promptText="Digite o nome completo" 
+                               GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+                    
+                    <Label text="CRM:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <TextField fx:id="txtCrm" promptText="CRM/UF" 
+                               GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    
+                    <Label text="Especialidade:" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                    <TextField fx:id="txtEspecialidade" promptText="Ex: Cardiologia" 
+                               GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                    
+                    <Label text="Telefone:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="txtTelefone" promptText="(00) 00000-0000" 
+                               GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    
+                    <Label text="Email:" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <TextField fx:id="txtEmail" promptText="email@exemplo.com" 
+                               GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+                </GridPane>
+                
+                <!-- Botões -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
+                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar" 
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnAtualizar" text="Atualizar" onAction="#handleAtualizar" disable="true"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" disable="true"
+                            style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnLimpar" text="Limpar" onAction="#handleLimpar" 
+                            style="-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>

@@ -1,0 +1,33 @@
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+### Docker Data Volumes ###
+mongo/data/
+postgres/data/
+redis/data/
+immudb/data/
+docker-volumes/
+
+### Additional Logs ###
+logs/

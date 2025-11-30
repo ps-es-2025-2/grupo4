@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
+            fx:controller="br.com.simplehealth.agendamento.controller.ConsultaController"
+            prefHeight="650.0" prefWidth="1150.0">
+    
+    <!-- Header -->
+    <top>
+        <VBox style="-fx-background-color: #2196F3; -fx-padding: 15;">
+            <Label text="Gerenciamento de Consultas" textFill="WHITE">
+                <font>
+                    <Font name="System Bold" size="20.0"/>
+                </font>
+            </Label>
+            <Label text="Cadastro e gerenciamento de consultas médicas" textFill="WHITE">
+                <font>
+                    <Font size="12.0"/>
+                </font>
+            </Label>
+        </VBox>
+    </top>
+
+    <!-- Content -->
+    <center>
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+            <!-- Table Section -->
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <Label text="Lista de Consultas" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                        <TableColumn fx:id="colPacienteCpf" text="CPF Paciente" prefWidth="130"/>
+                        <TableColumn fx:id="colMedicoCrm" text="CRM Médico" prefWidth="120"/>
+                        <TableColumn fx:id="colEspecialidade" text="Especialidade" prefWidth="150"/>
+                        <TableColumn fx:id="colDataHora" text="Data/Hora" prefWidth="150"/>
+                        <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Form Section -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <Label text="Dados da Consulta" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="120" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints minWidth="120" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- Row 0 -->
+                        <Label text="CPF Paciente:*" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtPacienteCpf" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="CRM Médico:*" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtMedicoCrm" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                        <!-- Row 1 -->
+                        <Label text="Especialidade:*" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtEspecialidade" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <Label text="Convênio:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtConvenioNome" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                        <!-- Row 2 -->
+                        <Label text="Tipo Consulta:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <ComboBox fx:id="cbTipoConsulta" GridPane.columnIndex="1" GridPane.rowIndex="2" maxWidth="Infinity"/>
+                        
+                        <Label text="Modalidade:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                        <ComboBox fx:id="cbModalidade" GridPane.columnIndex="3" GridPane.rowIndex="2" maxWidth="Infinity"/>
+
+                        <!-- Row 3 -->
+                        <Label text="Data/Hora Início:*" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <TextField fx:id="txtDataHoraInicio" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        
+                        <Label text="Data/Hora Fim:*" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+                        <TextField fx:id="txtDataHoraFim" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+
+                        <!-- Row 4 -->
+                        <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <ComboBox fx:id="cbStatus" GridPane.columnIndex="1" GridPane.rowIndex="4" maxWidth="Infinity"/>
+                        
+                        <Label text="Usuário Criador:" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+                        <TextField fx:id="txtUsuarioCriador" GridPane.columnIndex="3" GridPane.rowIndex="4"/>
+
+                        <!-- Row 5 -->
+                        <CheckBox fx:id="chkEncaixe" text="É Encaixe?" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
+                        
+                        <Label text="Motivo Encaixe:" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+                        <TextField fx:id="txtMotivoEncaixe" GridPane.columnIndex="3" GridPane.rowIndex="5"/>
+
+                        <!-- Row 6 -->
+                        <Label text="Observações:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+                        <TextArea fx:id="txtObservacoes" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3"/>
+                    </GridPane>
+
+                    <!-- Buttons -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="btnNovo" text="Novo" onAction="#handleNovo" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar" style="-fx-background-color: #2196F3; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar" style="-fx-background-color: #FF9800; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button fx:id="btnExcluir" text="Excluir" onAction="#handleExcluir" style="-fx-background-color: #F44336; -fx-text-fill: white;" prefWidth="100"/>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

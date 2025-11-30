@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="br.com.simplehealth.estoque.controller.EstoqueController">
+    
+    <!-- Header -->
+    <top>
+        <VBox style="-fx-background-color: #7B1FA2; -fx-padding: 15;">
+            <Label text="Gestão de Estoques" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Controle geral de estoques" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+        </VBox>
+    </top>
+    
+    <!-- Content -->
+    <center>
+        <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+            
+            <!-- Tabela -->
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #7B1FA2; -fx-text-fill: white;"/>
+                    <Label text="Total de estoques: " style="-fx-font-weight: bold;"/>
+                </HBox>
+                
+                <TableView fx:id="tableEstoques" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="colLocal" text="Local" prefWidth="250"/>
+                        <TableColumn fx:id="colItem" text="Item" prefWidth="250"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Formulário -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <Label text="Formulário de Estoque" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #7B1FA2;"/>
+                    
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="100" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        
+                        <Label text="Local:*" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtLocal" promptText="Localização do estoque" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="ID do Item:" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtIdItem" promptText="ID do item" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    </GridPane>
+                    
+                    <!-- Botões -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Novo" onAction="#handleNovo" prefWidth="100" style="-fx-background-color: #388E3C; -fx-text-fill: white;"/>
+                        <Button text="Salvar" onAction="#handleSalvar" prefWidth="100" style="-fx-background-color: #1976D2; -fx-text-fill: white;"/>
+                        <Button text="Deletar" onAction="#handleDeletar" prefWidth="100" style="-fx-background-color: #D32F2F; -fx-text-fill: white;"/>
+                    </HBox>
+                    
+                    <Label text="* Campos obrigatórios" style="-fx-font-size: 10px; -fx-text-fill: gray;"/>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

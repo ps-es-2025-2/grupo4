@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
+            fx:controller="br.com.simplehealth.agendamento.controller.BloqueioAgendaController"
+            prefHeight="650.0" prefWidth="1150.0">
+    
+    <top>
+        <VBox style="-fx-background-color: #7B1FA2; -fx-padding: 15;">
+            <Label text="Bloqueios de Agenda" textFill="WHITE">
+                <font><Font name="System Bold" size="20.0"/></font>
+            </Label>
+            <Label text="Gerenciamento de bloqueios de agenda médica" textFill="WHITE">
+                <font><Font size="12.0"/></font>
+            </Label>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <Label text="Lista de Bloqueios" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                        <TableColumn fx:id="colMedicoCrm" text="CRM Médico" prefWidth="120"/>
+                        <TableColumn fx:id="colMotivo" text="Motivo" prefWidth="250"/>
+                        <TableColumn fx:id="colDataInicio" text="Data Início" prefWidth="150"/>
+                        <TableColumn fx:id="colDataFim" text="Data Fim" prefWidth="150"/>
+                        <TableColumn fx:id="colAtivo" text="Ativo" prefWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <Label text="Dados do Bloqueio" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150" prefWidth="150"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints minWidth="150" prefWidth="150"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <Label text="CRM Médico:*" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtMedicoCrm" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="Antecedência Mínima (h):" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtAntecedenciaMinima" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                        <Label text="Data/Hora Início:*" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtDataInicio" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <Label text="Data/Hora Fim:*" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtDataFim" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                        <Label text="Usuário Criador:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtUsuarioCriador" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        
+                        <CheckBox fx:id="chkAtivo" text="Bloqueio Ativo?" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+
+                        <Label text="Motivo do Bloqueio:*" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <TextArea fx:id="txtMotivo" prefRowCount="4" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3"/>
+                    </GridPane>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button text="Novo" onAction="#handleNovo" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button text="Salvar" onAction="#handleSalvar" style="-fx-background-color: #7B1FA2; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button text="Cancelar" onAction="#handleCancelar" style="-fx-background-color: #FF9800; -fx-text-fill: white;" prefWidth="100"/>
+                    </HBox>
+                    
+                    <Label text="* Campos obrigatórios" style="-fx-font-size: 10px; -fx-text-fill: #666;"/>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

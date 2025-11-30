@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="br.com.simplehealth.estoque.controller.MedicamentoController">
+    
+    <!-- Header -->
+    <top>
+        <VBox style="-fx-background-color: #D32F2F; -fx-padding: 15;">
+            <Label text="Gestão de Medicamentos" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Controle de medicamentos do estoque hospitalar" style="-fx-text-fill: white; -fx-font-size: 12px;"/>
+        </VBox>
+    </top>
+    
+    <!-- Content -->
+    <center>
+        <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+            
+            <!-- Tabela -->
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #D32F2F; -fx-text-fill: white;"/>
+                    <Label text="Total de medicamentos: " style="-fx-font-weight: bold;"/>
+                </HBox>
+                
+                <TableView fx:id="tableMedicamentos" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="120"/>
+                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
+                        <TableColumn fx:id="colPrescricao" text="Prescrição" prefWidth="150"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Formulário -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="15" style="-fx-padding: 15;">
+                    <Label text="Formulário de Medicamento" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #D32F2F;"/>
+                    
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="100" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        
+                        <!-- Row 0 -->
+                        <Label text="Nome:*" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtNome" promptText="Nome do medicamento" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <!-- Row 1 -->
+                        <Label text="Tipo:" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtTipo" promptText="Ex: Analgésico, Antibiótico" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <!-- Row 2 -->
+                        <Label text="Unidade Medida:" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtUnidadeMedida" promptText="Ex: comprimido, ml" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        
+                        <!-- Row 3 -->
+                        <Label text="Quantidade:*" GridPane.rowIndex="3"/>
+                        <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        
+                        <!-- Row 4 -->
+                        <Label text="Lote:" GridPane.rowIndex="4"/>
+                        <TextField fx:id="txtLote" promptText="Número do lote" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                        
+                        <!-- Row 5 -->
+                        <Label text="NF:" GridPane.rowIndex="5"/>
+                        <TextField fx:id="txtNf" promptText="Nota fiscal" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                        
+                        <!-- Row 6 -->
+                        <Label text="Prescrição:" GridPane.rowIndex="6"/>
+                        <TextField fx:id="txtPrescricao" promptText="Tipo de prescrição" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                        
+                        <!-- Row 7 -->
+                        <Label text="Tarja:" GridPane.rowIndex="7"/>
+                        <TextField fx:id="txtTarga" promptText="Ex: Vermelha, Preta" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+                        
+                        <!-- Row 8 -->
+                        <Label text="Descrição:" GridPane.rowIndex="8"/>
+                        <TextArea fx:id="txtDescricao" promptText="Descrição detalhada" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                        
+                        <!-- Row 9 -->
+                        <Label text="Composição:" GridPane.rowIndex="9"/>
+                        <TextArea fx:id="txtComposicao" promptText="Composição química" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+                        
+                        <!-- Row 10 -->
+                        <Label text="Bula:" GridPane.rowIndex="10"/>
+                        <TextArea fx:id="txtBula" promptText="Informações da bula" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
+                        
+                        <!-- Row 11 -->
+                        <Label text="Modo de Consumo:" GridPane.rowIndex="11"/>
+                        <TextArea fx:id="txtModoConsumo" promptText="Como usar" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="11"/>
+                    </GridPane>
+                    
+                    <!-- Botões -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button text="Novo" onAction="#handleNovo" prefWidth="100" style="-fx-background-color: #388E3C; -fx-text-fill: white;"/>
+                        <Button text="Salvar" onAction="#handleSalvar" prefWidth="100" style="-fx-background-color: #1976D2; -fx-text-fill: white;"/>
+                        <Button text="Deletar" onAction="#handleDeletar" prefWidth="100" style="-fx-background-color: #D32F2F; -fx-text-fill: white;"/>
+                    </HBox>
+                    
+                    <Label text="* Campos obrigatórios" style="-fx-font-size: 10px; -fx-text-fill: gray;"/>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

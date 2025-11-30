@@ -1,0 +1,24 @@
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.DS_Store
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+
+### Docker Data Volumes ###
+mongo/data/
+postgres/data/
+redis/data/
+immudb/data/
+docker-volumes/
+
+### Additional Logs ###
+logs/

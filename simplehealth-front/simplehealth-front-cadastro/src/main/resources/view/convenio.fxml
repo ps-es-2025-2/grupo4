@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="br.com.simplehealth.cadastro.controller.ConvenioController">
+    
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #FF9800; -fx-padding: 15;">
+            <Label text="Cadastro de Convênios" 
+                   style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            <Label text="Gerencie os convênios do sistema" 
+                   style="-fx-font-size: 14px; -fx-text-fill: white;"/>
+        </VBox>
+    </top>
+    
+    <center>
+        <SplitPane dividerPositions="0.65" orientation="VERTICAL">
+            <!-- Tabela de Convênios -->
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Lista de Convênios" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <TableView fx:id="tabelaConvenios" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colunaId" text="ID" prefWidth="80"/>
+                        <TableColumn fx:id="colunaNome" text="Nome do Convênio" prefWidth="300"/>
+                        <TableColumn fx:id="colunaPlano" text="Plano" prefWidth="300"/>
+                        <TableColumn fx:id="colunaAtivo" text="Ativo" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            
+            <!-- Formulário -->
+            <VBox spacing="15" style="-fx-padding: 15; -fx-background-color: #f5f5f5;">
+                <Label text="Dados do Convênio" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                
+                <GridPane hgap="15" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="33"/>
+                    </columnConstraints>
+                    
+                    <Label text="Nome do Convênio:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="txtNome" promptText="Digite o nome do convênio" 
+                               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    
+                    <Label text="Plano:" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <TextField fx:id="txtPlano" promptText="Digite o nome do plano" 
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    
+                    <Label text="Status:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <CheckBox fx:id="chkAtivo" text="Convênio Ativo" selected="true"
+                              GridPane.columnIndex="2" GridPane.rowIndex="1" 
+                              style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                </GridPane>
+                
+                <!-- Botões -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
+                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar" 
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnAtualizar" text="Atualizar" onAction="#handleAtualizar" disable="true"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" disable="true"
+                            style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnLimpar" text="Limpar" onAction="#handleLimpar" 
+                            style="-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </center>
+</BorderPane>

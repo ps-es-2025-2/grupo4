@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Docker Data Volumes ###
+mongo/data/
+postgres/data/
+redis/data/
+immudb/data/
+docker-volumes/
+
+### Logs ###
+*.log
+logs/

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" 
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="br.com.simplehealth.cadastro.controller.LoginController"
+      alignment="CENTER" spacing="20" 
+      style="-fx-background-color: linear-gradient(to bottom, #1976D2, #2196F3);">
+    
+    <VBox alignment="CENTER" spacing="20" maxWidth="400" 
+          style="-fx-background-color: white; 
+                 -fx-padding: 50; 
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 3); 
+                 -fx-background-radius: 15;">
+        <VBox.margin>
+            <Insets top="100" bottom="100" left="50" right="50"/>
+        </VBox.margin>
+        
+        <!-- Cabeçalho -->
+        <VBox alignment="CENTER" spacing="8">
+            <Label text="SimpleHealth" 
+                   style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2196F3;"/>
+            <Label text="Sistema de Gestão Hospitalar" 
+                   style="-fx-font-size: 14px; -fx-text-fill: #666666;"/>
+        </VBox>
+        
+        <Separator prefWidth="350" style="-fx-padding: 10 0;"/>
+        
+        <!-- Formulário de Login -->
+        <VBox spacing="15" prefWidth="350">
+            <VBox spacing="5">
+                <Label text="Login:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <TextField fx:id="txtLogin" 
+                          promptText="Digite seu login" 
+                          prefWidth="350"
+                          style="-fx-font-size: 14px; -fx-padding: 10;"/>
+            </VBox>
+            
+            <VBox spacing="5">
+                <Label text="Senha:" style="-fx-font-weight: bold; -fx-font-size: 12px;"/>
+                <PasswordField fx:id="txtSenha" 
+                              promptText="Digite sua senha" 
+                              prefWidth="350"
+                              style="-fx-font-size: 14px; -fx-padding: 10;"/>
+            </VBox>
+        </VBox>
+        
+        <!-- Botão de Login -->
+        <Button text="Entrar" 
+                onAction="#handleLogin" 
+                prefWidth="350" 
+                prefHeight="45"
+                style="-fx-background-color: #2196F3; 
+                       -fx-text-fill: white; 
+                       -fx-font-weight: bold; 
+                       -fx-font-size: 16px;
+                       -fx-cursor: hand;"/>
+        
+        <!-- Link Esqueci Senha -->
+        <Hyperlink text="Esqueci minha senha" 
+                   onAction="#handleEsqueciSenha"
+                   style="-fx-text-fill: #2196F3; -fx-font-size: 12px;"/>
+        
+        <!-- Versão -->
+        <Label text="v1.0.0" 
+               style="-fx-text-fill: #999999; -fx-font-size: 10px;"/>
+    </VBox>
+</VBox>
