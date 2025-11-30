@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  immudb:
+    image: codenotary/immudb:1.10.0
+    container_name: immudb_local
+    environment:
+      IMMUDb_USER: immudb
+      IMMUDb_PASSWORD: immudb
+      IMMUDb_DATABASE: defaultdb
+    ports:
+      - "3322:3322"
+      - "8080:8080"
+      - "9497:9497"
+    volumes:
+      - immudb_data:/var/lib/immudb
+    restart: always
+
+  immugw:
+    image: codenotary/immugw:latest
+    container_name: immugw_local
+    command: ["--immudb-address=immudb", "--immudb-port=3322"]
+    environment:
+      IMMUDb_USER: immudb
+      IMMUDb_PASSWORD: immudb
+      IMMUDb_DATABASE: defaultdb
+    ports:
+      - "3323:3323"
+    depends_on:
+      - immudb
+    restart: always
+
+volumes:
+  immudb_data:
