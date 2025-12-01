@@ -16,10 +16,8 @@ public class EstoqueService {
   private final ItemRepository itemRepository;
 
   public void darBaixa(Long itemId, int quantidade) {
-    Item item = itemRepository.findById(itemId);
-    if (item == null) {
-      throw new IllegalArgumentException("Item não encontrado no estoque.");
-    }
+    Item item = itemRepository.findById(itemId)
+        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no estoque."));
     int qtdeAtual = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
     if (qtdeAtual < quantidade) {
       throw new IllegalArgumentException("Estoque insuficiente. Disponível: " + qtdeAtual);
@@ -29,40 +27,36 @@ public class EstoqueService {
   }
 
   public boolean verificarEstoqueCritico(Long itemId) {
-    Item item = itemRepository.findById(itemId);
-    if (item == null) {
-      return false;
-    }
-    return item.getQuantidadeTotal() <= 5;
+    return itemRepository.findById(itemId)
+        .map(i -> i.getQuantidadeTotal() != null && i.getQuantidadeTotal() <= 5)
+        .orElse(false);
   }
 
   public void solicitarReposicao(Long itemId, int quantidade) {
-    Item item = itemRepository.findById(itemId);
-    if (item == null) {
-      return;
-    }
-    int qtdeAtual = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
-    item.setQuantidadeTotal(qtdeAtual + quantidade);
-    itemRepository.save(item);
+    itemRepository.findById(itemId).ifPresent(i -> {
+      int qt = i.getQuantidadeTotal() != null ? i.getQuantidadeTotal() : 0;
+      i.setQuantidadeTotal(qt + quantidade);
+      itemRepository.save(i);
+    });
   }
 
   public void somarQuantidade(Long itemId, int quantidade) {
-    Item item = itemRepository.findById(itemId);
-    if (item == null) {
-      throw new IllegalArgumentException("Item não encontrado no estoque.");
-    }
-    int qtdeAtual = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
-    item.setQuantidadeTotal(qtdeAtual + quantidade);
+    Item item = itemRepository.findById(itemId)
+        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no estoque."));
+    int qt = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
+    item.setQuantidadeTotal(qt + quantidade);
     itemRepository.save(item);
   }
 
   public Estoque buscarEstoquePrincipal() {
-    List<Estoque> estoques = estoqueRepository.findAll();
-    if (estoques.isEmpty()) {
+    List<Estoque> list = estoqueRepository.findAll();
+    if (list.isEmpty()) {
       Estoque novo = new Estoque();
+      novo.setIdEstoque(System.currentTimeMillis());
       novo.setLocal("Estoque Principal");
       return estoqueRepository.save(novo);
     }
-    return estoques.get(0);
+    return list.get(0);
   }
+
 }

@@ -17,11 +17,8 @@ public class HospitalarService {
   }
 
   public Hospitalar buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Item hospitalar não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Item hospitalar não encontrado."));
   }
 
   public List<Hospitalar> listarTodos() {

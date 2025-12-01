@@ -2,45 +2,18 @@ version: '3.8'
 
 services:
 
-  immudb:
-    image: codenotary/immudb:1.10.0
-    container_name: immudb_local
+  cassandra:
+    image: cassandra:5
+    container_name: cassandra_local
     environment:
-      IMMUDb_USER: immudb
-      IMMUDb_PASSWORD: immudb
-      IMMUDb_DATABASE: defaultdb
+      CASSANDRA_USERNAME: simplehealth
+      CASSANDRA_PASSWORD: simplehealth
+      CASSANDRA_CLUSTER_NAME: simplehealth_db
     ports:
-      - "3322:3322"
-      - "8080:8080"
-      - "9497:9497"
+      - "9042:9042"
     volumes:
-      - immudb_data:/var/lib/immudb
-    restart: always
-
-  immugw:
-    image: codenotary/immugw:latest
-    container_name: immugw_local
-    command: ["--immudb-address=immudb", "--immudb-port=3322"]
-    environment:
-      IMMUDb_USER: immudb
-      IMMUDb_PASSWORD: immudb
-      IMMUDb_DATABASE: defaultdb
-    ports:
-      - "3323:3323"
-    depends_on:
-      - immudb
-    restart: always
-
-  redis:
-    image: redis:7
-    container_name: redis_estoque
-    ports:
-      - "6381:6379"
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_data:/data
+      - cassandra_data:/var/lib/cassandra
     restart: always
 
 volumes:
-  immudb_data:
-  redis_data:
+  cassandra_data:

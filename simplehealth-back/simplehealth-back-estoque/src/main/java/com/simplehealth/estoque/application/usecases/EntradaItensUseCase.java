@@ -46,7 +46,7 @@ public class EntradaItensUseCase {
         item.setNome(dto.getNome());
         item.setQuantidadeTotal(0);
         item.setValidade(dto.getValidade());
-        item.setEstoque(estoqueService.buscarEstoquePrincipal());
+        item.setIdEstoque(estoqueService.buscarEstoquePrincipal().getIdEstoque());
         itemService.salvar(item);
       }
 

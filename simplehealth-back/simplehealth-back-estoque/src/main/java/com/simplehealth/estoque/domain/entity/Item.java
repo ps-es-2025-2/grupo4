@@ -10,5 +10,5 @@ public class Item {
   private String nome;
   private Integer quantidadeTotal;
   private Date validade;
-  private Estoque estoque;
+  private Long idEstoque;
 }

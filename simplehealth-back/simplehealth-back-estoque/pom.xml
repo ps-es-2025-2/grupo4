@@ -63,9 +63,8 @@
     </dependency>
 
     <dependency>
-      <groupId>io.codenotary</groupId>
-      <artifactId>immudb4j</artifactId>
-      <version>1.0.1</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-cassandra</artifactId>
     </dependency>
 
   </dependencies>

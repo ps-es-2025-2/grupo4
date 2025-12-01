@@ -13,16 +13,12 @@ public class ItemService {
   private final ItemRepository repository;
 
   public Item salvar(Item item) {
-    repository.save(item);
-    return item;
+    return repository.save(item);
   }
 
   public Item buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Item não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado."));
   }
 
   public List<Item> listarTodos() {

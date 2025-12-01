@@ -17,11 +17,8 @@ public class FornecedorService {
   }
 
   public Fornecedor buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Fornecedor não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Fornecedor não encontrado."));
   }
 
   public List<Fornecedor> listarTodos() {

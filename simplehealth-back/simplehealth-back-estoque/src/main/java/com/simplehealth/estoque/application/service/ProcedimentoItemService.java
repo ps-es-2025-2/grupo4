@@ -17,11 +17,8 @@ public class ProcedimentoItemService {
   }
 
   public ProcedimentoItem buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("ProcedimentoItem não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("ProcedimentoItem não encontrado."));
   }
 
   public List<ProcedimentoItem> listarTodos() {

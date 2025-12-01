@@ -17,11 +17,8 @@ public class PedidoService {
   }
 
   public Pedido buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Pedido não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
   }
 
   public List<Pedido> listarTodos() {

@@ -17,18 +17,16 @@ public class AlimentoService {
   }
 
   public Alimento buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Item não encontrado no estoque.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no estoque."));
   }
 
-//  public List<Alimento> listarTodos() {
-//    return repository.findAll();
-//  }
-//
-//  public void deletar(Long id) {
-//    repository.deleteById(id);
-//  }
+  public List<Alimento> listarTodos() {
+    return repository.findAll();
+  }
+
+  public void deletar(Long id) {
+    repository.deleteById(id);
+  }
 }
+

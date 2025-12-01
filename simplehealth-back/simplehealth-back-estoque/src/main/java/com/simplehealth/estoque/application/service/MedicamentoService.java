@@ -17,11 +17,8 @@ public class MedicamentoService {
   }
 
   public Medicamento buscarPorId(Long id) {
-    var item = repository.findById(id);
-    if (item == null) {
-      throw new IllegalArgumentException("Medicamento não encontrado.");
-    }
-    return item;
+    return repository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Medicamento não encontrado."));
   }
 
   public List<Medicamento> listarTodos() {
