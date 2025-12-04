@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 
-public class HospitalarController extends AbstractCrudController {
+public class HospitalarController extends AbstractCrudController<Hospitalar> {
     
     private static final Logger logger = LoggerFactory.getLogger(HospitalarController.class);
     
@@ -34,9 +34,19 @@ public class HospitalarController extends AbstractCrudController {
     @FXML private CheckBox chkDescartabilidade;
     @FXML private TextField txtUso;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final HospitalarService service;
     private final ObservableList<Hospitalar> hospitalares;
-    private Hospitalar hospitalarSelecionado;
     
     public HospitalarController() {
         this.service = new HospitalarService();
@@ -45,10 +55,18 @@ public class HospitalarController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void setupTableColumns() {
@@ -64,8 +82,9 @@ public class HospitalarController extends AbstractCrudController {
         tableHospitalares.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    hospitalarSelecionado = newSelection;
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -104,76 +123,89 @@ public class HospitalarController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        hospitalarSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        txtNome.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um item para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+    
+    @FXML
+    private void handleAtualizar() {
+        handleAlterar();
+    }
+    
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) return;
-            
-            Hospitalar hospitalar = hospitalarSelecionado != null ? 
-                hospitalarSelecionado : new Hospitalar();
-            
-            hospitalar.setNome(txtNome.getText());
-            hospitalar.setDescricao(txtDescricao.getText());
-            hospitalar.setTipo(txtTipo.getText());
-            hospitalar.setUnidadeMedida(txtUnidadeMedida.getText());
-            hospitalar.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-            hospitalar.setValidade(LocalDateTime.now().plusYears(2));
-            hospitalar.setLote(txtLote.getText());
-            hospitalar.setNf(txtNf.getText());
-            hospitalar.setDescartabilidade(chkDescartabilidade.isSelected());
-            hospitalar.setUso(txtUso.getText());
-            
-            if (hospitalarSelecionado != null && hospitalarSelecionado.getIdItem() != null) {
-                service.atualizar(hospitalarSelecionado.getIdItem(), hospitalar);
-                mostrarSucesso("Sucesso", "Item hospitalar atualizado com sucesso!");
-            } else {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdItem());
+                mostrarSucesso("Sucesso", "Item hospitalar deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Hospitalar hospitalar = construirHospitalarDoFormulario();
                 service.salvar(hospitalar);
                 mostrarSucesso("Sucesso", "Item hospitalar cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Hospitalar hospitalar = construirHospitalarDoFormulario();
+                hospitalar.setIdItem(itemSelecionado.getIdItem());
+                service.atualizar(itemSelecionado.getIdItem(), hospitalar);
+                mostrarSucesso("Sucesso", "Item hospitalar atualizado com sucesso!");
             }
             
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh("Hospitalar");
             
         } catch (Exception e) {
-            logger.error("Erro ao salvar hospitalar", e);
+            logger.error("Erro ao processar operação", e);
             mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
         }
     }
     
     @FXML
-    private void handleDeletar() {
-        if (hospitalarSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um item hospitalar para deletar");
-            return;
-        }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o item: " + hospitalarSelecionado.getNome() + "?")) {
-            try {
-                service.deletar(hospitalarSelecionado.getIdItem());
-                mostrarSucesso("Sucesso", "Item hospitalar deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Hospitalar");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar hospitalar", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
     
     @FXML
-    private void handleAtualizar() {
-        carregarDados();
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+            mostrarErro("Erro", "Selecione um item hospitalar para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
     }
     
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
             return false;
@@ -199,6 +231,7 @@ public class HospitalarController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         txtNome.clear();
         txtDescricao.clear();
         txtTipo.clear();
@@ -208,7 +241,34 @@ public class HospitalarController extends AbstractCrudController {
         txtNf.clear();
         chkDescartabilidade.setSelected(false);
         txtUso.clear();
-        hospitalarSelecionado = null;
         tableHospitalares.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtDescricao.setDisable(!habilitar);
+        txtTipo.setDisable(!habilitar);
+        txtUnidadeMedida.setDisable(!habilitar);
+        txtQuantidade.setDisable(!habilitar);
+        txtLote.setDisable(!habilitar);
+        txtNf.setDisable(!habilitar);
+        chkDescartabilidade.setDisable(!habilitar);
+        txtUso.setDisable(!habilitar);
+    }
+    
+    private Hospitalar construirHospitalarDoFormulario() {
+        Hospitalar hospitalar = new Hospitalar();
+        hospitalar.setNome(txtNome.getText());
+        hospitalar.setDescricao(txtDescricao.getText());
+        hospitalar.setTipo(txtTipo.getText());
+        hospitalar.setUnidadeMedida(txtUnidadeMedida.getText());
+        hospitalar.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
+        hospitalar.setValidade(LocalDateTime.now().plusYears(2));
+        hospitalar.setLote(txtLote.getText());
+        hospitalar.setNf(txtNf.getText());
+        hospitalar.setDescartabilidade(chkDescartabilidade.isSelected());
+        hospitalar.setUso(txtUso.getText());
+        return hospitalar;
     }
 }

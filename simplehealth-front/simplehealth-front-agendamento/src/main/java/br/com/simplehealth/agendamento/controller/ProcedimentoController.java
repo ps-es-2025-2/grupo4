@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 /**
  * Controller para gerenciar a interface de Procedimentos.
  */
-public class ProcedimentoController implements RefreshManager.RefreshListener {
+public class ProcedimentoController extends AbstractCrudController<Procedimento> implements RefreshManager.RefreshListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcedimentoController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -45,12 +45,22 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
     @FXML private TextField txtBusca;
+    
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
     @FXML private Button btnBuscar;
 
     private final ProcedimentoService service;
     private final ObservableList<Procedimento> procedimentos;
     private final ObservableList<Procedimento> todosProcedimentos;
-    private Procedimento procedimentoSelecionado;
 
     public ProcedimentoController() {
         this.service = new ProcedimentoService();
@@ -60,6 +70,12 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         logger.info("Inicializando ProcedimentoController");
 
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -76,8 +92,9 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         tableView.setItems(procedimentos);
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                procedimentoSelecionado = newSelection;
+                itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
+                habilitarBotoesSelecao();
             }
         });
 
@@ -85,11 +102,15 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
         cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
 
+        // Configurar estado inicial dos botões
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
+
         RefreshManager.getInstance().addListener(this);
         carregarDados();
     }
 
-    private void carregarDados() {
+    protected void carregarDados() {
         Platform.runLater(() -> {
             try {
                 todosProcedimentos.clear();
@@ -121,8 +142,8 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         txtUsuarioCriador.setText(procedimento.getUsuarioCriadorLogin());
     }
 
-    private void limparFormulario() {
-        procedimentoSelecionado = null;
+    protected void limparFormulario() {
+        itemSelecionado = null;
         txtPacienteCpf.clear();
         txtMedicoCrm.clear();
         txtDescricaoProcedimento.clear();
@@ -139,43 +160,52 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
     }
 
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
         txtPacienteCpf.requestFocus();
     }
 
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um procedimento para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) {
+            if (!validarFormulario()) {
                 return;
             }
 
-            Procedimento procedimento = procedimentoSelecionado != null ? procedimentoSelecionado : new Procedimento();
-            
-            procedimento.setPacienteCpf(txtPacienteCpf.getText());
-            procedimento.setMedicoCrm(txtMedicoCrm.getText());
-            procedimento.setDescricaoProcedimento(txtDescricaoProcedimento.getText());
-            procedimento.setSalaEquipamentoNecessario(txtSalaEquipamento.getText());
-            procedimento.setConvenioNome(txtConvenioNome.getText());
-            procedimento.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
-            procedimento.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
-            procedimento.setNivelRisco(cbNivelRisco.getValue());
-            procedimento.setModalidade(cbModalidade.getValue());
-            procedimento.setStatus(cbStatus.getValue());
-            procedimento.setObservacoes(txtObservacoes.getText());
-            procedimento.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
-
-            if (procedimentoSelecionado != null && procedimentoSelecionado.getId() != null) {
-                service.atualizar(procedimentoSelecionado.getId(), procedimento);
-                mostrarSucesso("Procedimento atualizado com sucesso!");
-            } else {
+            if ("CRIAR".equals(modoEdicao)) {
+                Procedimento procedimento = construirProcedimentoDoFormulario();
                 service.criar(procedimento);
-                mostrarSucesso("Procedimento criado com sucesso!");
+                mostrarSucesso("Sucesso", "Procedimento criado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Procedimento procedimento = construirProcedimentoDoFormulario();
+                procedimento.setId(itemSelecionado.getId());
+                service.atualizar(itemSelecionado.getId(), procedimento);
+                mostrarSucesso("Sucesso", "Procedimento atualizado com sucesso!");
             }
 
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh();
 
         } catch (Exception e) {
@@ -187,12 +217,15 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
     @FXML
     private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @FXML
-    private void handleExcluir() {
-        if (procedimentoSelecionado == null || procedimentoSelecionado.getId() == null) {
-            mostrarAviso("Selecione um procedimento para excluir");
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getId() == null) {
+            mostrarErro("Erro", "Selecione um procedimento para excluir");
             return;
         }
 
@@ -200,19 +233,20 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacao.setTitle("Confirmar Exclusão");
         confirmacao.setHeaderText("Deseja realmente excluir este procedimento?");
-        confirmacao.setContentText("Paciente: " + procedimentoSelecionado.getPacienteCpf() + "\n" +
-                                  "Procedimento: " + procedimentoSelecionado.getDescricaoProcedimento() + "\n" +
-                                  "Data: " + (procedimentoSelecionado.getDataHoraInicio() != null ? 
-                                             procedimentoSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
+        confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
+                                  "Procedimento: " + itemSelecionado.getDescricaoProcedimento() + "\n" +
+                                  "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
+                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
                                   "Esta ação não pode ser desfeita.");
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    service.deletar(procedimentoSelecionado.getId());
-                    mostrarSucesso("Procedimento excluído com sucesso!");
+                    service.deletar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Procedimento excluído com sucesso!");
                     carregarDados();
                     limparFormulario();
+                    resetarBotoes();
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir procedimento", e);
@@ -222,7 +256,7 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         });
     }
 
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         // Validar CPF do Paciente
         if (!ValidationUtils.validarCampoObrigatorio(txtPacienteCpf.getText())) {
             mostrarAviso("CPF do paciente é obrigatório");
@@ -301,6 +335,40 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
         }
 
         return true;
+    }
+
+    protected void habilitarCampos(boolean habilitar) {
+        txtPacienteCpf.setDisable(!habilitar);
+        txtMedicoCrm.setDisable(!habilitar);
+        txtDescricaoProcedimento.setDisable(!habilitar);
+        txtSalaEquipamento.setDisable(!habilitar);
+        txtConvenioNome.setDisable(!habilitar);
+        txtDataHoraInicio.setDisable(!habilitar);
+        txtDataHoraFim.setDisable(!habilitar);
+        cbNivelRisco.setDisable(!habilitar);
+        cbModalidade.setDisable(!habilitar);
+        cbStatus.setDisable(!habilitar);
+        txtObservacoes.setDisable(!habilitar);
+        txtUsuarioCriador.setDisable(!habilitar);
+    }
+
+    private Procedimento construirProcedimentoDoFormulario() {
+        Procedimento procedimento = new Procedimento();
+        procedimento.setPacienteCpf(txtPacienteCpf.getText());
+        procedimento.setMedicoCrm(txtMedicoCrm.getText());
+        procedimento.setDescricaoProcedimento(txtDescricaoProcedimento.getText());
+        procedimento.setSalaEquipamentoNecessario(txtSalaEquipamento.getText());
+        procedimento.setConvenioNome(txtConvenioNome.getText());
+        procedimento.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
+        if (txtDataHoraFim.getText() != null && !txtDataHoraFim.getText().trim().isEmpty()) {
+            procedimento.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
+        }
+        procedimento.setNivelRisco(cbNivelRisco.getValue());
+        procedimento.setModalidade(cbModalidade.getValue());
+        procedimento.setStatus(cbStatus.getValue());
+        procedimento.setObservacoes(txtObservacoes.getText());
+        procedimento.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
+        return procedimento;
     }
 
     @FXML
@@ -388,22 +456,6 @@ public class ProcedimentoController implements RefreshManager.RefreshListener {
     @Override
     public void onRefresh() {
         carregarDados();
-    }
-
-    private void mostrarSucesso(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Sucesso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
-    }
-
-    private void mostrarErro(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
     }
 
     private void mostrarAviso(String mensagem) {

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 
-public class AlimentoController extends AbstractCrudController {
+public class AlimentoController extends AbstractCrudController<Alimento> {
     
     private static final Logger logger = LoggerFactory.getLogger(AlimentoController.class);
     
@@ -35,9 +35,19 @@ public class AlimentoController extends AbstractCrudController {
     @FXML private TextArea txtAlergenicos;
     @FXML private ComboBox<String> cbTipoArmazenamento;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final AlimentoService service;
     private final ObservableList<Alimento> alimentos;
-    private Alimento alimentoSelecionado;
     
     public AlimentoController() {
         this.service = new AlimentoService();
@@ -46,11 +56,19 @@ public class AlimentoController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         setupComboBox();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void setupTableColumns() {
@@ -77,8 +95,9 @@ public class AlimentoController extends AbstractCrudController {
         tableAlimentos.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    alimentoSelecionado = newSelection;
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -117,40 +136,62 @@ public class AlimentoController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        alimentoSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        txtNome.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um alimento para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+    
+    @FXML
+    private void handleAtualizar() {
+        handleAlterar();
+    }
+    
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) return;
-            
-            Alimento alimento = alimentoSelecionado != null ? 
-                alimentoSelecionado : new Alimento();
-            
-            alimento.setNome(txtNome.getText());
-            alimento.setDescricao(txtDescricao.getText());
-            alimento.setTipo(txtTipo.getText());
-            alimento.setUnidadeMedida(txtUnidadeMedida.getText());
-            alimento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-            alimento.setValidade(LocalDateTime.now().plusMonths(6)); // Default 6 meses
-            alimento.setLote(txtLote.getText());
-            alimento.setNf(txtNf.getText());
-            alimento.setAlergenicos(txtAlergenicos.getText());
-            alimento.setTipoArmazenamento(cbTipoArmazenamento.getValue());
-            
-            if (alimentoSelecionado != null && alimentoSelecionado.getIdItem() != null) {
-                service.atualizar(alimentoSelecionado.getIdItem(), alimento);
-                mostrarSucesso("Sucesso", "Alimento atualizado com sucesso!");
-            } else {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdItem());
+                mostrarSucesso("Sucesso", "Alimento deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Alimento alimento = construirAlimentoDoFormulario();
                 service.salvar(alimento);
                 mostrarSucesso("Sucesso", "Alimento cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Alimento alimento = construirAlimentoDoFormulario();
+                alimento.setIdItem(itemSelecionado.getIdItem());
+                service.atualizar(itemSelecionado.getIdItem(), alimento);
+                mostrarSucesso("Sucesso", "Alimento atualizado com sucesso!");
             }
             
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh("Alimento");
             
         } catch (Exception e) {
@@ -160,33 +201,24 @@ public class AlimentoController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleDeletar() {
-        if (alimentoSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um alimento para deletar");
-            return;
-        }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o alimento: " + alimentoSelecionado.getNome() + "?")) {
-            try {
-                service.deletar(alimentoSelecionado.getIdItem());
-                mostrarSucesso("Sucesso", "Alimento deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Alimento");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar alimento", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
     
     @FXML
-    private void handleAtualizar() {
-        carregarDados();
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+            mostrarErro("Erro", "Selecione um alimento para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
     }
     
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         // Validar nome obrigatório
         if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
@@ -224,6 +256,7 @@ public class AlimentoController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         txtNome.clear();
         txtDescricao.clear();
         txtTipo.clear();
@@ -233,7 +266,34 @@ public class AlimentoController extends AbstractCrudController {
         txtNf.clear();
         txtAlergenicos.clear();
         cbTipoArmazenamento.setValue(null);
-        alimentoSelecionado = null;
         tableAlimentos.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtDescricao.setDisable(!habilitar);
+        txtTipo.setDisable(!habilitar);
+        txtUnidadeMedida.setDisable(!habilitar);
+        txtQuantidade.setDisable(!habilitar);
+        txtLote.setDisable(!habilitar);
+        txtNf.setDisable(!habilitar);
+        txtAlergenicos.setDisable(!habilitar);
+        cbTipoArmazenamento.setDisable(!habilitar);
+    }
+    
+    private Alimento construirAlimentoDoFormulario() {
+        Alimento alimento = new Alimento();
+        alimento.setNome(txtNome.getText());
+        alimento.setDescricao(txtDescricao.getText());
+        alimento.setTipo(txtTipo.getText());
+        alimento.setUnidadeMedida(txtUnidadeMedida.getText());
+        alimento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
+        alimento.setValidade(LocalDateTime.now().plusMonths(6)); // Default 6 meses
+        alimento.setLote(txtLote.getText());
+        alimento.setNf(txtNf.getText());
+        alimento.setAlergenicos(txtAlergenicos.getText());
+        alimento.setTipoArmazenamento(cbTipoArmazenamento.getValue());
+        return alimento;
     }
 }

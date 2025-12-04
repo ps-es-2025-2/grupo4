@@ -36,7 +36,7 @@ build/
 mongo/data/
 postgres/data/
 redis/data/
-immudb/data/
+cassandra/data/
 docker-volumes/
 
 ### Logs ###

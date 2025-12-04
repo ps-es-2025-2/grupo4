@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 /**
  * Controller para gerenciar a interface de Bloqueios de Agenda.
  */
-public class BloqueioAgendaController implements RefreshManager.RefreshListener {
+public class BloqueioAgendaController extends AbstractCrudController<BloqueioAgenda> implements RefreshManager.RefreshListener {
 
     private static final Logger logger = LoggerFactory.getLogger(BloqueioAgendaController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -41,9 +41,19 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
     @FXML private TextField txtUsuarioCriador;
     @FXML private CheckBox chkAtivo;
 
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+
     private final BloqueioAgendaService service;
     private final ObservableList<BloqueioAgenda> bloqueios;
-    private BloqueioAgenda bloqueioSelecionado;
 
     public BloqueioAgendaController() {
         this.service = new BloqueioAgendaService();
@@ -52,6 +62,12 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         logger.info("Inicializando BloqueioAgendaController");
 
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -74,16 +90,21 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
         tableView.setItems(bloqueios);
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                bloqueioSelecionado = newSelection;
+                itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
+                habilitarBotoesSelecao();
             }
         });
+
+        // Configurar estado inicial dos botões
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
 
         RefreshManager.getInstance().addListener(this);
         carregarDados();
     }
 
-    private void carregarDados() {
+    protected void carregarDados() {
         Platform.runLater(() -> {
             try {
                 bloqueios.clear();
@@ -109,8 +130,8 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
         chkAtivo.setSelected(bloqueio.getAtivo() != null && bloqueio.getAtivo());
     }
 
-    private void limparFormulario() {
-        bloqueioSelecionado = null;
+    protected void limparFormulario() {
+        itemSelecionado = null;
         txtMedicoCrm.clear();
         txtDataInicio.clear();
         txtDataFim.clear();
@@ -122,38 +143,47 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
     }
 
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
         txtMedicoCrm.requestFocus();
     }
 
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um bloqueio para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) {
+            if (!validarFormulario()) {
                 return;
             }
 
-            BloqueioAgenda bloqueio = new BloqueioAgenda();
-            
-            bloqueio.setMedicoCrm(txtMedicoCrm.getText());
-            bloqueio.setDataInicio(LocalDateTime.parse(txtDataInicio.getText(), DATE_TIME_FORMATTER));
-            bloqueio.setDataFim(LocalDateTime.parse(txtDataFim.getText(), DATE_TIME_FORMATTER));
-            
-            if (!txtAntecedenciaMinima.getText().trim().isEmpty()) {
-                bloqueio.setAntecedenciaMinima(Integer.parseInt(txtAntecedenciaMinima.getText()));
+            if ("CRIAR".equals(modoEdicao)) {
+                BloqueioAgenda bloqueio = construirBloqueioAgendaDoFormulario();
+                bloqueio.setDataCriacao(LocalDateTime.now());
+                service.criar(bloqueio);
+                mostrarSucesso("Sucesso", "Bloqueio criado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                mostrarErro("Erro", "Alteração de bloqueios ainda não implementada no serviço.");
+                return;
             }
-            
-            bloqueio.setMotivo(txtMotivo.getText());
-            bloqueio.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
-            bloqueio.setAtivo(chkAtivo.isSelected());
-            bloqueio.setDataCriacao(LocalDateTime.now());
-
-            service.criar(bloqueio);
-            mostrarSucesso("Bloqueio criado com sucesso!");
 
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh();
 
         } catch (Exception e) {
@@ -165,9 +195,22 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
     @FXML
     private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
-    private boolean validarCampos() {
+    @FXML
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getId() == null) {
+            mostrarErro("Erro", "Selecione um bloqueio para excluir");
+            return;
+        }
+
+        mostrarErro("Erro", "Exclusão de bloqueios ainda não implementada no serviço.");
+    }
+
+    protected boolean validarFormulario() {
         // Validar CRM do Médico
         if (!ValidationUtils.validarCampoObrigatorio(txtMedicoCrm.getText())) {
             mostrarAviso("CRM do médico é obrigatório");
@@ -229,25 +272,35 @@ public class BloqueioAgendaController implements RefreshManager.RefreshListener 
         return true;
     }
 
+    protected void habilitarCampos(boolean habilitar) {
+        txtMedicoCrm.setDisable(!habilitar);
+        txtDataInicio.setDisable(!habilitar);
+        txtDataFim.setDisable(!habilitar);
+        txtAntecedenciaMinima.setDisable(!habilitar);
+        txtMotivo.setDisable(!habilitar);
+        txtUsuarioCriador.setDisable(!habilitar);
+        chkAtivo.setDisable(!habilitar);
+    }
+
+    private BloqueioAgenda construirBloqueioAgendaDoFormulario() {
+        BloqueioAgenda bloqueio = new BloqueioAgenda();
+        bloqueio.setMedicoCrm(txtMedicoCrm.getText());
+        bloqueio.setDataInicio(LocalDateTime.parse(txtDataInicio.getText(), DATE_TIME_FORMATTER));
+        bloqueio.setDataFim(LocalDateTime.parse(txtDataFim.getText(), DATE_TIME_FORMATTER));
+        
+        if (!txtAntecedenciaMinima.getText().trim().isEmpty()) {
+            bloqueio.setAntecedenciaMinima(Integer.parseInt(txtAntecedenciaMinima.getText()));
+        }
+        
+        bloqueio.setMotivo(txtMotivo.getText());
+        bloqueio.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
+        bloqueio.setAtivo(chkAtivo.isSelected());
+        return bloqueio;
+    }
+
     @Override
     public void onRefresh() {
         carregarDados();
-    }
-
-    private void mostrarSucesso(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Sucesso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
-    }
-
-    private void mostrarErro(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
     }
 
     private void mostrarAviso(String mensagem) {

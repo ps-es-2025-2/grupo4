@@ -13,7 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 /**
  * Controller para o CRUD de Médicos.
  */
-public class MedicoController extends AbstractCrudController {
+public class MedicoController extends AbstractCrudController<Medico> {
 
     @FXML
     private TableView<Medico> tabelaMedicos;
@@ -40,24 +40,53 @@ public class MedicoController extends AbstractCrudController {
     private TextField txtTelefone;
     @FXML
     private TextField txtEmail;
+    
+    // Botões - Precisam ser redeclarados para injeção do JavaFX
     @FXML
-    private Button btnSalvar;
+    private Button btnCriar;
     @FXML
-    private Button btnAtualizar;
+    private Button btnAlterar;
     @FXML
     private Button btnDeletar;
     @FXML
-    private Button btnLimpar;
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
 
     private final MedicoService medicoService = new MedicoService();
     private final ObservableList<Medico> listaMedicos = FXCollections.observableArrayList();
-    private Medico medicoSelecionado;
 
     @FXML
     public void initialize() {
+        // Atribuir aos campos herdados do AbstractCrudController
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
         configurarTabela();
         carregarDados();
         configurarListeners();
+        
+        // Debug: Verificar se os botões foram injetados
+        System.out.println("=== DEBUG MedicoController ===");
+        System.out.println("btnCriar: " + (btnCriar != null));
+        System.out.println("btnAlterar: " + (btnAlterar != null));
+        System.out.println("btnDeletar: " + (btnDeletar != null));
+        System.out.println("btnConfirmar: " + (btnConfirmar != null));
+        System.out.println("btnCancelar: " + (btnCancelar != null));
+        
+        configurarCoresBotoes();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
+        
+        // Debug: Verificar estado dos botões após configuração
+        if (btnCriar != null) System.out.println("btnCriar disabled: " + btnCriar.isDisabled());
+        if (btnAlterar != null) System.out.println("btnAlterar disabled: " + btnAlterar.isDisabled());
+        if (btnDeletar != null) System.out.println("btnDeletar disabled: " + btnDeletar.isDisabled());
+        if (btnConfirmar != null) System.out.println("btnConfirmar disabled: " + btnConfirmar.isDisabled());
+        if (btnCancelar != null) System.out.println("btnCancelar disabled: " + btnCancelar.isDisabled());
+        System.out.println("==============================");
         
         RefreshManager.addRefreshListener(this::carregarDados);
     }
@@ -77,13 +106,9 @@ public class MedicoController extends AbstractCrudController {
         tabelaMedicos.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    medicoSelecionado = newValue;
+                    itemSelecionado = newValue;
                     preencherFormulario(newValue);
-                    btnAtualizar.setDisable(false);
-                    btnDeletar.setDisable(false);
-                } else {
-                    btnAtualizar.setDisable(true);
-                    btnDeletar.setDisable(true);
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -109,78 +134,44 @@ public class MedicoController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleSalvar() {
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            Medico novoMedico = new Medico();
-            novoMedico.setNomeCompleto(txtNome.getText().trim());
-            novoMedico.setCrm(txtCrm.getText().trim());
-            novoMedico.setEspecialidade(txtEspecialidade.getText().trim());
-            novoMedico.setTelefone(txtTelefone.getText().trim());
-            novoMedico.setEmail(txtEmail.getText().trim());
-
-            medicoService.criar(novoMedico);
-            mostrarSucesso("Sucesso", "Médico cadastrado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao criar médico", e);
-            mostrarErro("Erro", "Não foi possível criar o médico: " + e.getMessage());
-        }
+    private void handleCriar() {
+        limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
     }
 
     @FXML
-    private void handleAtualizar() {
-        if (medicoSelecionado == null) {
-            mostrarErro("Erro", "Selecione um médico para atualizar.");
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um médico para alterar.");
             return;
         }
-
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            Medico medicoAtualizado = new Medico();
-            medicoAtualizado.setNomeCompleto(txtNome.getText().trim());
-            medicoAtualizado.setCrm(txtCrm.getText().trim());
-            medicoAtualizado.setEspecialidade(txtEspecialidade.getText().trim());
-            medicoAtualizado.setTelefone(txtTelefone.getText().trim());
-            medicoAtualizado.setEmail(txtEmail.getText().trim());
-
-            medicoService.atualizar(medicoSelecionado.getId(), medicoAtualizado);
-            mostrarSucesso("Sucesso", "Médico atualizado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao atualizar médico", e);
-            mostrarErro("Erro", "Não foi possível atualizar o médico: " + e.getMessage());
-        }
+        
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
     }
 
     @FXML
     private void handleDeletar() {
-        if (medicoSelecionado == null) {
+        if (itemSelecionado == null) {
             mostrarErro("Erro", "Selecione um médico para deletar.");
             return;
         }
 
         if (!mostrarConfirmacao("Confirmar", "Deseja realmente deletar o médico " + 
-                medicoSelecionado.getNomeCompleto() + "?")) {
+                itemSelecionado.getNomeCompleto() + "?")) {
             return;
         }
 
         try {
-            medicoService.deletar(medicoSelecionado.getId());
+            medicoService.deletar(itemSelecionado.getId());
             mostrarSucesso("Sucesso", "Médico deletado com sucesso!");
             limparFormulario();
             carregarDados();
             RefreshManager.notifyRefresh();
+            resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar médico", e);
             mostrarErro("Erro", "Não foi possível deletar o médico: " + e.getMessage());
@@ -188,8 +179,40 @@ public class MedicoController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleLimpar() {
+    private void handleConfirmar() {
+        if (!validarFormulario()) {
+            return;
+        }
+
+        try {
+            Medico medico = construirMedicoDoFormulario();
+            
+            if ("CRIAR".equals(modoEdicao)) {
+                medicoService.criar(medico);
+                mostrarSucesso("Sucesso", "Médico cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                medicoService.atualizar(itemSelecionado.getId(), medico);
+                mostrarSucesso("Sucesso", "Médico atualizado com sucesso!");
+            }
+
+            limparFormulario();
+            carregarDados();
+            RefreshManager.notifyRefresh();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
+        } catch (Exception e) {
+            logger.error("Erro ao confirmar operação", e);
+            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @Override
@@ -199,13 +222,21 @@ public class MedicoController extends AbstractCrudController {
         txtEspecialidade.clear();
         txtTelefone.clear();
         txtEmail.clear();
-        medicoSelecionado = null;
+        itemSelecionado = null;
         tabelaMedicos.getSelectionModel().clearSelection();
-        btnAtualizar.setDisable(true);
-        btnDeletar.setDisable(true);
     }
 
-    private boolean validarFormulario() {
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtCrm.setDisable(!habilitar);
+        txtEspecialidade.setDisable(!habilitar);
+        txtTelefone.setDisable(!habilitar);
+        txtEmail.setDisable(!habilitar);
+    }
+
+    @Override
+    protected boolean validarFormulario() {
         if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText())) {
             mostrarErro("Validação", "O campo Nome é obrigatório.");
             return false;
@@ -234,5 +265,15 @@ public class MedicoController extends AbstractCrudController {
             return false;
         }
         return true;
+    }
+
+    private Medico construirMedicoDoFormulario() {
+        Medico medico = new Medico();
+        medico.setNomeCompleto(txtNome.getText().trim());
+        medico.setCrm(txtCrm.getText().trim());
+        medico.setEspecialidade(txtEspecialidade.getText().trim());
+        medico.setTelefone(txtTelefone.getText().trim());
+        medico.setEmail(txtEmail.getText().trim());
+        return medico;
     }
 }

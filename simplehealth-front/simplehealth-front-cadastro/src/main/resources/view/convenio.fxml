@@ -8,7 +8,7 @@
             fx:controller="br.com.simplehealth.cadastro.controller.ConvenioController">
     
     <top>
-        <VBox spacing="10" style="-fx-background-color: #FF9800; -fx-padding: 15;">
+        <VBox spacing="10" style="-fx-background-color: #2196F3; -fx-padding: 15;">
             <Label text="Cadastro de Convênios" 
                    style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"/>
             <Label text="Gerencie os convênios do sistema" 
@@ -17,11 +17,11 @@
     </top>
     
     <center>
-        <SplitPane dividerPositions="0.65" orientation="VERTICAL">
+        <SplitPane dividerPositions="0.4" orientation="HORIZONTAL">
             <!-- Tabela de Convênios -->
-            <VBox spacing="10" style="-fx-padding: 15;">
+            <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <Label text="Lista de Convênios" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                <TableView fx:id="tabelaConvenios" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tabelaConvenios" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
                         <TableColumn fx:id="colunaId" text="ID" prefWidth="80"/>
                         <TableColumn fx:id="colunaNome" text="Nome do Convênio" prefWidth="300"/>
@@ -56,16 +56,18 @@
                               style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
                 </GridPane>
                 
-                <!-- Botões -->
+                <!-- Botões de Ação -->
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
-                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar" 
+                    <Button fx:id="btnCriar" text="Criar" onAction="#handleCriar" 
                             style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnAtualizar" text="Atualizar" onAction="#handleAtualizar" disable="true"
-                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" disable="true"
-                            style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnLimpar" text="Limpar" onAction="#handleLimpar" 
-                            style="-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnAlterar" text="Alterar" onAction="#handleAlterar"/>
+                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar"/>
+                </HBox>
+                
+                <!-- Botões de Confirmação -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="btnConfirmar" text="Confirmar" onAction="#handleConfirmar"/>
+                    <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar"/>
                 </HBox>
             </VBox>
         </SplitPane>

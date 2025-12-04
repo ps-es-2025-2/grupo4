@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 
-public class PedidoController extends AbstractCrudController {
+public class PedidoController extends AbstractCrudController<Pedido> {
     
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
     
@@ -28,9 +28,19 @@ public class PedidoController extends AbstractCrudController {
     @FXML private TextField txtIdFornecedor;
     @FXML private TextArea txtObservacoes;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final PedidoService service;
     private final ObservableList<Pedido> pedidos;
-    private Pedido pedidoSelecionado;
     
     public PedidoController() {
         this.service = new PedidoService();
@@ -39,11 +49,19 @@ public class PedidoController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         setupComboBox();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void setupTableColumns() {
@@ -73,8 +91,9 @@ public class PedidoController extends AbstractCrudController {
         tablePedidos.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    pedidoSelecionado = newSelection;
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -111,73 +130,89 @@ public class PedidoController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        pedidoSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        dtDataPedido.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um pedido para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+    
+    @FXML
+    private void handleAtualizar() {
+        handleAlterar();
+    }
+    
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) return;
-            
-            Pedido pedido = pedidoSelecionado != null ? 
-                pedidoSelecionado : new Pedido();
-            
-            if (dtDataPedido.getValue() != null) {
-                pedido.setDataPedido(dtDataPedido.getValue().atStartOfDay());
-            } else {
-                pedido.setDataPedido(LocalDateTime.now());
-            }
-            pedido.setStatus(cbStatus.getValue());
-            // Note: Fornecedor e Itens devem ser configurados via relacionamento no backend
-            
-            if (pedidoSelecionado != null && pedidoSelecionado.getIdPedido() != null) {
-                service.atualizar(pedidoSelecionado.getIdPedido(), pedido);
-                mostrarSucesso("Sucesso", "Pedido atualizado com sucesso!");
-            } else {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdPedido() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdPedido());
+                mostrarSucesso("Sucesso", "Pedido deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Pedido pedido = construirPedidoDoFormulario();
                 service.salvar(pedido);
                 mostrarSucesso("Sucesso", "Pedido cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdPedido() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Pedido pedido = construirPedidoDoFormulario();
+                pedido.setIdPedido(itemSelecionado.getIdPedido());
+                service.atualizar(itemSelecionado.getIdPedido(), pedido);
+                mostrarSucesso("Sucesso", "Pedido atualizado com sucesso!");
             }
             
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh("Pedido");
             
         } catch (Exception e) {
-            logger.error("Erro ao salvar pedido", e);
+            logger.error("Erro ao processar operação", e);
             mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
         }
     }
     
     @FXML
-    private void handleDeletar() {
-        if (pedidoSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um pedido para deletar");
-            return;
-        }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o pedido #" + pedidoSelecionado.getIdPedido() + "?")) {
-            try {
-                service.deletar(pedidoSelecionado.getIdPedido());
-                mostrarSucesso("Sucesso", "Pedido deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Pedido");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar pedido", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
     
     @FXML
-    private void handleAtualizar() {
-        carregarDados();
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdPedido() == null) {
+            mostrarErro("Erro", "Selecione um pedido para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
     }
     
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         if (cbStatus.getValue() == null) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Status"));
             return false;
@@ -188,11 +223,31 @@ public class PedidoController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         dtDataPedido.setValue(null);
         cbStatus.setValue(null);
         txtIdFornecedor.clear();
         txtObservacoes.clear();
-        pedidoSelecionado = null;
         tablePedidos.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        dtDataPedido.setDisable(!habilitar);
+        cbStatus.setDisable(!habilitar);
+        txtIdFornecedor.setDisable(!habilitar);
+        txtObservacoes.setDisable(!habilitar);
+    }
+    
+    private Pedido construirPedidoDoFormulario() {
+        Pedido pedido = new Pedido();
+        if (dtDataPedido.getValue() != null) {
+            pedido.setDataPedido(dtDataPedido.getValue().atStartOfDay());
+        } else {
+            pedido.setDataPedido(LocalDateTime.now());
+        }
+        pedido.setStatus(cbStatus.getValue());
+        // Note: Fornecedor e Itens devem ser configurados via relacionamento no backend
+        return pedido;
     }
 }

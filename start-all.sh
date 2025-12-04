@@ -141,14 +141,14 @@ main() {
     check_service "Backend Cadastro" 8081
     cd ../..
     
-    # Backend Estoque (ImmuDB + Redis + Spring Boot porta 8083)
+    # Backend Estoque (Cassandra + Redis + Spring Boot porta 8083)
     print_color $BLUE "📦 1.3. Iniciando Backend de Estoque..."
     cd simplehealth-back/simplehealth-back-estoque
     
     # Inicia bancos de dados
     docker-compose up -d
-    print_color $YELLOW "   ├─ ImmuDB iniciado"
-    check_service "ImmuDB" 3322
+    print_color $YELLOW "   ├─ Cassandra iniciado"
+    check_service "Cassandra" 9042
     print_color $YELLOW "   ├─ Redis (porta 6381) iniciado"
     check_service "Redis Estoque" 6381
     
@@ -173,12 +173,51 @@ main() {
     #==========================================================================
     print_header "🖥️  FASE 2: INICIALIZANDO FRONTENDS JAVAFX"
     
-    print_color $YELLOW "💡 Os frontends JavaFX serão executados em background"
+    print_color $YELLOW "💡 Verificando compilação dos frontends com mvn clean compile..."
+    echo ""
+    
+    # Frontend Agendamento - Compilação
+    print_color $BLUE "🔧 2.1. Compilando Frontend de Agendamento..."
+    cd simplehealth-front/simplehealth-front-agendamento
+    if mvn clean compile > /tmp/agendamento-frontend-compile.log 2>&1; then
+        print_color $GREEN "✅ Compilação do Frontend Agendamento OK"
+    else
+        print_color $RED "❌ Erro na compilação do Frontend Agendamento. Verifique /tmp/agendamento-frontend-compile.log"
+        exit 1
+    fi
+    cd ../..
+    
+    # Frontend Cadastro - Compilação
+    print_color $BLUE "🔧 2.2. Compilando Frontend de Cadastro..."
+    cd simplehealth-front/simplehealth-front-cadastro
+    if mvn clean compile > /tmp/cadastro-frontend-compile.log 2>&1; then
+        print_color $GREEN "✅ Compilação do Frontend Cadastro OK"
+    else
+        print_color $RED "❌ Erro na compilação do Frontend Cadastro. Verifique /tmp/cadastro-frontend-compile.log"
+        exit 1
+    fi
+    cd ../..
+    
+    # Frontend Estoque - Compilação
+    print_color $BLUE "🔧 2.3. Compilando Frontend de Estoque..."
+    cd simplehealth-front/simplehealth-front-estoque
+    if mvn clean compile > /tmp/estoque-frontend-compile.log 2>&1; then
+        print_color $GREEN "✅ Compilação do Frontend Estoque OK"
+    else
+        print_color $RED "❌ Erro na compilação do Frontend Estoque. Verifique /tmp/estoque-frontend-compile.log"
+        exit 1
+    fi
+    cd ../..
+    
+    echo ""
+    print_color $GREEN "🎉 Todos os frontends compilados com sucesso!"
+    echo ""
+    print_color $YELLOW "💡 Agora iniciando os frontends JavaFX em background"
     print_color $YELLOW "   As janelas gráficas abrirão automaticamente"
     echo ""
     
     # Frontend Agendamento
-    print_color $BLUE "🖥️  2.1. Iniciando Frontend de Agendamento..."
+    print_color $BLUE "🖥️  2.4. Iniciando Frontend de Agendamento..."
     cd simplehealth-front/simplehealth-front-agendamento
     mvn javafx:run > /tmp/agendamento-frontend.log 2>&1 &
     AGENDAMENTO_FRONT_PID=$!
@@ -189,7 +228,7 @@ main() {
     sleep 2
     
     # Frontend Cadastro
-    print_color $BLUE "🖥️  2.2. Iniciando Frontend de Cadastro..."
+    print_color $BLUE "🖥️  2.5. Iniciando Frontend de Cadastro..."
     cd simplehealth-front/simplehealth-front-cadastro
     mvn javafx:run > /tmp/cadastro-frontend.log 2>&1 &
     CADASTRO_FRONT_PID=$!
@@ -200,7 +239,7 @@ main() {
     sleep 2
     
     # Frontend Estoque
-    print_color $BLUE "🖥️  2.3. Iniciando Frontend de Estoque..."
+    print_color $BLUE "🖥️  2.6. Iniciando Frontend de Estoque..."
     cd simplehealth-front/simplehealth-front-estoque
     mvn javafx:run > /tmp/estoque-frontend.log 2>&1 &
     ESTOQUE_FRONT_PID=$!
@@ -230,8 +269,9 @@ main() {
     print_color $MAGENTA "💾 BANCOS DE DADOS:"
     print_color $CYAN "  • MongoDB:     localhost:27017"
     print_color $CYAN "  • PostgreSQL:  localhost:5430"
-    print_color $CYAN "  • Redis:       localhost:6379"
-    print_color $CYAN "  • ImmuDB:      localhost:3322"
+    print_color $CYAN "  • Redis (Cadastro): localhost:6380"
+    print_color $CYAN "  • Redis (Estoque):  localhost:6381"
+    print_color $CYAN "  • Cassandra:   localhost:9042"
     
     echo ""
     print_color $MAGENTA "🖥️  FRONTENDS (JavaFX via Maven):"

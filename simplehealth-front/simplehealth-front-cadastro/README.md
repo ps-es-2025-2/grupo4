@@ -110,7 +110,7 @@ O **Módulo de Cadastro** é uma aplicação JavaFX responsável pela gestão de
     ┌───────┴───────┐
     ▼               ▼
 ┌─────────┐   ┌─────────┐
-│PostgreSQL│  │ ImmuDB  │
+│PostgreSQL│  │Cassandra│
 │  :5432   │  │ :3322   │
 └─────────┘   └─────────┘
 ```

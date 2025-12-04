@@ -83,7 +83,7 @@ O **Frontend do SimpleHealth** é um conjunto de aplicações JavaFX que compõe
 │   Backend Cadastro  │ Backend Agendamento │    Backend Estoque         │
 │   Porta: 8081       │   Porta: 8082       │    Porta: 8083            │
 │                     │                     │                            │
-│ PostgreSQL + ImmuDB │  MongoDB + Redis    │   ImmuDB + Redis          │
+│PostgreSQL+Cassandra│  MongoDB + Redis    │ Cassandra + Redis         │
 │   :5432    :3322    │  :27017   :6379     │   :3322    :6379          │
 └─────────────────────┴─────────────────────┴────────────────────────────┘
 ```
@@ -116,7 +116,7 @@ O **Frontend do SimpleHealth** é um conjunto de aplicações JavaFX que compõe
    ┌────┴────┐     ┌────┴────┐     ┌────┴────┐
    ▼         ▼     ▼         ▼     ▼         ▼
 ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
-│PostgreSQL ImmuDB│ MongoDB│ Redis │ ImmuDB│ Redis │
+│PostgreSQL Cassandra│ MongoDB│ Redis │Cassandra│ Redis │
 │:5432 │ │:3322 │ │:27017│ │:6379 │ │:3322 │ │:6379 │
 └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘
 ```
@@ -128,7 +128,7 @@ O **Frontend do SimpleHealth** é um conjunto de aplicações JavaFX que compõe
 ### 1. Módulo de Cadastro
 **Localização**: `simplehealth-front-cadastro/`  
 **Backend**: `http://localhost:8081/cadastro`  
-**Banco de Dados**: PostgreSQL + ImmuDB  
+**Banco de Dados**: PostgreSQL + Cassandra  
 **CRUDs**: 4 entidades
 
 **Funcionalidades**:
@@ -153,7 +153,7 @@ O **Frontend do SimpleHealth** é um conjunto de aplicações JavaFX que compõe
 ### 3. Módulo de Estoque
 **Localização**: `simplehealth-front-estoque/`  
 **Backend**: `http://localhost:8083/estoque`  
-**Banco de Dados**: ImmuDB + Redis  
+**Banco de Dados**: Cassandra + Redis  
 **CRUDs**: 7 entidades
 
 **Funcionalidades**:

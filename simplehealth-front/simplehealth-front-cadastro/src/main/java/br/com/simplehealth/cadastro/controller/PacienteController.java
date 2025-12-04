@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Controller para o CRUD de Pacientes.
  */
-public class PacienteController extends AbstractCrudController {
+public class PacienteController extends AbstractCrudController<Paciente> {
 
     @FXML
     private TableView<Paciente> tabelaPacientes;
@@ -50,28 +50,39 @@ public class PacienteController extends AbstractCrudController {
     private TextField txtEmail;
     @FXML
     private ComboBox<Convenio> cbConvenio;
+    
+    // Botões herdados do AbstractCrudController
     @FXML
-    private Button btnSalvar;
+    private Button btnCriar;
     @FXML
-    private Button btnAtualizar;
+    private Button btnAlterar;
     @FXML
     private Button btnDeletar;
     @FXML
-    private Button btnLimpar;
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
 
     private final PacienteService pacienteService = new PacienteService();
     private final ConvenioService convenioService = new ConvenioService();
     private final ObservableList<Paciente> listaPacientes = FXCollections.observableArrayList();
     private FilteredList<Paciente> pacientesFiltrados;
-    private Paciente pacienteSelecionado;
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         configurarTabela();
         carregarDados();
         configurarListeners();
         carregarConvenios();
         configurarBusca();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
         
         // Registrar para refresh automático
         RefreshManager.addRefreshListener(this::carregarDados);
@@ -107,13 +118,9 @@ public class PacienteController extends AbstractCrudController {
         tabelaPacientes.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    pacienteSelecionado = newValue;
+                    itemSelecionado = newValue;
                     preencherFormulario(newValue);
-                    btnAtualizar.setDisable(false);
-                    btnDeletar.setDisable(false);
-                } else {
-                    btnAtualizar.setDisable(true);
-                    btnDeletar.setDisable(true);
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -140,29 +147,23 @@ public class PacienteController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleSalvar() {
-        if (!validarFormulario()) {
+    private void handleCriar() {
+        limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+    }
+
+    @FXML
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um paciente para alterar.");
             return;
         }
-
-        try {
-            Paciente novoPaciente = new Paciente();
-            novoPaciente.setNomeCompleto(txtNome.getText().trim());
-            novoPaciente.setDataNascimento(dtDataNascimento.getValue());
-            novoPaciente.setCpf(txtCpf.getText().trim());
-            novoPaciente.setTelefone(txtTelefone.getText().trim());
-            novoPaciente.setEmail(txtEmail.getText().trim());
-            novoPaciente.setConvenio(cbConvenio.getValue());
-
-            pacienteService.criar(novoPaciente);
-            mostrarSucesso("Sucesso", "Paciente cadastrado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao criar paciente", e);
-            mostrarErro("Erro", "Não foi possível criar o paciente: " + e.getMessage());
-        }
+        
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
     }
 
     @FXML
@@ -201,54 +202,24 @@ public class PacienteController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleAtualizar() {
-        if (pacienteSelecionado == null) {
-            mostrarErro("Erro", "Selecione um paciente para atualizar.");
-            return;
-        }
-
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            Paciente pacienteAtualizado = new Paciente();
-            pacienteAtualizado.setNomeCompleto(txtNome.getText().trim());
-            pacienteAtualizado.setDataNascimento(dtDataNascimento.getValue());
-            pacienteAtualizado.setCpf(txtCpf.getText().trim());
-            pacienteAtualizado.setTelefone(txtTelefone.getText().trim());
-            pacienteAtualizado.setEmail(txtEmail.getText().trim());
-            pacienteAtualizado.setConvenio(cbConvenio.getValue());
-
-            pacienteService.atualizar(pacienteSelecionado.getId(), pacienteAtualizado);
-            mostrarSucesso("Sucesso", "Paciente atualizado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao atualizar paciente", e);
-            mostrarErro("Erro", "Não foi possível atualizar o paciente: " + e.getMessage());
-        }
-    }
-
-    @FXML
     private void handleDeletar() {
-        if (pacienteSelecionado == null) {
+        if (itemSelecionado == null) {
             mostrarErro("Erro", "Selecione um paciente para deletar.");
             return;
         }
 
         if (!mostrarConfirmacao("Confirmar", "Deseja realmente deletar o paciente " + 
-                pacienteSelecionado.getNomeCompleto() + "?")) {
+                itemSelecionado.getNomeCompleto() + "?")) {
             return;
         }
 
         try {
-            pacienteService.deletar(pacienteSelecionado.getId());
+            pacienteService.deletar(itemSelecionado.getId());
             mostrarSucesso("Sucesso", "Paciente deletado com sucesso!");
             limparFormulario();
             carregarDados();
             RefreshManager.notifyRefresh();
+            resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar paciente", e);
             mostrarErro("Erro", "Não foi possível deletar o paciente: " + e.getMessage());
@@ -256,8 +227,40 @@ public class PacienteController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleLimpar() {
+    private void handleConfirmar() {
+        if (!validarFormulario()) {
+            return;
+        }
+
+        try {
+            Paciente paciente = construirPacienteDoFormulario();
+            
+            if ("CRIAR".equals(modoEdicao)) {
+                pacienteService.criar(paciente);
+                mostrarSucesso("Sucesso", "Paciente cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                pacienteService.atualizar(itemSelecionado.getId(), paciente);
+                mostrarSucesso("Sucesso", "Paciente atualizado com sucesso!");
+            }
+
+            limparFormulario();
+            carregarDados();
+            RefreshManager.notifyRefresh();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
+        } catch (Exception e) {
+            logger.error("Erro ao confirmar operação", e);
+            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @Override
@@ -268,13 +271,22 @@ public class PacienteController extends AbstractCrudController {
         txtTelefone.clear();
         txtEmail.clear();
         cbConvenio.setValue(null);
-        pacienteSelecionado = null;
+        itemSelecionado = null;
         tabelaPacientes.getSelectionModel().clearSelection();
-        btnAtualizar.setDisable(true);
-        btnDeletar.setDisable(true);
     }
 
-    private boolean validarFormulario() {
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        dtDataNascimento.setDisable(!habilitar);
+        txtCpf.setDisable(!habilitar);
+        txtTelefone.setDisable(!habilitar);
+        txtEmail.setDisable(!habilitar);
+        cbConvenio.setDisable(!habilitar);
+    }
+
+    @Override
+    protected boolean validarFormulario() {
         if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText())) {
             mostrarErro("Validação", "O campo Nome é obrigatório.");
             return false;
@@ -303,5 +315,16 @@ public class PacienteController extends AbstractCrudController {
             return false;
         }
         return true;
+    }
+
+    private Paciente construirPacienteDoFormulario() {
+        Paciente paciente = new Paciente();
+        paciente.setNomeCompleto(txtNome.getText().trim());
+        paciente.setDataNascimento(dtDataNascimento.getValue());
+        paciente.setCpf(txtCpf.getText().trim());
+        paciente.setTelefone(txtTelefone.getText().trim());
+        paciente.setEmail(txtEmail.getText().trim());
+        paciente.setConvenio(cbConvenio.getValue());
+        return paciente;
     }
 }

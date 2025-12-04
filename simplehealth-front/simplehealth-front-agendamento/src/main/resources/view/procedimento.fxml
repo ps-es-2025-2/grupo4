@@ -10,7 +10,7 @@
             prefHeight="650.0" prefWidth="1150.0">
     
     <top>
-        <VBox style="-fx-background-color: #E64A19; -fx-padding: 15;">
+        <VBox style="-fx-background-color: #9C27B0; -fx-padding: 15;">
             <Label text="Gerenciamento de Procedimentos" textFill="WHITE">
                 <font><Font name="System Bold" size="20.0"/></font>
             </Label>
@@ -21,10 +21,10 @@
     </top>
 
     <center>
-        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
-            <VBox spacing="10" style="-fx-padding: 10;">
+        <SplitPane dividerPositions="0.4" orientation="HORIZONTAL">
+            <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <Label text="Lista de Procedimentos" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
-                <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tableView" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
                         <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
                         <TableColumn fx:id="colPacienteCpf" text="CPF Paciente" prefWidth="130"/>
@@ -85,10 +85,14 @@
                     </GridPane>
 
                     <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Button text="Novo" onAction="#handleNovo" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" prefWidth="100"/>
-                        <Button text="Salvar" onAction="#handleSalvar" style="-fx-background-color: #E64A19; -fx-text-fill: white;" prefWidth="100"/>
-                        <Button text="Cancelar" onAction="#handleCancelar" style="-fx-background-color: #FF9800; -fx-text-fill: white;" prefWidth="100"/>
-                        <Button text="Excluir" onAction="#handleExcluir" style="-fx-background-color: #F44336; -fx-text-fill: white;" prefWidth="100"/>
+                        <Button fx:id="btnCriar" text="Criar" onAction="#handleCriar" prefWidth="100"/>
+                        <Button fx:id="btnAlterar" text="Alterar" onAction="#handleAlterar" prefWidth="100"/>
+                        <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" prefWidth="100"/>
+                    </HBox>
+                    
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Button fx:id="btnConfirmar" text="Confirmar" onAction="#handleConfirmar" prefWidth="100"/>
+                        <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar" prefWidth="100"/>
                     </HBox>
                 </VBox>
             </ScrollPane>

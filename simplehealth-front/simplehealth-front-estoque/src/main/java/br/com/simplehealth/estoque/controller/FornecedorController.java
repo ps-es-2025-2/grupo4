@@ -12,7 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FornecedorController extends AbstractCrudController {
+public class FornecedorController extends AbstractCrudController<Fornecedor> {
     
     private static final Logger logger = LoggerFactory.getLogger(FornecedorController.class);
     
@@ -27,9 +27,19 @@ public class FornecedorController extends AbstractCrudController {
     @FXML private TextField txtContato;
     @FXML private TextArea txtEndereco;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final FornecedorService service;
     private final ObservableList<Fornecedor> fornecedores;
-    private Fornecedor fornecedorSelecionado;
     
     public FornecedorController() {
         this.service = new FornecedorService();
@@ -38,11 +48,19 @@ public class FornecedorController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
         setupFormatters();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void setupTableColumns() {
@@ -57,8 +75,9 @@ public class FornecedorController extends AbstractCrudController {
         tableFornecedores.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    fornecedorSelecionado = newSelection;
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -108,70 +127,89 @@ public class FornecedorController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        fornecedorSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        txtNome.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um fornecedor para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+    
+    @FXML
+    private void handleAtualizar() {
+        handleAlterar();
+    }
+    
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) return;
-            
-            Fornecedor fornecedor = fornecedorSelecionado != null ? 
-                fornecedorSelecionado : new Fornecedor();
-            
-            fornecedor.setNome(txtNome.getText());
-            fornecedor.setCnpj(txtCnpj.getText().replaceAll("[./-]", "")); // Salva sem formatação
-            fornecedor.setContato(txtContato.getText());
-            fornecedor.setEndereco(txtEndereco.getText());
-            
-            if (fornecedorSelecionado != null && fornecedorSelecionado.getIdFornecedor() != null) {
-                service.atualizar(fornecedorSelecionado.getIdFornecedor(), fornecedor);
-                mostrarSucesso("Sucesso", "Fornecedor atualizado com sucesso!");
-            } else {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdFornecedor() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdFornecedor());
+                mostrarSucesso("Sucesso", "Fornecedor deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Fornecedor fornecedor = construirFornecedorDoFormulario();
                 service.salvar(fornecedor);
                 mostrarSucesso("Sucesso", "Fornecedor cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdFornecedor() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Fornecedor fornecedor = construirFornecedorDoFormulario();
+                fornecedor.setIdFornecedor(itemSelecionado.getIdFornecedor());
+                service.atualizar(itemSelecionado.getIdFornecedor(), fornecedor);
+                mostrarSucesso("Sucesso", "Fornecedor atualizado com sucesso!");
             }
             
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh("Fornecedor");
             
         } catch (Exception e) {
-            logger.error("Erro ao salvar fornecedor", e);
+            logger.error("Erro ao processar operação", e);
             mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
         }
     }
     
     @FXML
-    private void handleDeletar() {
-        if (fornecedorSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um fornecedor para deletar");
-            return;
-        }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o fornecedor: " + fornecedorSelecionado.getNome() + "?")) {
-            try {
-                service.deletar(fornecedorSelecionado.getIdFornecedor());
-                mostrarSucesso("Sucesso", "Fornecedor deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Fornecedor");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar fornecedor", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
     
     @FXML
-    private void handleAtualizar() {
-        carregarDados();
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdFornecedor() == null) {
+            mostrarErro("Erro", "Selecione um fornecedor para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
     }
     
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         // Validar nome obrigatório
         if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
@@ -201,11 +239,28 @@ public class FornecedorController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         txtNome.clear();
         txtCnpj.clear();
         txtContato.clear();
         txtEndereco.clear();
-        fornecedorSelecionado = null;
         tableFornecedores.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtCnpj.setDisable(!habilitar);
+        txtContato.setDisable(!habilitar);
+        txtEndereco.setDisable(!habilitar);
+    }
+    
+    private Fornecedor construirFornecedorDoFormulario() {
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setNome(txtNome.getText());
+        fornecedor.setCnpj(txtCnpj.getText().replaceAll("[./-]", "")); // Salva sem formatação
+        fornecedor.setContato(txtContato.getText());
+        fornecedor.setEndereco(txtEndereco.getText());
+        return fornecedor;
     }
 }

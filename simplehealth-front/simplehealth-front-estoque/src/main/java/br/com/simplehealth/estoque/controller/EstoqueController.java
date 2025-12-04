@@ -12,7 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EstoqueController extends AbstractCrudController {
+public class EstoqueController extends AbstractCrudController<Estoque> {
     
     private static final Logger logger = LoggerFactory.getLogger(EstoqueController.class);
     
@@ -24,9 +24,19 @@ public class EstoqueController extends AbstractCrudController {
     @FXML private TextField txtLocal;
     @FXML private TextField txtIdItem;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final EstoqueService service;
     private final ObservableList<Estoque> estoques;
-    private Estoque estoqueSelecionado;
     
     public EstoqueController() {
         this.service = new EstoqueService();
@@ -35,10 +45,18 @@ public class EstoqueController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void setupTableColumns() {
@@ -57,8 +75,9 @@ public class EstoqueController extends AbstractCrudController {
         tableEstoques.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    estoqueSelecionado = newSelection;
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -92,68 +111,89 @@ public class EstoqueController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        estoqueSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        txtLocal.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um estoque para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+    
+    @FXML
+    private void handleAtualizar() {
+        handleAlterar();
+    }
+    
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) return;
-            
-            Estoque estoque = estoqueSelecionado != null ? 
-                estoqueSelecionado : new Estoque();
-            
-            estoque.setLocal(txtLocal.getText());
-            // Note: Item deve ser configurado via relacionamento no backend
-            
-            if (estoqueSelecionado != null && estoqueSelecionado.getIdEstoque() != null) {
-                service.atualizar(estoqueSelecionado.getIdEstoque(), estoque);
-                mostrarSucesso("Sucesso", "Estoque atualizado com sucesso!");
-            } else {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdEstoque() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdEstoque());
+                mostrarSucesso("Sucesso", "Estoque deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Estoque estoque = construirEstoqueDoFormulario();
                 service.salvar(estoque);
                 mostrarSucesso("Sucesso", "Estoque cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdEstoque() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Estoque estoque = construirEstoqueDoFormulario();
+                estoque.setIdEstoque(itemSelecionado.getIdEstoque());
+                service.atualizar(itemSelecionado.getIdEstoque(), estoque);
+                mostrarSucesso("Sucesso", "Estoque atualizado com sucesso!");
             }
             
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh("Estoque");
             
         } catch (Exception e) {
-            logger.error("Erro ao salvar estoque", e);
+            logger.error("Erro ao processar operação", e);
             mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
         }
     }
     
     @FXML
-    private void handleDeletar() {
-        if (estoqueSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um estoque para deletar");
-            return;
-        }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o estoque no local: " + estoqueSelecionado.getLocal() + "?")) {
-            try {
-                service.deletar(estoqueSelecionado.getIdEstoque());
-                mostrarSucesso("Sucesso", "Estoque deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Estoque");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar estoque", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
     
     @FXML
-    private void handleAtualizar() {
-        carregarDados();
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdEstoque() == null) {
+            mostrarErro("Erro", "Selecione um estoque para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
     }
     
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         if (!ValidationUtils.validarCampoObrigatorio(txtLocal.getText(), "Local")) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Local"));
             return false;
@@ -164,9 +204,22 @@ public class EstoqueController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         txtLocal.clear();
         txtIdItem.clear();
-        estoqueSelecionado = null;
         tableEstoques.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtLocal.setDisable(!habilitar);
+        txtIdItem.setDisable(!habilitar);
+    }
+    
+    private Estoque construirEstoqueDoFormulario() {
+        Estoque estoque = new Estoque();
+        estoque.setLocal(txtLocal.getText());
+        // Note: Item deve ser configurado via relacionamento no backend
+        return estoque;
     }
 }

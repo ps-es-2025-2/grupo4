@@ -8,7 +8,7 @@
             fx:controller="br.com.simplehealth.cadastro.controller.MedicoController">
     
     <top>
-        <VBox spacing="10" style="-fx-background-color: #009688; -fx-padding: 15;">
+        <VBox spacing="10" style="-fx-background-color: #2196F3; -fx-padding: 15;">
             <Label text="Cadastro de Médicos" 
                    style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"/>
             <Label text="Gerencie os médicos do sistema" 
@@ -17,11 +17,11 @@
     </top>
     
     <center>
-        <SplitPane dividerPositions="0.6" orientation="VERTICAL">
+        <SplitPane dividerPositions="0.4" orientation="HORIZONTAL">
             <!-- Tabela de Médicos -->
-            <VBox spacing="10" style="-fx-padding: 15;">
+            <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <Label text="Lista de Médicos" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                <TableView fx:id="tabelaMedicos" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tabelaMedicos" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
                         <TableColumn fx:id="colunaId" text="ID" prefWidth="60"/>
                         <TableColumn fx:id="colunaNome" text="Nome Completo" prefWidth="250"/>
@@ -66,16 +66,17 @@
                                GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
                 </GridPane>
                 
-                <!-- Botões -->
+                <!-- Botões de Ação -->
                 <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
-                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar" 
-                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnAtualizar" text="Atualizar" onAction="#handleAtualizar" disable="true"
-                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" disable="true"
-                            style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
-                    <Button fx:id="btnLimpar" text="Limpar" onAction="#handleLimpar" 
-                            style="-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+                    <Button fx:id="btnCriar" text="Criar" onAction="#handleCriar"/>
+                    <Button fx:id="btnAlterar" text="Alterar" onAction="#handleAlterar"/>
+                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar"/>
+                </HBox>
+                
+                <!-- Botões de Confirmação -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="btnConfirmar" text="Confirmar" onAction="#handleConfirmar"/>
+                    <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar"/>
                 </HBox>
             </VBox>
         </SplitPane>

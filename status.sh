@@ -89,8 +89,7 @@ main() {
     check_port "MongoDB" 27017
     check_port "PostgreSQL" 5430
     check_port "Redis" 6379
-    check_port "ImmuDB" 3322
-    check_port "ImmuDB Gateway" 3323
+    check_port "Cassandra" 9042
     
     # Containers Frontend
     print_header "🖥️  FRONTENDS (CONTAINERS)"
@@ -111,7 +110,7 @@ main() {
     # Containers de banco de dados
     echo ""
     print_color $MAGENTA "💾 CONTAINERS DE BANCO DE DADOS:"
-    docker ps --filter "name=mongo" --filter "name=postgres" --filter "name=redis" --filter "name=immu" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
+    docker ps --filter "name=mongo" --filter "name=postgres" --filter "name=redis" --filter "name=cassandra" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
     
     # Resumo
     echo ""

@@ -78,7 +78,7 @@ O **SimpleHealth** é um sistema completo de gestão hospitalar desenvolvido com
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                        CAMADA DE DADOS                                    │
 ├────────────────────┬────────────────────┬─────────────────────────────────┤
-│ PostgreSQL + ImmuDB│  MongoDB + Redis   │   ImmuDB + Redis              │
+│PostgreSQL+Cassandra│  MongoDB + Redis   │ Cassandra + Redis             │
 │  :5432     :3322   │  :27017   :6379    │   :3322    :6379              │
 └────────────────────┴────────────────────┴─────────────────────────────────┘
 ```
@@ -108,11 +108,11 @@ O **SimpleHealth** é um sistema completo de gestão hospitalar desenvolvido com
 │  │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘    │  │
 │  │         │                │                │            │  │
 │  │    ┌────┴─────┐     ┌────┴─────┐     ┌────┴─────┐     │  │
-│  │    ▼          ▼     ▼          ▼     ▼          ▼     │  │
+│  │    │          │     │          │     │          │     │  │
 │  │  ┌────┐   ┌────┐ ┌────┐   ┌────┐ ┌────┐   ┌────┐    │  │
-│  │  │Post│   │Immu│ │Mongo│  │Redis│ │Immu│   │Redis│    │  │
-│  │  │greSQL  │DB  │ │DB  │  │     │ │DB  │   │     │    │  │
-│  │  │5432│   │3322│ │27017  │6379 │ │3322│   │6379 │    │  │
+│  │  │Post│   │Cass│ │Mongo│  │Redis│ │Cass│   │Redis│    │  │
+│  │  │greSQL  │andra│ │DB  │  │     │ │andra│   │     │    │  │
+│  │  │5432│   │9042│ │27017  │6379 │ │9042│   │6379 │    │  │
 │  │  └────┘   └────┘ └────┘   └────┘ └────┘   └────┘    │  │
 │  └──────────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────────┘
@@ -127,7 +127,7 @@ O **SimpleHealth** é um sistema completo de gestão hospitalar desenvolvido com
 **Backend**:
 - Framework: Spring Boot 3.5.6
 - Porta: 8081
-- Banco de Dados: PostgreSQL 15 + ImmuDB 1.5.0
+- Banco de Dados: PostgreSQL 15 + Cassandra 5
 - Cache: Redis 7
 - API: REST (JSON)
 
@@ -159,7 +159,7 @@ O **SimpleHealth** é um sistema completo de gestão hospitalar desenvolvido com
 **Backend**:
 - Framework: Spring Boot 3.5.6
 - Porta: 8083
-- Banco de Dados: ImmuDB 1.5.0
+- Banco de Dados: Cassandra 5
 - Cache: Redis 7
 - API: REST (JSON)
 
@@ -450,7 +450,7 @@ grupo4/
 | Spring Data MongoDB | 3.5.6 | Persistência (MongoDB) |
 | PostgreSQL | 15 | Banco relacional (Cadastro) |
 | MongoDB | 6.0 | Banco NoSQL (Agendamento) |
-| ImmuDB | 1.5.0 | Banco imutável (Cadastro/Estoque) |
+| Cassandra | 5.0 | Banco NoSQL distribuído (Estoque) |
 | Redis | 7 | Cache |
 | Maven | 3.9.x | Build tool |
 
@@ -695,7 +695,7 @@ O script `start-all.sh` irá:
 |--------|-------|----------------|-----|
 | **Agendamento** | 8082 | MongoDB (27017) | http://localhost:8082/agendamento |
 | **Cadastro** | 8081 | PostgreSQL (5430) + Redis (6379) | http://localhost:8081/cadastro |
-| **Estoque** | 8083 | ImmuDB (3322) + Redis | http://localhost:8083/estoque |
+| **Estoque** | 8083 | Cassandra (9042) + Redis | http://localhost:8083/estoque |
 
 ### Módulos Frontend
 
@@ -919,7 +919,7 @@ docker-compose logs -f
 - Swagger: `http://localhost:8081/swagger-ui.html`
 - Endpoints: `/pacientes`, `/medicos`, `/funcionarios`, `/usuarios`
 
-**Estoque (ImmuDB + Redis):**
+**Estoque (Cassandra + Redis):**
 - Base URL: `http://localhost:8083/estoque`
 - Swagger: `http://localhost:8083/swagger-ui.html`
 - Endpoints: `/medicamentos`, `/alimentos`, `/hospitalares`, `/fornecedores`, `/estoques`, `/pedidos`, `/itens`

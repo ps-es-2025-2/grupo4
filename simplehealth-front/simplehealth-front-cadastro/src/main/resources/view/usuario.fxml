@@ -21,7 +21,7 @@
     <center>
         <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
             <!-- Painel Esquerdo: Formulário -->
-            <VBox spacing="10" style="-fx-padding: 15;">
+            <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <Label text="Dados do Usuário" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
                 
                 <GridPane hgap="10" vgap="10">
@@ -80,18 +80,19 @@
 
                 <!-- Botões de Ação -->
                 <HBox spacing="10" alignment="CENTER">
-                    <Button fx:id="btnNovo" text="Novo" onAction="#handleNovo"
+                    <Button fx:id="btnCriar" text="Criar" onAction="#handleCriar"
                             style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
                             prefWidth="100"/>
-                    <Button fx:id="btnSalvar" text="Salvar" onAction="#handleSalvar"
+                    <Button fx:id="btnAlterar" text="Alterar" onAction="#handleAlterar"
                             style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"
                             prefWidth="100" disable="true"/>
-                    <Button fx:id="btnEditar" text="Editar" onAction="#handleEditar"
-                            style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-weight: bold;"
-                            prefWidth="100" disable="true"/>
-                    <Button fx:id="btnExcluir" text="Excluir" onAction="#handleExcluir"
-                            style="-fx-background-color: #F44336; -fx-text-fill: white; -fx-font-weight: bold;"
-                            prefWidth="100" disable="true"/>
+                    <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar" prefWidth="100"/>
+                </HBox>
+                
+                <!-- Botões de Confirmação -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="btnConfirmar" text="Confirmar" onAction="#handleConfirmar" prefWidth="100"/>
+                    <Button fx:id="btnCancelar" text="Cancelar" onAction="#handleCancelar" prefWidth="100"/>
                 </HBox>
             </VBox>
 
@@ -99,7 +100,7 @@
             <VBox spacing="10" style="-fx-padding: 15;">
                 <Label text="Lista de Usuários" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
                 
-                <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tableUsuarios" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
                         <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                         <TableColumn fx:id="colNome" text="Nome" prefWidth="150"/>

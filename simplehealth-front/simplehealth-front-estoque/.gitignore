@@ -17,7 +17,7 @@ bin/
 mongo/data/
 postgres/data/
 redis/data/
-immudb/data/
+cassandra/data/
 docker-volumes/
 
 ### Additional Logs ###

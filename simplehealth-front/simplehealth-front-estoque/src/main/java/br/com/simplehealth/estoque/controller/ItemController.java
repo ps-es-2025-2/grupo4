@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 
-public class ItemController extends AbstractCrudController {
+public class ItemController extends AbstractCrudController<Item> {
     
     private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
     
@@ -26,9 +26,19 @@ public class ItemController extends AbstractCrudController {
     
     @FXML private TextField txtBusca;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final ItemService service;
     private final ObservableList<Item> itens;
-    private Item itemSelecionado;
     
     public ItemController() {
         this.service = new ItemService();
@@ -37,10 +47,17 @@ public class ItemController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         setupTableColumns();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
+        configurarEstadoInicialBotoes();
     }
     
     private void setupTableColumns() {
@@ -57,7 +74,12 @@ public class ItemController extends AbstractCrudController {
     private void setupTableSelection() {
         tableItens.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
-                itemSelecionado = newSelection;
+                if (newSelection != null) {
+                    itemSelecionado = newSelection;
+                    if (modoEdicao == null) {
+                        btnDeletar.setDisable(false);
+                    }
+                }
             }
         );
     }
@@ -109,8 +131,8 @@ public class ItemController extends AbstractCrudController {
     
     @FXML
     private void handleDeletar() {
-        if (itemSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um item para deletar");
+        if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+            mostrarErro("Erro", "Selecione um item para excluir");
             return;
         }
         
@@ -120,7 +142,8 @@ public class ItemController extends AbstractCrudController {
                 service.deletar(itemSelecionado.getIdItem());
                 mostrarSucesso("Sucesso", "Item deletado com sucesso!");
                 carregarDados();
-                itemSelecionado = null;
+                limparFormulario();
+                resetarBotoes();
                 RefreshManager.getInstance().notifyRefresh("Item");
             } catch (Exception e) {
                 logger.error("Erro ao deletar item", e);
@@ -131,13 +154,25 @@ public class ItemController extends AbstractCrudController {
     
     @FXML
     private void handleAtualizar() {
-        carregarDados();
+        mostrarErro("Não Implementado", "Use os CRUDs específicos (Medicamento, Alimento, etc.) para editar itens.");
     }
     
     @Override
     protected void limparFormulario() {
-        txtBusca.clear();
         itemSelecionado = null;
+        txtBusca.clear();
         tableItens.getSelectionModel().clearSelection();
+    }
+    
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        // ItemController não tem campos de edição, apenas busca
+        txtBusca.setDisable(!habilitar);
+    }
+    
+    @Override
+    protected boolean validarFormulario() {
+        // ItemController não tem formulário de edição
+        return true;
     }
 }

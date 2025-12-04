@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 /**
  * Controller para gerenciar a interface de Consultas.
  */
-public class ConsultaController implements RefreshManager.RefreshListener {
+public class ConsultaController extends AbstractCrudController<Consulta> implements RefreshManager.RefreshListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsultaController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -47,10 +47,16 @@ public class ConsultaController implements RefreshManager.RefreshListener {
     @FXML private TextField txtUsuarioCriador;
     @FXML private TextField txtMotivoEncaixe;
 
-    @FXML private Button btnNovo;
-    @FXML private Button btnSalvar;
-    @FXML private Button btnCancelar;
-    @FXML private Button btnExcluir;
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
     @FXML private Button btnBuscar;
     
     @FXML private TextField txtBusca;
@@ -58,7 +64,6 @@ public class ConsultaController implements RefreshManager.RefreshListener {
     private final ConsultaService service;
     private final ObservableList<Consulta> consultas;
     private final ObservableList<Consulta> todasConsultas;
-    private Consulta consultaSelecionada;
 
     public ConsultaController() {
         this.service = new ConsultaService();
@@ -68,6 +73,12 @@ public class ConsultaController implements RefreshManager.RefreshListener {
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         logger.info("Inicializando ConsultaController");
 
         // Configurar colunas da tabela
@@ -88,8 +99,9 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         // Listener para seleção na tabela
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                consultaSelecionada = newSelection;
+                itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
+                habilitarBotoesSelecao();
             }
         });
 
@@ -98,6 +110,10 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
         cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
 
+        // Configurar estado inicial dos botões
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
+
         // Registrar listener para refresh
         RefreshManager.getInstance().addListener(this);
 
@@ -105,7 +121,7 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         carregarDados();
     }
 
-    private void carregarDados() {
+    protected void carregarDados() {
         Platform.runLater(() -> {
             try {
                 todasConsultas.clear();
@@ -138,8 +154,8 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         txtMotivoEncaixe.setText(consulta.getMotivoEncaixe());
     }
 
-    private void limparFormulario() {
-        consultaSelecionada = null;
+    protected void limparFormulario() {
+        itemSelecionado = null;
         txtPacienteCpf.clear();
         txtMedicoCrm.clear();
         txtEspecialidade.clear();
@@ -157,44 +173,52 @@ public class ConsultaController implements RefreshManager.RefreshListener {
     }
 
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
         txtPacienteCpf.requestFocus();
     }
 
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione uma consulta para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) {
+            if (!validarFormulario()) {
                 return;
             }
 
-            Consulta consulta = consultaSelecionada != null ? consultaSelecionada : new Consulta();
-            
-            consulta.setPacienteCpf(txtPacienteCpf.getText());
-            consulta.setMedicoCrm(txtMedicoCrm.getText());
-            consulta.setEspecialidade(txtEspecialidade.getText());
-            consulta.setConvenioNome(txtConvenioNome.getText());
-            consulta.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
-            consulta.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
-            consulta.setTipoConsulta(cbTipoConsulta.getValue());
-            consulta.setModalidade(cbModalidade.getValue());
-            consulta.setStatus(cbStatus.getValue());
-            consulta.setIsEncaixe(chkEncaixe.isSelected());
-            consulta.setObservacoes(txtObservacoes.getText());
-            consulta.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
-            consulta.setMotivoEncaixe(txtMotivoEncaixe.getText());
-
-            if (consultaSelecionada != null && consultaSelecionada.getId() != null) {
-                service.atualizar(consultaSelecionada.getId(), consulta);
-                mostrarSucesso("Consulta atualizada com sucesso!");
-            } else {
+            if ("CRIAR".equals(modoEdicao)) {
+                Consulta consulta = construirConsultaDoFormulario();
                 service.criar(consulta);
-                mostrarSucesso("Consulta criada com sucesso!");
+                mostrarSucesso("Sucesso", "Consulta criada com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Consulta consulta = construirConsultaDoFormulario();
+                consulta.setId(itemSelecionado.getId());
+                service.atualizar(itemSelecionado.getId(), consulta);
+                mostrarSucesso("Sucesso", "Consulta atualizada com sucesso!");
             }
 
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh();
 
         } catch (Exception e) {
@@ -206,12 +230,15 @@ public class ConsultaController implements RefreshManager.RefreshListener {
     @FXML
     private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @FXML
-    private void handleExcluir() {
-        if (consultaSelecionada == null || consultaSelecionada.getId() == null) {
-            mostrarAviso("Selecione uma consulta para excluir");
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getId() == null) {
+            mostrarErro("Erro", "Selecione uma consulta para excluir");
             return;
         }
 
@@ -219,19 +246,20 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacao.setTitle("Confirmar Exclusão");
         confirmacao.setHeaderText("Deseja realmente excluir esta consulta?");
-        confirmacao.setContentText("Paciente: " + consultaSelecionada.getPacienteCpf() + "\n" +
-                                  "Médico: " + consultaSelecionada.getMedicoCrm() + "\n" +
-                                  "Data: " + (consultaSelecionada.getDataHoraInicio() != null ? 
-                                             consultaSelecionada.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
+        confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
+                                  "Médico: " + itemSelecionado.getMedicoCrm() + "\n" +
+                                  "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
+                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
                                   "Esta ação não pode ser desfeita.");
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    service.deletar(consultaSelecionada.getId());
-                    mostrarSucesso("Consulta excluída com sucesso!");
+                    service.deletar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Consulta excluída com sucesso!");
                     carregarDados();
                     limparFormulario();
+                    resetarBotoes();
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir consulta", e);
@@ -241,7 +269,7 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         });
     }
 
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         // Validar CPF do Paciente
         if (!ValidationUtils.validarCampoObrigatorio(txtPacienteCpf.getText())) {
             mostrarAviso("CPF do paciente é obrigatório");
@@ -336,6 +364,40 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         return true;
     }
 
+    protected void habilitarCampos(boolean habilitar) {
+        txtPacienteCpf.setDisable(!habilitar);
+        txtMedicoCrm.setDisable(!habilitar);
+        txtEspecialidade.setDisable(!habilitar);
+        txtConvenioNome.setDisable(!habilitar);
+        txtDataHoraInicio.setDisable(!habilitar);
+        txtDataHoraFim.setDisable(!habilitar);
+        cbTipoConsulta.setDisable(!habilitar);
+        cbModalidade.setDisable(!habilitar);
+        cbStatus.setDisable(!habilitar);
+        chkEncaixe.setDisable(!habilitar);
+        txtObservacoes.setDisable(!habilitar);
+        txtUsuarioCriador.setDisable(!habilitar);
+        txtMotivoEncaixe.setDisable(!habilitar);
+    }
+
+    private Consulta construirConsultaDoFormulario() {
+        Consulta consulta = new Consulta();
+        consulta.setPacienteCpf(txtPacienteCpf.getText());
+        consulta.setMedicoCrm(txtMedicoCrm.getText());
+        consulta.setEspecialidade(txtEspecialidade.getText());
+        consulta.setConvenioNome(txtConvenioNome.getText());
+        consulta.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
+        consulta.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
+        consulta.setTipoConsulta(cbTipoConsulta.getValue());
+        consulta.setModalidade(cbModalidade.getValue());
+        consulta.setStatus(cbStatus.getValue());
+        consulta.setIsEncaixe(chkEncaixe.isSelected());
+        consulta.setObservacoes(txtObservacoes.getText());
+        consulta.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
+        consulta.setMotivoEncaixe(txtMotivoEncaixe.getText());
+        return consulta;
+    }
+
     @Override
     public void onRefresh() {
         carregarDados();
@@ -424,22 +486,6 @@ public class ConsultaController implements RefreshManager.RefreshListener {
         if (consultas.isEmpty()) {
             mostrarAviso("Nenhuma consulta encontrada com o termo: " + termoBusca);
         }
-    }
-
-    private void mostrarSucesso(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Sucesso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
-    }
-
-    private void mostrarErro(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
     }
 
     private void mostrarAviso(String mensagem) {

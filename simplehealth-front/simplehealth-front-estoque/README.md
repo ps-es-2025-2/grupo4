@@ -132,7 +132,7 @@ O **Módulo de Estoque** é uma aplicação JavaFX responsável pela gestão com
     ┌───────┴───────┐
     ▼               ▼
 ┌─────────┐   ┌─────────┐
-│ ImmuDB  │   │  Redis  │
+│Cassandra│   │  Redis  │
 │ :3322   │   │ :6379   │
 └─────────┘   └─────────┘
 ```

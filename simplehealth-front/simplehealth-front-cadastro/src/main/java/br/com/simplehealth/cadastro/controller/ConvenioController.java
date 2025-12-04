@@ -12,7 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 /**
  * Controller para o CRUD de Convênios.
  */
-public class ConvenioController extends AbstractCrudController {
+public class ConvenioController extends AbstractCrudController<Convenio> {
 
     @FXML
     private TableView<Convenio> tabelaConvenios;
@@ -31,24 +31,34 @@ public class ConvenioController extends AbstractCrudController {
     private TextField txtPlano;
     @FXML
     private CheckBox chkAtivo;
+    
+    // Botões - Redeclarados para injeção do JavaFX
     @FXML
-    private Button btnSalvar;
+    private Button btnCriar;
     @FXML
-    private Button btnAtualizar;
+    private Button btnAlterar;
     @FXML
     private Button btnDeletar;
     @FXML
-    private Button btnLimpar;
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
 
     private final ConvenioService convenioService = new ConvenioService();
     private final ObservableList<Convenio> listaConvenios = FXCollections.observableArrayList();
-    private Convenio convenioSelecionado;
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
         configurarTabela();
         carregarDados();
         configurarListeners();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
         
         RefreshManager.addRefreshListener(this::carregarDados);
     }
@@ -80,13 +90,9 @@ public class ConvenioController extends AbstractCrudController {
         tabelaConvenios.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    convenioSelecionado = newValue;
+                    itemSelecionado = newValue;
                     preencherFormulario(newValue);
-                    btnAtualizar.setDisable(false);
-                    btnDeletar.setDisable(false);
-                } else {
-                    btnAtualizar.setDisable(true);
-                    btnDeletar.setDisable(true);
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -110,74 +116,44 @@ public class ConvenioController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleSalvar() {
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            Convenio novoConvenio = new Convenio();
-            novoConvenio.setNome(txtNome.getText().trim());
-            novoConvenio.setPlano(txtPlano.getText().trim());
-            novoConvenio.setAtivo(chkAtivo.isSelected());
-
-            convenioService.criar(novoConvenio);
-            mostrarSucesso("Sucesso", "Convênio cadastrado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao criar convênio", e);
-            mostrarErro("Erro", "Não foi possível criar o convênio: " + e.getMessage());
-        }
+    private void handleCriar() {
+        limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
     }
 
     @FXML
-    private void handleAtualizar() {
-        if (convenioSelecionado == null) {
-            mostrarErro("Erro", "Selecione um convênio para atualizar.");
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um convênio para alterar.");
             return;
         }
-
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            Convenio convenioAtualizado = new Convenio();
-            convenioAtualizado.setNome(txtNome.getText().trim());
-            convenioAtualizado.setPlano(txtPlano.getText().trim());
-            convenioAtualizado.setAtivo(chkAtivo.isSelected());
-
-            convenioService.atualizar(convenioSelecionado.getId(), convenioAtualizado);
-            mostrarSucesso("Sucesso", "Convênio atualizado com sucesso!");
-            limparFormulario();
-            carregarDados();
-            RefreshManager.notifyRefresh();
-        } catch (Exception e) {
-            logger.error("Erro ao atualizar convênio", e);
-            mostrarErro("Erro", "Não foi possível atualizar o convênio: " + e.getMessage());
-        }
+        
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
     }
 
     @FXML
     private void handleDeletar() {
-        if (convenioSelecionado == null) {
+        if (itemSelecionado == null) {
             mostrarErro("Erro", "Selecione um convênio para deletar.");
             return;
         }
 
         if (!mostrarConfirmacao("Confirmar", "Deseja realmente deletar o convênio " + 
-                convenioSelecionado.getNome() + "?")) {
+                itemSelecionado.getNome() + "?")) {
             return;
         }
 
         try {
-            convenioService.deletar(convenioSelecionado.getId());
+            convenioService.deletar(itemSelecionado.getId());
             mostrarSucesso("Sucesso", "Convênio deletado com sucesso!");
             limparFormulario();
             carregarDados();
             RefreshManager.notifyRefresh();
+            resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar convênio", e);
             mostrarErro("Erro", "Não foi possível deletar o convênio: " + e.getMessage());
@@ -185,22 +161,60 @@ public class ConvenioController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleLimpar() {
+    private void handleConfirmar() {
+        if (!validarFormulario()) {
+            return;
+        }
+
+        try {
+            Convenio convenio = construirConvenioDoFormulario();
+            
+            if ("CRIAR".equals(modoEdicao)) {
+                convenioService.criar(convenio);
+                mostrarSucesso("Sucesso", "Convênio cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                convenioService.atualizar(itemSelecionado.getId(), convenio);
+                mostrarSucesso("Sucesso", "Convênio atualizado com sucesso!");
+            }
+
+            limparFormulario();
+            carregarDados();
+            RefreshManager.notifyRefresh();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
+        } catch (Exception e) {
+            logger.error("Erro ao confirmar operação", e);
+            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @Override
     protected void limparFormulario() {
         txtNome.clear();
         txtPlano.clear();
-        chkAtivo.setSelected(true); // Padrão: ativo
-        convenioSelecionado = null;
+        chkAtivo.setSelected(true);
+        itemSelecionado = null;
         tabelaConvenios.getSelectionModel().clearSelection();
-        btnAtualizar.setDisable(true);
-        btnDeletar.setDisable(true);
     }
 
-    private boolean validarFormulario() {
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtPlano.setDisable(!habilitar);
+        chkAtivo.setDisable(!habilitar);
+    }
+
+    @Override
+    protected boolean validarFormulario() {
         if (!validarCampoNaoVazio(txtNome.getText(), "Nome")) {
             return false;
         }
@@ -208,5 +222,13 @@ public class ConvenioController extends AbstractCrudController {
             return false;
         }
         return true;
+    }
+
+    private Convenio construirConvenioDoFormulario() {
+        Convenio convenio = new Convenio();
+        convenio.setNome(txtNome.getText().trim());
+        convenio.setPlano(txtPlano.getText().trim());
+        convenio.setAtivo(chkAtivo.isSelected());
+        return convenio;
     }
 }

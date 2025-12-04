@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 /**
  * Controller para gerenciar a interface de Exames.
  */
-public class ExameController implements RefreshManager.RefreshListener {
+public class ExameController extends AbstractCrudController<Exame> implements RefreshManager.RefreshListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ExameController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -45,13 +45,22 @@ public class ExameController implements RefreshManager.RefreshListener {
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
     @FXML private Button btnBuscar;
     @FXML private TextField txtBusca;
 
     private final ExameService service;
     private final ObservableList<Exame> exames;
     private final ObservableList<Exame> todosExames;
-    private Exame exameSelecionado;
 
     public ExameController() {
         this.service = new ExameService();
@@ -61,6 +70,12 @@ public class ExameController implements RefreshManager.RefreshListener {
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         logger.info("Inicializando ExameController");
 
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -77,19 +92,24 @@ public class ExameController implements RefreshManager.RefreshListener {
         tableView.setItems(exames);
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                exameSelecionado = newSelection;
+                itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
+                habilitarBotoesSelecao();
             }
         });
 
         cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
         cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
 
+        // Configurar estado inicial dos botões
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
+
         RefreshManager.getInstance().addListener(this);
         carregarDados();
     }
 
-    private void carregarDados() {
+    protected void carregarDados() {
         Platform.runLater(() -> {
             try {
                 todosExames.clear();
@@ -121,8 +141,8 @@ public class ExameController implements RefreshManager.RefreshListener {
         txtUsuarioCriador.setText(exame.getUsuarioCriadorLogin());
     }
 
-    private void limparFormulario() {
-        exameSelecionado = null;
+    protected void limparFormulario() {
+        itemSelecionado = null;
         txtPacienteCpf.clear();
         txtMedicoCrm.clear();
         txtNomeExame.clear();
@@ -139,43 +159,52 @@ public class ExameController implements RefreshManager.RefreshListener {
     }
 
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
         txtPacienteCpf.requestFocus();
     }
 
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um exame para alterar.");
+            return;
+        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+
+    @FXML
+    private void handleConfirmar() {
         try {
-            if (!validarCampos()) {
+            if (!validarFormulario()) {
                 return;
             }
 
-            Exame exame = exameSelecionado != null ? exameSelecionado : new Exame();
-            
-            exame.setPacienteCpf(txtPacienteCpf.getText());
-            exame.setMedicoCrm(txtMedicoCrm.getText());
-            exame.setNomeExame(txtNomeExame.getText());
-            exame.setConvenioNome(txtConvenioNome.getText());
-            exame.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
-            exame.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
-            exame.setModalidade(cbModalidade.getValue());
-            exame.setStatus(cbStatus.getValue());
-            exame.setRequerPreparo(chkRequerPreparo.isSelected());
-            exame.setInstrucoesPreparo(txtInstrucoesPreparo.getText());
-            exame.setObservacoes(txtObservacoes.getText());
-            exame.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
-
-            if (exameSelecionado != null && exameSelecionado.getId() != null) {
-                service.atualizar(exameSelecionado.getId(), exame);
-                mostrarSucesso("Exame atualizado com sucesso!");
-            } else {
+            if ("CRIAR".equals(modoEdicao)) {
+                Exame exame = construirExameDoFormulario();
                 service.criar(exame);
-                mostrarSucesso("Exame criado com sucesso!");
+                mostrarSucesso("Sucesso", "Exame criado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Exame exame = construirExameDoFormulario();
+                exame.setId(itemSelecionado.getId());
+                service.atualizar(itemSelecionado.getId(), exame);
+                mostrarSucesso("Sucesso", "Exame atualizado com sucesso!");
             }
 
             carregarDados();
             limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
             RefreshManager.getInstance().notifyRefresh();
 
         } catch (Exception e) {
@@ -187,12 +216,15 @@ public class ExameController implements RefreshManager.RefreshListener {
     @FXML
     private void handleCancelar() {
         limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @FXML
-    private void handleExcluir() {
-        if (exameSelecionado == null || exameSelecionado.getId() == null) {
-            mostrarAviso("Selecione um exame para excluir");
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getId() == null) {
+            mostrarErro("Erro", "Selecione um exame para excluir");
             return;
         }
 
@@ -200,19 +232,20 @@ public class ExameController implements RefreshManager.RefreshListener {
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacao.setTitle("Confirmar Exclusão");
         confirmacao.setHeaderText("Deseja realmente excluir este exame?");
-        confirmacao.setContentText("Paciente: " + exameSelecionado.getPacienteCpf() + "\n" +
-                                  "Exame: " + exameSelecionado.getNomeExame() + "\n" +
-                                  "Data: " + (exameSelecionado.getDataHoraInicio() != null ? 
-                                             exameSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
+        confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
+                                  "Exame: " + itemSelecionado.getNomeExame() + "\n" +
+                                  "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
+                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
                                   "Esta ação não pode ser desfeita.");
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    service.deletar(exameSelecionado.getId());
-                    mostrarSucesso("Exame excluído com sucesso!");
+                    service.deletar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Exame excluído com sucesso!");
                     carregarDados();
                     limparFormulario();
+                    resetarBotoes();
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir exame", e);
@@ -222,7 +255,7 @@ public class ExameController implements RefreshManager.RefreshListener {
         });
     }
 
-    private boolean validarCampos() {
+    protected boolean validarFormulario() {
         // Validar CPF do Paciente
         if (!ValidationUtils.validarCampoObrigatorio(txtPacienteCpf.getText())) {
             mostrarAviso("CPF do paciente é obrigatório");
@@ -303,6 +336,40 @@ public class ExameController implements RefreshManager.RefreshListener {
         return true;
     }
 
+    protected void habilitarCampos(boolean habilitar) {
+        txtPacienteCpf.setDisable(!habilitar);
+        txtMedicoCrm.setDisable(!habilitar);
+        txtNomeExame.setDisable(!habilitar);
+        txtConvenioNome.setDisable(!habilitar);
+        txtDataHoraInicio.setDisable(!habilitar);
+        txtDataHoraFim.setDisable(!habilitar);
+        cbModalidade.setDisable(!habilitar);
+        cbStatus.setDisable(!habilitar);
+        chkRequerPreparo.setDisable(!habilitar);
+        txtInstrucoesPreparo.setDisable(!habilitar);
+        txtObservacoes.setDisable(!habilitar);
+        txtUsuarioCriador.setDisable(!habilitar);
+    }
+
+    private Exame construirExameDoFormulario() {
+        Exame exame = new Exame();
+        exame.setPacienteCpf(txtPacienteCpf.getText());
+        exame.setMedicoCrm(txtMedicoCrm.getText());
+        exame.setNomeExame(txtNomeExame.getText());
+        exame.setConvenioNome(txtConvenioNome.getText());
+        exame.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
+        if (txtDataHoraFim.getText() != null && !txtDataHoraFim.getText().trim().isEmpty()) {
+            exame.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
+        }
+        exame.setModalidade(cbModalidade.getValue());
+        exame.setStatus(cbStatus.getValue());
+        exame.setRequerPreparo(chkRequerPreparo.isSelected());
+        exame.setInstrucoesPreparo(txtInstrucoesPreparo.getText());
+        exame.setObservacoes(txtObservacoes.getText());
+        exame.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
+        return exame;
+    }
+
     @Override
     public void onRefresh() {
         carregarDados();
@@ -374,22 +441,6 @@ public class ExameController implements RefreshManager.RefreshListener {
         if (exames.isEmpty()) {
             mostrarAviso("Nenhum exame encontrado com o termo: " + termoBusca);
         }
-    }
-
-    private void mostrarSucesso(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Sucesso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
-    }
-
-    private void mostrarErro(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erro");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
     }
 
     private void mostrarAviso(String mensagem) {

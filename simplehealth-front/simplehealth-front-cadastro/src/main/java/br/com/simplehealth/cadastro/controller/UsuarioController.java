@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * Controller para gerenciamento de Usuários.
  */
-public class UsuarioController extends AbstractCrudController {
+public class UsuarioController extends AbstractCrudController<Usuario> {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
 
@@ -51,26 +51,35 @@ public class UsuarioController extends AbstractCrudController {
     @FXML
     private ComboBox<String> cbPerfil;
 
+    // Botões herdados do AbstractCrudController
     @FXML
-    private Button btnNovo;
+    private Button btnCriar;
     @FXML
-    private Button btnSalvar;
+    private Button btnAlterar;
     @FXML
-    private Button btnEditar;
+    private Button btnDeletar;
     @FXML
-    private Button btnExcluir;
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
 
     private final UsuarioService service = new UsuarioService();
     private final ObservableList<Usuario> usuarios = FXCollections.observableArrayList();
-    private Usuario usuarioSelecionado;
 
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         configurarTabela();
         configurarComboBox();
         carregarDados();
         configurarEventos();
-        desabilitarCampos();
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
 
     private void configurarTabela() {
@@ -94,10 +103,9 @@ public class UsuarioController extends AbstractCrudController {
         tableUsuarios.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
-                    usuarioSelecionado = newSelection;
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
-                    btnEditar.setDisable(false);
-                    btnExcluir.setDisable(false);
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -116,97 +124,96 @@ public class UsuarioController extends AbstractCrudController {
     }
 
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        habilitarCampos();
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
         txtNomeCompleto.requestFocus();
-        btnSalvar.setDisable(false);
-        btnEditar.setDisable(true);
-        btnExcluir.setDisable(true);
     }
 
     @FXML
-    private void handleSalvar() {
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Atenção", "Selecione um usuário para alterar.");
+            return;
+        }
+        
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
+    }
+
+    @FXML
+    private void handleDeletar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Atenção", "Selecione um usuário para deletar.");
+            return;
+        }
+
+        if (!mostrarConfirmacao("Confirmação", 
+            "Deseja realmente deletar o usuário " + itemSelecionado.getNomeCompleto() + "?")) {
+            return;
+        }
+
+        try {
+            service.deletar(itemSelecionado.getId());
+            usuarios.remove(itemSelecionado);
+            
+            mostrarSucesso("Sucesso", "Usuário deletado com sucesso!");
+            limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+        } catch (IOException | org.apache.hc.core5.http.ParseException e) {
+            logger.error("Erro ao deletar usuário", e);
+            mostrarErro("Erro", "Não foi possível deletar o usuário: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleConfirmar() {
         if (!validarFormulario()) {
             return;
         }
 
         try {
-            Usuario usuario = new Usuario();
-            usuario.setNomeCompleto(txtNomeCompleto.getText());
-            usuario.setLogin(txtLogin.getText());
-            usuario.setSenha(txtSenha.getText());
-            usuario.setTelefone(txtTelefone.getText());
-            usuario.setEmail(txtEmail.getText());
-            usuario.setPerfil(cbPerfil.getValue());
-
-            Usuario criado = service.criar(usuario);
-            usuarios.add(criado);
+            Usuario usuario = construirUsuarioDoFormulario();
             
-            mostrarSucesso("Sucesso", "Usuário criado com sucesso!");
-            limparFormulario();
-            desabilitarCampos();
-            carregarDados();
-        } catch (IOException | org.apache.hc.core5.http.ParseException e) {
-            logger.error("Erro ao criar usuário", e);
-            mostrarErro("Erro", "Não foi possível criar o usuário: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleEditar() {
-        if (usuarioSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um usuário para editar.");
-            return;
-        }
-
-        if (!validarFormulario()) {
-            return;
-        }
-
-        try {
-            usuarioSelecionado.setNomeCompleto(txtNomeCompleto.getText());
-            usuarioSelecionado.setLogin(txtLogin.getText());
-            if (!txtSenha.getText().isEmpty()) {
-                usuarioSelecionado.setSenha(txtSenha.getText());
-            }
-            usuarioSelecionado.setTelefone(txtTelefone.getText());
-            usuarioSelecionado.setEmail(txtEmail.getText());
-            usuarioSelecionado.setPerfil(cbPerfil.getValue());
-
-            service.atualizar(usuarioSelecionado.getId(), usuarioSelecionado);
-            
-            mostrarSucesso("Sucesso", "Usuário atualizado com sucesso!");
-            limparFormulario();
-            desabilitarCampos();
-            carregarDados();
-        } catch (IOException | org.apache.hc.core5.http.ParseException e) {
-            logger.error("Erro ao atualizar usuário", e);
-            mostrarErro("Erro", "Não foi possível atualizar o usuário: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleExcluir() {
-        if (usuarioSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um usuário para excluir.");
-            return;
-        }
-
-        if (mostrarConfirmacao("Confirmação", 
-            "Deseja realmente excluir o usuário " + usuarioSelecionado.getNomeCompleto() + "?")) {
-            try {
-                service.deletar(usuarioSelecionado.getId());
-                usuarios.remove(usuarioSelecionado);
+            if ("CRIAR".equals(modoEdicao)) {
+                Usuario criado = service.criar(usuario);
+                usuarios.add(criado);
+                mostrarSucesso("Sucesso", "Usuário criado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                itemSelecionado.setNomeCompleto(usuario.getNomeCompleto());
+                itemSelecionado.setLogin(usuario.getLogin());
+                if (!txtSenha.getText().isEmpty()) {
+                    itemSelecionado.setSenha(usuario.getSenha());
+                }
+                itemSelecionado.setTelefone(usuario.getTelefone());
+                itemSelecionado.setEmail(usuario.getEmail());
+                itemSelecionado.setPerfil(usuario.getPerfil());
                 
-                mostrarSucesso("Sucesso", "Usuário excluído com sucesso!");
-                limparFormulario();
-                desabilitarCampos();
-            } catch (IOException | org.apache.hc.core5.http.ParseException e) {
-                logger.error("Erro ao excluir usuário", e);
-                mostrarErro("Erro", "Não foi possível excluir o usuário: " + e.getMessage());
+                service.atualizar(itemSelecionado.getId(), itemSelecionado);
+                mostrarSucesso("Sucesso", "Usuário atualizado com sucesso!");
             }
+
+            limparFormulario();
+            habilitarCampos(false);
+            carregarDados();
+            resetarBotoes();
+            modoEdicao = null;
+        } catch (IOException | org.apache.hc.core5.http.ParseException e) {
+            logger.error("Erro ao confirmar operação", e);
+            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
     }
 
     @Override
@@ -219,10 +226,7 @@ public class UsuarioController extends AbstractCrudController {
         txtEmail.clear();
         cbPerfil.setValue(null);
         tableUsuarios.getSelectionModel().clearSelection();
-        usuarioSelecionado = null;
-        btnSalvar.setDisable(true);
-        btnEditar.setDisable(true);
-        btnExcluir.setDisable(true);
+        itemSelecionado = null;
     }
 
     private void preencherFormulario(Usuario usuario) {
@@ -235,25 +239,18 @@ public class UsuarioController extends AbstractCrudController {
         cbPerfil.setValue(usuario.getPerfil());
     }
 
-    private void habilitarCampos() {
-        txtNomeCompleto.setDisable(false);
-        txtLogin.setDisable(false);
-        txtSenha.setDisable(false);
-        txtTelefone.setDisable(false);
-        txtEmail.setDisable(false);
-        cbPerfil.setDisable(false);
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNomeCompleto.setDisable(!habilitar);
+        txtLogin.setDisable(!habilitar);
+        txtSenha.setDisable(!habilitar);
+        txtTelefone.setDisable(!habilitar);
+        txtEmail.setDisable(!habilitar);
+        cbPerfil.setDisable(!habilitar);
     }
 
-    private void desabilitarCampos() {
-        txtNomeCompleto.setDisable(true);
-        txtLogin.setDisable(true);
-        txtSenha.setDisable(true);
-        txtTelefone.setDisable(true);
-        txtEmail.setDisable(true);
-        cbPerfil.setDisable(true);
-    }
-
-    private boolean validarFormulario() {
+    @Override
+    protected boolean validarFormulario() {
         if (!ValidationUtils.validarCampoObrigatorio(txtNomeCompleto.getText())) {
             mostrarErro("Validação", "O campo Nome Completo é obrigatório.");
             return false;
@@ -268,7 +265,7 @@ public class UsuarioController extends AbstractCrudController {
             return false;
         }
         // Senha obrigatória apenas na criação
-        if (usuarioSelecionado == null && !ValidationUtils.validarCampoObrigatorio(txtSenha.getText())) {
+        if ("CRIAR".equals(modoEdicao) && !ValidationUtils.validarCampoObrigatorio(txtSenha.getText())) {
             mostrarErro("Validação", "O campo Senha é obrigatório.");
             return false;
         }
@@ -293,5 +290,16 @@ public class UsuarioController extends AbstractCrudController {
             return false;
         }
         return true;
+    }
+
+    private Usuario construirUsuarioDoFormulario() {
+        Usuario usuario = new Usuario();
+        usuario.setNomeCompleto(txtNomeCompleto.getText());
+        usuario.setLogin(txtLogin.getText());
+        usuario.setSenha(txtSenha.getText());
+        usuario.setTelefone(txtTelefone.getText());
+        usuario.setEmail(txtEmail.getText());
+        usuario.setPerfil(cbPerfil.getValue());
+        return usuario;
     }
 }

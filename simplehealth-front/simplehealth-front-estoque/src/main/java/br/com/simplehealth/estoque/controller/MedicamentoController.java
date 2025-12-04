@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 
-public class MedicamentoController extends AbstractCrudController {
+public class MedicamentoController extends AbstractCrudController<Medicamento> {
     
     private static final Logger logger = LoggerFactory.getLogger(MedicamentoController.class);
     
@@ -37,9 +37,19 @@ public class MedicamentoController extends AbstractCrudController {
     @FXML private TextField txtTarga;
     @FXML private TextArea txtModoConsumo;
     
+    @FXML
+    private Button btnCriar;
+    @FXML
+    private Button btnAlterar;
+    @FXML
+    private Button btnDeletar;
+    @FXML
+    private Button btnConfirmar;
+    @FXML
+    private Button btnCancelar;
+    
     private final MedicamentoService service;
     private final ObservableList<Medicamento> medicamentos;
-    private Medicamento medicamentoSelecionado;
     
     public MedicamentoController() {
         this.service = new MedicamentoService();
@@ -48,14 +58,21 @@ public class MedicamentoController extends AbstractCrudController {
     
     @FXML
     public void initialize() {
+        super.btnCriar = this.btnCriar;
+        super.btnAlterar = this.btnAlterar;
+        super.btnDeletar = this.btnDeletar;
+        super.btnConfirmar = this.btnConfirmar;
+        super.btnCancelar = this.btnCancelar;
+
         configurarTabela();
         carregarDados();
         
         tableMedicamentos.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
-                    medicamentoSelecionado = newSelection;
+                    itemSelecionado = newSelection;
                     preencherFormulario(newSelection);
+                    habilitarBotoesSelecao();
                 }
             }
         );
@@ -65,6 +82,9 @@ public class MedicamentoController extends AbstractCrudController {
                 carregarDados();
             }
         });
+        
+        configurarEstadoInicialBotoes();
+        habilitarCampos(false);
     }
     
     private void configurarTabela() {
@@ -105,79 +125,89 @@ public class MedicamentoController extends AbstractCrudController {
     }
     
     @FXML
-    private void handleNovo() {
+    private void handleCriar() {
         limparFormulario();
-        medicamentoSelecionado = null;
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "CRIAR";
+        txtNome.requestFocus();
     }
     
     @FXML
-    private void handleSalvar() {
-        try {
-            if (!validarCampos()) return;
-            
-            Medicamento medicamento = medicamentoSelecionado != null ? 
-                medicamentoSelecionado : new Medicamento();
-            
-            medicamento.setNome(txtNome.getText());
-            medicamento.setDescricao(txtDescricao.getText());
-            medicamento.setTipo(txtTipo.getText());
-            medicamento.setUnidadeMedida(txtUnidadeMedida.getText());
-            medicamento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-            medicamento.setValidade(LocalDateTime.now().plusYears(1)); // Default
-            medicamento.setLote(txtLote.getText());
-            medicamento.setNf(txtNf.getText());
-            medicamento.setPrescricao(txtPrescricao.getText());
-            medicamento.setComposicao(txtComposicao.getText());
-            medicamento.setBula(txtBula.getText());
-            medicamento.setTarga(txtTarga.getText());
-            medicamento.setModoConsumo(txtModoConsumo.getText());
-            
-            if (medicamentoSelecionado != null && medicamentoSelecionado.getIdItem() != null) {
-                service.atualizar(medicamentoSelecionado.getIdItem(), medicamento);
-                mostrarSucesso("Medicamento atualizado com sucesso!");
-            } else {
-                service.salvar(medicamento);
-                mostrarSucesso("Sucesso", "Medicamento cadastrado com sucesso!");
-            }
-            
-            carregarDados();
-            limparFormulario();
-            RefreshManager.getInstance().notifyRefresh("Medicamento");
-            
-        } catch (Exception e) {
-            logger.error("Erro ao salvar medicamento", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
-        }
-    }
-    
-    @FXML
-    private void handleDeletar() {
-        if (medicamentoSelecionado == null) {
-            mostrarErro("Atenção", "Selecione um medicamento para deletar");
+    private void handleAlterar() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um medicamento para alterar.");
             return;
         }
-        
-        if (mostrarConfirmacao("Confirmar Exclusão", 
-            "Deseja realmente excluir o medicamento: " + medicamentoSelecionado.getNome() + "?")) {
-            try {
-                service.deletar(medicamentoSelecionado.getIdItem());
-                mostrarSucesso("Sucesso", "Medicamento deletado com sucesso!");
-                carregarDados();
-                limparFormulario();
-                RefreshManager.getInstance().notifyRefresh("Medicamento");
-            } catch (Exception e) {
-                logger.error("Erro ao deletar medicamento", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
-            }
-        }
+        habilitarCampos(true);
+        ativarModoEdicao();
+        modoEdicao = "ALTERAR";
     }
     
     @FXML
     private void handleAtualizar() {
-        carregarDados();
+        handleAlterar(); // Alias para compatibilidade com FXML
     }
     
-    private boolean validarCampos() {
+    @FXML
+    private void handleConfirmar() {
+        try {
+            if ("DELETAR".equals(modoEdicao)) {
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                service.deletar(itemSelecionado.getIdItem());
+                mostrarSucesso("Sucesso", "Medicamento deletado com sucesso!");
+            } else if ("CRIAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                Medicamento medicamento = construirMedicamentoDoFormulario();
+                service.salvar(medicamento);
+                mostrarSucesso("Sucesso", "Medicamento cadastrado com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                if (!validarFormulario()) return;
+                if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+                    mostrarErro("Erro", "Item selecionado inválido.");
+                    return;
+                }
+                Medicamento medicamento = construirMedicamentoDoFormulario();
+                medicamento.setIdItem(itemSelecionado.getIdItem());
+                service.atualizar(itemSelecionado.getIdItem(), medicamento);
+                mostrarSucesso("Sucesso", "Medicamento atualizado com sucesso!");
+            }
+            
+            carregarDados();
+            limparFormulario();
+            resetarBotoes();
+            habilitarCampos(false);
+            modoEdicao = null;
+            RefreshManager.getInstance().notifyRefresh("Medicamento");
+            
+        } catch (Exception e) {
+            logger.error("Erro ao processar operação", e);
+            mostrarErro("Erro", "Erro ao processar: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleCancelar() {
+        limparFormulario();
+        resetarBotoes();
+        habilitarCampos(false);
+        modoEdicao = null;
+    }
+    
+    @FXML
+    private void handleDeletar() {
+        if (itemSelecionado == null || itemSelecionado.getIdItem() == null) {
+            mostrarErro("Erro", "Selecione um medicamento para excluir");
+            return;
+        }
+        ativarModoEdicao();
+        modoEdicao = "DELETAR";
+    }
+    
+    protected boolean validarFormulario() {
         // Validar nome obrigatório
         if (!br.com.simplehealth.estoque.util.ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
             mostrarErro("Validação", br.com.simplehealth.estoque.util.ValidationUtils.mensagemCampoObrigatorio("Nome"));
@@ -209,6 +239,7 @@ public class MedicamentoController extends AbstractCrudController {
     
     @Override
     protected void limparFormulario() {
+        itemSelecionado = null;
         txtNome.clear();
         txtDescricao.clear();
         txtTipo.clear();
@@ -221,16 +252,41 @@ public class MedicamentoController extends AbstractCrudController {
         txtBula.clear();
         txtTarga.clear();
         txtModoConsumo.clear();
-        medicamentoSelecionado = null;
         tableMedicamentos.getSelectionModel().clearSelection();
     }
     
-    private void mostrarSucesso(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Sucesso");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+    @Override
+    protected void habilitarCampos(boolean habilitar) {
+        txtNome.setDisable(!habilitar);
+        txtDescricao.setDisable(!habilitar);
+        txtTipo.setDisable(!habilitar);
+        txtUnidadeMedida.setDisable(!habilitar);
+        txtQuantidade.setDisable(!habilitar);
+        txtLote.setDisable(!habilitar);
+        txtNf.setDisable(!habilitar);
+        txtPrescricao.setDisable(!habilitar);
+        txtComposicao.setDisable(!habilitar);
+        txtBula.setDisable(!habilitar);
+        txtTarga.setDisable(!habilitar);
+        txtModoConsumo.setDisable(!habilitar);
+    }
+    
+    private Medicamento construirMedicamentoDoFormulario() {
+        Medicamento medicamento = new Medicamento();
+        medicamento.setNome(txtNome.getText());
+        medicamento.setDescricao(txtDescricao.getText());
+        medicamento.setTipo(txtTipo.getText());
+        medicamento.setUnidadeMedida(txtUnidadeMedida.getText());
+        medicamento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
+        medicamento.setValidade(LocalDateTime.now().plusYears(1)); // Default
+        medicamento.setLote(txtLote.getText());
+        medicamento.setNf(txtNf.getText());
+        medicamento.setPrescricao(txtPrescricao.getText());
+        medicamento.setComposicao(txtComposicao.getText());
+        medicamento.setBula(txtBula.getText());
+        medicamento.setTarga(txtTarga.getText());
+        medicamento.setModoConsumo(txtModoConsumo.getText());
+        return medicamento;
     }
 }
 
