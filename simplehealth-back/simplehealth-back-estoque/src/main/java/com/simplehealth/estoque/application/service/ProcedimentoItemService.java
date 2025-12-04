@@ -3,6 +3,7 @@ package com.simplehealth.estoque.application.service;
 import com.simplehealth.estoque.domain.entity.ProcedimentoItem;
 import com.simplehealth.estoque.infrastructure.repositories.ProcedimentoItemRepository;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class ProcedimentoItemService {
     return repository.save(p);
   }
 
-  public ProcedimentoItem buscarPorId(Long id) {
+  public ProcedimentoItem buscarPorId(UUID id) {
     return repository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("ProcedimentoItem não encontrado."));
   }
@@ -25,7 +26,7 @@ public class ProcedimentoItemService {
     return repository.findAll();
   }
 
-  public void deletar(Long id) {
+  public void deletar(UUID id) {
     repository.deleteById(id);
   }
 }

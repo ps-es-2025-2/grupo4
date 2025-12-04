@@ -1,6 +1,7 @@
 package com.simplehealth.estoque.domain.entity;
 
 
+import java.util.UUID;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
@@ -11,14 +12,9 @@ import org.springframework.data.cassandra.core.mapping.Table;
 public class Estoque {
 
   @PrimaryKey
-  private Long idEstoque;
+  private UUID idEstoque;
 
   @Column
   private String local;
 
-  public Estoque() {
-    if (this.idEstoque == null) {
-      this.idEstoque = System.currentTimeMillis();
-    }
-  }
 }

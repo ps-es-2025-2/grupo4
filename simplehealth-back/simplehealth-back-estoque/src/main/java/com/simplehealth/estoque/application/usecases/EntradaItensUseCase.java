@@ -5,11 +5,16 @@ import com.simplehealth.estoque.application.service.EstoqueService;
 import com.simplehealth.estoque.application.service.FornecedorService;
 import com.simplehealth.estoque.application.service.ItemService;
 import com.simplehealth.estoque.application.service.PedidoService;
+import com.simplehealth.estoque.domain.entity.Alimento;
 import com.simplehealth.estoque.domain.entity.Fornecedor;
+import com.simplehealth.estoque.domain.entity.Hospitalar;
 import com.simplehealth.estoque.domain.entity.Item;
+import com.simplehealth.estoque.domain.entity.Medicamento;
 import com.simplehealth.estoque.domain.entity.Pedido;
+import com.simplehealth.estoque.domain.enums.TipoItem;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +27,7 @@ public class EntradaItensUseCase {
   private final FornecedorService fornecedorService;
   private final PedidoService pedidoService;
 
-  public void execute(String nfNumero, Long fornecedorId, List<ItemEntradaDTO> itens, Long pedidoId) {
+  public void execute(String nfNumero, UUID fornecedorId, List<ItemEntradaDTO> itens, UUID pedidoId) {
 
     if (nfJaProcessada(nfNumero)) {
       throw new IllegalArgumentException("Nota Fiscal já registrada: " + nfNumero);
@@ -39,14 +44,51 @@ public class EntradaItensUseCase {
     }
 
     for (ItemEntradaDTO dto : itens) {
-      Item item = itemService.buscarPorId(dto.getItemId());
+      Item item = null;
+
+      if (dto.getItemId() != null && dto.getTipo() != null) {
+        try {
+          item = itemService.buscarPorId(dto.getItemId(), dto.getTipo());
+        } catch (IllegalArgumentException e) {
+        }
+      }
 
       if (item == null) {
-        item = new Item();
-        item.setNome(dto.getNome());
-        item.setQuantidadeTotal(0);
-        item.setValidade(dto.getValidade());
-        item.setIdEstoque(estoqueService.buscarEstoquePrincipal().getIdEstoque());
+        if (dto.getTipo() == null) {
+          throw new IllegalArgumentException("Tipo de item é obrigatório para novos itens.");
+        }
+
+        switch (dto.getTipo()) {
+          case ALIMENTO:
+            Alimento alimento = new Alimento();
+            alimento.setIdItem(UUID.randomUUID());
+            alimento.setNome(dto.getNome());
+            alimento.setQuantidadeTotal(0);
+            alimento.setValidade(dto.getValidade());
+            alimento.setIdEstoque(estoqueService.buscarEstoquePrincipal().getIdEstoque());
+            item = alimento;
+            break;
+          case MEDICAMENTO:
+            Medicamento medicamento = new Medicamento();
+            medicamento.setIdItem(UUID.randomUUID());
+            medicamento.setNome(dto.getNome());
+            medicamento.setQuantidadeTotal(0);
+            medicamento.setValidade(dto.getValidade());
+            medicamento.setIdEstoque(estoqueService.buscarEstoquePrincipal().getIdEstoque());
+            item = medicamento;
+            break;
+          case HOSPITALAR:
+            Hospitalar hospitalar = new Hospitalar();
+            hospitalar.setIdItem(UUID.randomUUID());
+            hospitalar.setNome(dto.getNome());
+            hospitalar.setQuantidadeTotal(0);
+            hospitalar.setValidade(dto.getValidade());
+            hospitalar.setIdEstoque(estoqueService.buscarEstoquePrincipal().getIdEstoque());
+            item = hospitalar;
+            break;
+          default:
+            throw new IllegalArgumentException("Tipo de item inválido: " + dto.getTipo());
+        }
         itemService.salvar(item);
       }
 
@@ -77,8 +119,7 @@ public class EntradaItensUseCase {
   private void registrarMovimentacaoEntrada(Item item, int quantidade, String nfNumero, Fornecedor fornecedor) {
     System.out.printf(
         "Movimentação entrada registrada: ItemID=%d, Quantidade=%d, NF=%s, Fornecedor=%s, Data=%s%n",
-        item.getIdItem(), quantidade, nfNumero, fornecedor.getCnpj(), new Date()
-    );
+        item.getIdItem(), quantidade, nfNumero, fornecedor.getCnpj(), new Date());
   }
 
   private void atualizarStatusPedido(Pedido pedido) {
@@ -86,6 +127,5 @@ public class EntradaItensUseCase {
     pedido.setStatus(todosItensRecebidos ? "Recebido Totalmente" : "Recebido Parcialmente");
     pedidoService.salvar(pedido);
   }
-
 
 }
