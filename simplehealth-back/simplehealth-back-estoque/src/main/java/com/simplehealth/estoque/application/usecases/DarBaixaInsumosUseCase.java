@@ -4,6 +4,7 @@ import com.simplehealth.estoque.application.service.EstoqueService;
 import com.simplehealth.estoque.application.service.ItemService;
 import com.simplehealth.estoque.domain.entity.Item;
 import java.util.Date;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ public class DarBaixaInsumosUseCase {
   private final EstoqueService estoqueService;
   private final ItemService itemService;
 
-  public void execute(Long itemId, int quantidadeNecessaria, String destinoConsumo) {
+  public void execute(UUID itemId, int quantidadeNecessaria, String destinoConsumo) {
 
     Item item = itemService.buscarPorId(itemId);
     if (item == null) {
@@ -42,7 +43,7 @@ public class DarBaixaInsumosUseCase {
     }
   }
 
-  private void registrarMovimentacao(Long itemId, int quantidade, String destino) {
+  private void registrarMovimentacao(UUID itemId, int quantidade, String destino) {
     System.out.printf(
         "Movimentação registrada: ItemID=%d, Quantidade=%d, Destino=%s, Data=%s%n",
         itemId, quantidade, destino, new Date()

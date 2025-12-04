@@ -1,7 +1,7 @@
 package com.simplehealth.estoque.web.controllers;
 
-import com.simplehealth.estoque.application.service.FornecedorService;
-import com.simplehealth.estoque.domain.entity.Fornecedor;
+import com.simplehealth.estoque.application.service.PedidoService;
+import com.simplehealth.estoque.domain.entity.Pedido;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,38 +17,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/fornecedores")
+@RequestMapping("/pedidos")
 @RequiredArgsConstructor
-public class FornecedorController {
+public class PedidoController {
 
-  private final FornecedorService fornecedorService;
+  private final PedidoService service;
 
   @PostMapping
-  public ResponseEntity<Fornecedor> salvarFornecedor(@RequestBody Fornecedor fornecedor) {
-    Fornecedor savedFornecedor = fornecedorService.salvar(fornecedor);
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedFornecedor);
+  public ResponseEntity<Pedido> salvarPedido(@RequestBody Pedido pedido) {
+    Pedido savedPedido = service.salvar(pedido);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedPedido);
   }
 
   @GetMapping
-  public ResponseEntity<List<Fornecedor>> listarTodos() {
-    List<Fornecedor> fornecedores = fornecedorService.listarTodos();
-    return ResponseEntity.ok(fornecedores);
+  public ResponseEntity<List<Pedido>> listarTodos() {
+    List<Pedido> pedidos = service.listarTodos();
+    return ResponseEntity.ok(pedidos);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Fornecedor> buscarPorId(@PathVariable UUID id) {
+  public ResponseEntity<Pedido> buscarPorId(@PathVariable UUID id) {
     try {
-      Fornecedor fornecedor = fornecedorService.buscarPorId(id);
-      return ResponseEntity.ok(fornecedor);
+      Pedido pedido = service.buscarPorId(id);
+      return ResponseEntity.ok(pedido);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.notFound().build();
     }
   }
 
-
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deletarFornecedor(@PathVariable UUID id) {
-    fornecedorService.deletar(id);
+  public void deletarPedido(@PathVariable UUID id) {
+    service.deletar(id);
   }
 }

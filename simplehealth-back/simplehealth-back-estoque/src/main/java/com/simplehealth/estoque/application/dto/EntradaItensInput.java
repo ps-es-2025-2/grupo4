@@ -1,6 +1,7 @@
 package com.simplehealth.estoque.application.dto;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,8 @@ import lombok.experimental.SuperBuilder;
 public class EntradaItensInput {
 
   private String nfNumero;
-  private Long fornecedorId;
-  private Long pedidoId;
+  private UUID fornecedorId;
+  private UUID pedidoId;
   private List<ItemEntradaDTO> itens;
 
 }

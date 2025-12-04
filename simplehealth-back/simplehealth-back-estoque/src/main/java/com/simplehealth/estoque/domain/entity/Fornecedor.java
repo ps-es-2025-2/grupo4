@@ -1,6 +1,7 @@
 package com.simplehealth.estoque.domain.entity;
 
 
+import java.util.UUID;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
@@ -11,14 +12,10 @@ import org.springframework.data.cassandra.core.mapping.Table;
 public class Fornecedor {
 
   @PrimaryKey
-  private Long idFornecedor;
+  private UUID idFornecedor = UUID.randomUUID();
 
   @Column
   private String cnpj;
 
-  public Fornecedor() {
-    if (this.idFornecedor == null) {
-      this.idFornecedor = System.currentTimeMillis();
-    }
-  }
+
 }

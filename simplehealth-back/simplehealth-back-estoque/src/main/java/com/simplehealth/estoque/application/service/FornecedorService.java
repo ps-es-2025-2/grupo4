@@ -3,6 +3,7 @@ package com.simplehealth.estoque.application.service;
 import com.simplehealth.estoque.domain.entity.Fornecedor;
 import com.simplehealth.estoque.infrastructure.repositories.FornecedorRepository;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class FornecedorService {
     return repository.save(f);
   }
 
-  public Fornecedor buscarPorId(Long id) {
+  public Fornecedor buscarPorId(UUID id) {
     return repository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Fornecedor não encontrado."));
   }
@@ -25,7 +26,7 @@ public class FornecedorService {
     return repository.findAll();
   }
 
-  public void deletar(Long id) {
+  public void deletar(UUID id) {
     repository.deleteById(id);
   }
 }

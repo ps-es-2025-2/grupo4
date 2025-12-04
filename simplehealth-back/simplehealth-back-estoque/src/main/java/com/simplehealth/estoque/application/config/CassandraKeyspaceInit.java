@@ -17,5 +17,8 @@ public class CassandraKeyspaceInit {
         "CREATE KEYSPACE IF NOT EXISTS simplehealth_db " +
             "WITH replication = {'class':'SimpleStrategy','replication_factor':1};"
     );
+
+    session.execute("USE simplehealth_db");
   }
+
 }

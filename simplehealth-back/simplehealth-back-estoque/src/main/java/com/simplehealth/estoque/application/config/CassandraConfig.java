@@ -19,12 +19,23 @@ public class CassandraConfig {
       @Value("${spring.cassandra.username}") String username,
       @Value("${spring.cassandra.password}") String password
   ) {
-    return CqlSession.builder()
-        .addContactPoint(new InetSocketAddress(contactPoints, port))
-        .withLocalDatacenter("datacenter1")
-        .withAuthCredentials(username, password)
-        .withKeyspace("simplehealth_db")
-        .build();
+    int attempts = 0;
+    while (attempts < 10) {
+      try {
+        return CqlSession.builder()
+            .addContactPoint(new InetSocketAddress(contactPoints, port))
+            .withLocalDatacenter("datacenter1")
+            .withAuthCredentials(username, password)
+            .build();
+      } catch (Exception e) {
+        attempts++;
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException ignored) {
+        }
+      }
+    }
+    throw new IllegalStateException("Não foi possível conectar ao Cassandra");
   }
 
   @Bean

@@ -3,6 +3,7 @@ package com.simplehealth.estoque.application.service;
 import com.simplehealth.estoque.domain.entity.Pedido;
 import com.simplehealth.estoque.infrastructure.repositories.PedidoRepository;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class PedidoService {
     return repository.save(p);
   }
 
-  public Pedido buscarPorId(Long id) {
+  public Pedido buscarPorId(UUID id) {
     return repository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
   }
@@ -25,7 +26,7 @@ public class PedidoService {
     return repository.findAll();
   }
 
-  public void deletar(Long id) {
+  public void deletar(UUID id) {
     repository.deleteById(id);
   }
 }
