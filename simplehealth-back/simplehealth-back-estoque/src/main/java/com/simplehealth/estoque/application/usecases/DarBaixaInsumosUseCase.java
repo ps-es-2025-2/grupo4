@@ -1,10 +1,11 @@
 package com.simplehealth.estoque.application.usecases;
 
+import com.simplehealth.estoque.application.dto.BaixaInsumoDTO;
+import com.simplehealth.estoque.application.dto.BaixaInsumoResponse;
 import com.simplehealth.estoque.application.service.EstoqueService;
 import com.simplehealth.estoque.application.service.ItemService;
 import com.simplehealth.estoque.domain.entity.Item;
 import java.util.Date;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,38 +16,55 @@ public class DarBaixaInsumosUseCase {
   private final EstoqueService estoqueService;
   private final ItemService itemService;
 
-  public void execute(UUID itemId, int quantidadeNecessaria, String destinoConsumo) {
+  public BaixaInsumoResponse execute(BaixaInsumoDTO dto) {
 
-    Item item = itemService.buscarPorId(itemId);
+    if (dto.getDestinoConsumo() == null || dto.getDestinoConsumo().trim().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Destino do consumo é obrigatório para rastreabilidade (RN-BAIXA.1).");
+    }
+
+    Item item = itemService.buscarPorId(dto.getItemId());
     if (item == null) {
-      throw new IllegalArgumentException("Item não encontrado no estoque.");
+      throw new IllegalArgumentException("Item não encontrado: " + dto.getItemId());
     }
 
     Date hoje = new Date();
     if (item.getValidade() != null && !item.getValidade().after(hoje)) {
-      throw new IllegalArgumentException("Item vencido. Selecione outro lote ou proceda ao descarte.");
-    }
-
-    if (item.getQuantidadeTotal() < quantidadeNecessaria) {
       throw new IllegalArgumentException(
-          "Estoque insuficiente. Disponível: " + item.getQuantidadeTotal()
-      );
+          "Item '" + item.getNome() + "' está vencido (validade: " + item.getValidade() + ").");
     }
 
-    estoqueService.darBaixa(itemId, quantidadeNecessaria);
-
-    registrarMovimentacao(itemId, quantidadeNecessaria, destinoConsumo);
-
-    boolean estoqueCritico = estoqueService.verificarEstoqueCritico(itemId);
-    if (estoqueCritico) {
-      System.out.println("Alerta: Estoque crítico para o item: " + item.getNome());
+    int saldoAnterior = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
+    if (saldoAnterior < dto.getQuantidadeNecessaria()) {
+      throw new IllegalArgumentException(
+          "Estoque insuficiente. Disponível: " + saldoAnterior +
+              ", Solicitado: " + dto.getQuantidadeNecessaria());
     }
-  }
 
-  private void registrarMovimentacao(UUID itemId, int quantidade, String destino) {
-    System.out.printf(
-        "Movimentação registrada: ItemID=%d, Quantidade=%d, Destino=%s, Data=%s%n",
-        itemId, quantidade, destino, new Date()
+    String loteUtilizado = dto.getLote() != null ? dto.getLote() : "LOTE_UNICO";
+
+    estoqueService.darBaixa(dto.getItemId(), dto.getQuantidadeNecessaria());
+
+    int saldoAtual = saldoAnterior - dto.getQuantidadeNecessaria();
+
+    System.out.println(
+        "[SAÍDA] Item: " + item.getNome() +
+            " | Qtd: " + dto.getQuantidadeNecessaria() +
+            " | Saldo: " + saldoAnterior + " → " + saldoAtual +
+            " | Lote: " + loteUtilizado +
+            " | Destino: " + dto.getDestinoConsumo() +
+            " | Data: " + new Date());
+
+    boolean estoqueCritico = estoqueService.verificarEstoqueCritico(dto.getItemId());
+
+    return new BaixaInsumoResponse(
+        item.getIdItem(),
+        item.getNome(),
+        dto.getQuantidadeNecessaria(),
+        saldoAnterior,
+        saldoAtual,
+        loteUtilizado,
+        estoqueCritico
     );
   }
 }

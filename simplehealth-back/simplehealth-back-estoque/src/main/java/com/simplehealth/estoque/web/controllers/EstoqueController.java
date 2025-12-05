@@ -1,6 +1,9 @@
 package com.simplehealth.estoque.web.controllers;
 
-import com.simplehealth.estoque.application.dto.EntradaItensInput;
+import com.simplehealth.estoque.application.dto.BaixaInsumoDTO;
+import com.simplehealth.estoque.application.dto.BaixaInsumoResponse;
+import com.simplehealth.estoque.application.dto.ControleValidadeDTO;
+import com.simplehealth.estoque.application.dto.EntradaItensDTO;
 import com.simplehealth.estoque.application.service.EstoqueService;
 import com.simplehealth.estoque.application.usecases.ControlarValidadeUseCase;
 import com.simplehealth.estoque.application.usecases.DarBaixaInsumosUseCase;
@@ -18,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,33 +60,31 @@ public class EstoqueController {
     estoqueService.deletar(id);
   }
 
+  //UseCases Principais
+
   // UC10: Controle de validade
-  @GetMapping("/validade")
-  public List<Item> verificarValidade(
-      @RequestParam int dias,
-      @RequestParam(defaultValue = "false") boolean incluirVencidos,
-      @RequestParam(defaultValue = "false") boolean descartarItens,
-      @RequestParam(required = false) String codigoCusto) {
-    return controlarValidadeUseCase.execute(dias, incluirVencidos, descartarItens, codigoCusto);
+  @PostMapping("/validade")
+  public List<Item> verificarValidade(@RequestBody ControleValidadeDTO dto) {
+    return controlarValidadeUseCase.execute(dto);
   }
 
   // UC05: Baixa de Insumos
   @PostMapping("/baixa")
-  public void darBaixa(
-      @RequestParam UUID itemId,
-      @RequestParam int quantidade,
-      @RequestParam String destinoConsumo) {
-    darBaixaInsumosUseCase.execute(itemId, quantidade, destinoConsumo);
+  public BaixaInsumoResponse darBaixa(@RequestBody BaixaInsumoDTO dto) {
+    return darBaixaInsumosUseCase.execute(dto);
   }
+
 
   // UC06: Entrada de NF/Itens
   @PostMapping("/entrada")
-  public void entradaDeItens(@RequestBody EntradaItensInput input) {
-    entradaItensUseCase.execute(
+  public List<Item> entradaDeItens(@RequestBody EntradaItensDTO input) {
+    return entradaItensUseCase.execute(
         input.getNfNumero(),
         input.getFornecedorId(),
         input.getItens(),
-        input.getPedidoId());
+        input.getPedidoId()
+    );
   }
+
 
 }

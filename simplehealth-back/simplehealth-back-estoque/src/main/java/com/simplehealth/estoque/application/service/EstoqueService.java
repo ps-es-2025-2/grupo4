@@ -3,7 +3,6 @@ package com.simplehealth.estoque.application.service;
 import com.simplehealth.estoque.domain.entity.Estoque;
 import com.simplehealth.estoque.domain.entity.Item;
 import com.simplehealth.estoque.infrastructure.repositories.EstoqueRepository;
-import com.simplehealth.estoque.infrastructure.repositories.ItemRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class EstoqueService {
 
   private final EstoqueRepository estoqueRepository;
-  private final ItemRepository itemRepository;
+  private final ItemService itemService;
 
   public Estoque salvar(Estoque estoque) {
     if (estoque.getIdEstoque() == null) {
@@ -37,36 +36,39 @@ public class EstoqueService {
   }
 
   public void darBaixa(UUID itemId, int quantidade) {
-    Item item = itemRepository.findById(itemId)
-        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no estoque."));
+    Item item = itemService.buscarPorId(itemId);
     int qtdeAtual = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
     if (qtdeAtual < quantidade) {
       throw new IllegalArgumentException("Estoque insuficiente. Disponível: " + qtdeAtual);
     }
     item.setQuantidadeTotal(qtdeAtual - quantidade);
-    itemRepository.save(item);
+    itemService.salvar(item);
   }
 
   public boolean verificarEstoqueCritico(UUID itemId) {
-    return itemRepository.findById(itemId)
-        .map(i -> i.getQuantidadeTotal() != null && i.getQuantidadeTotal() <= 5)
-        .orElse(false);
+    try {
+      Item item = itemService.buscarPorId(itemId);
+      return item.getQuantidadeTotal() != null && item.getQuantidadeTotal() <= 5;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   public void solicitarReposicao(UUID itemId, int quantidade) {
-    itemRepository.findById(itemId).ifPresent(i -> {
-      int qt = i.getQuantidadeTotal() != null ? i.getQuantidadeTotal() : 0;
-      i.setQuantidadeTotal(qt + quantidade);
-      itemRepository.save(i);
-    });
+    try {
+      Item item = itemService.buscarPorId(itemId);
+      int qt = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
+      item.setQuantidadeTotal(qt + quantidade);
+      itemService.salvar(item);
+    } catch (IllegalArgumentException e) {
+    }
   }
 
   public void somarQuantidade(UUID itemId, int quantidade) {
-    Item item = itemRepository.findById(itemId)
-        .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no estoque."));
+    Item item = itemService.buscarPorId(itemId);
     int qt = item.getQuantidadeTotal() != null ? item.getQuantidadeTotal() : 0;
     item.setQuantidadeTotal(qt + quantidade);
-    itemRepository.save(item);
+    itemService.salvar(item);
   }
 
   public Estoque buscarEstoquePrincipal() {

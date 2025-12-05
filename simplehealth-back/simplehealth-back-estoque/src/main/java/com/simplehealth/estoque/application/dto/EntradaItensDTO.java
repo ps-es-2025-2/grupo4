@@ -11,11 +11,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class EntradaItensInput {
+public class EntradaItensDTO {
 
   private String nfNumero;
   private UUID fornecedorId;
   private UUID pedidoId;
-  private List<ItemEntradaDTO> itens;
+  private List<ItemDTO> itens;
 
 }
