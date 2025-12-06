@@ -29,4 +29,7 @@ public class PacienteDTO {
 
   private String telefone;
   private String email;
+
+  private Long convenioId;
+  private String convenioNome;
 }

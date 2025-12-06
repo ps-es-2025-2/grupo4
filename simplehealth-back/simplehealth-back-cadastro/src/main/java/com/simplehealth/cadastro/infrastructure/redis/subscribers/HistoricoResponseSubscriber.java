@@ -29,8 +29,7 @@ public class HistoricoResponseSubscriber implements MessageListener {
         case "historico.agendamento.response" -> {
           HistoricoAgendamentoResponseEvent responseEvent = mapper.readValue(
               payload,
-              HistoricoAgendamentoResponseEvent.class
-          );
+              HistoricoAgendamentoResponseEvent.class);
 
           if (responseEvent != null && responseEvent.getCorrelationId() != null) {
             cache.put(responseEvent.getCorrelationId() + ":ag", responseEvent);
@@ -48,6 +47,12 @@ public class HistoricoResponseSubscriber implements MessageListener {
         case "historico.pagamento.response" -> {
           HistoricoPagamentoResponseEvent event = mapper.readValue(payload, HistoricoPagamentoResponseEvent.class);
           cache.put(event.getCorrelationId() + ":pag", event);
+        }
+        case "estoque.alerta.response" -> {
+          com.simplehealth.cadastro.domain.events.EstoqueAlertaResponseEvent event = mapper.readValue(
+              payload,
+              com.simplehealth.cadastro.domain.events.EstoqueAlertaResponseEvent.class);
+          cache.put(event.getCorrelationId() + ":alerta", event);
         }
       }
     } catch (Exception e) {

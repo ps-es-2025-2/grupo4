@@ -15,22 +15,22 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ConsultaResponseDTO {
 
-    private String id;
-    private LocalDateTime dataHoraInicio;
-    private LocalDateTime dataHoraFim;
-    private Boolean isEncaixe;
-    private ModalidadeEnum modalidade;
-    private String motivoEncaixe;
-    private String observacoes;
-    private StatusAgendamentoEnum status;
-    private String motivoCancelamento;
-    private LocalDateTime dataCancelamento;
-    private String pacienteCpf;
-    private String medicoCrm;
-    private String convenioNome;
-    private String usuarioCriadorLogin;
-    private String usuarioCanceladorLogin;
+  private String id;
+  private LocalDateTime dataHoraInicio;
+  private LocalDateTime dataHoraFim;
+  private Boolean isEncaixe;
+  private ModalidadeEnum modalidade;
+  private String motivoEncaixe;
+  private String observacoes;
+  private StatusAgendamentoEnum status;
+  private String motivoCancelamento;
+  private LocalDateTime dataCancelamento;
+  private String pacienteCpf;
+  private String medicoCrm;
+  private String convenioNome;
+  private String usuarioCriadorLogin;
+  private String usuarioCanceladorLogin;
 
-    private String especialidade;
-    private TipoConsultaEnum tipoConsulta;
+  private String especialidade;
+  private TipoConsultaEnum tipoConsulta;
 }

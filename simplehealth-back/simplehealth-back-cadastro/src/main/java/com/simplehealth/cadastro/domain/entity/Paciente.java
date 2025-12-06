@@ -26,6 +26,10 @@ public class Paciente extends Pessoa {
   @Column(unique = true)
   private String cpf;
 
+  @jakarta.persistence.ManyToOne
+  @jakarta.persistence.JoinColumn(name = "convenio_id")
+  private Convenio convenio;
+
   public boolean verificarExistencia() {
     return false;
   }

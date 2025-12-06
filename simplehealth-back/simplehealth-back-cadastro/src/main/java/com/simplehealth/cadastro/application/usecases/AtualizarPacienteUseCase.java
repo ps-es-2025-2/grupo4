@@ -11,24 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class CadastrarNovoPacienteUseCase {
+public class AtualizarPacienteUseCase {
 
   private final PacienteService pacienteService;
   private final ConvenioService convenioService;
 
   @Transactional
-  public PacienteDTO execute(PacienteDTO dto) throws Exception {
-    if (pacienteService.existsByCpf(dto.getCpf())) {
-      var existingPaciente = pacienteService.findAll().stream()
-          .filter(p -> p.getCpf().equals(dto.getCpf()))
-          .findFirst()
-          .orElse(null);
+  public PacienteDTO execute(Long id, PacienteDTO dto) throws Exception {
+    Paciente paciente = pacienteService.findById(id);
 
-      String nomePaciente = existingPaciente != null ? existingPaciente.getNomeCompleto() : "paciente existente";
-      throw new Exception("CPF já cadastrado. Verifique o paciente " + nomePaciente + ".");
+    if (!paciente.getCpf().equals(dto.getCpf()) && pacienteService.existsByCpf(dto.getCpf())) {
+      throw new Exception("CPF já cadastrado por outro paciente.");
     }
 
-    Paciente paciente = new Paciente();
     paciente.setNomeCompleto(dto.getNomeCompleto());
     paciente.setCpf(dto.getCpf());
     paciente.setDataNascimento(dto.getDataNascimento());
@@ -39,13 +34,15 @@ public class CadastrarNovoPacienteUseCase {
       Convenio convenio = convenioService.findById(dto.getConvenioId());
 
       if (convenio.getAtivo() == null || !convenio.getAtivo()) {
-        throw new Exception("Convênio inativo não pode ser associado a novos pacientes.");
+        throw new Exception("Convênio inativo não pode ser associado a pacientes.");
       }
 
       paciente.setConvenio(convenio);
+    } else {
+      paciente.setConvenio(null);
     }
 
-    paciente = pacienteService.save(paciente);
+    paciente = pacienteService.update(id, paciente);
 
     return new PacienteDTO(
         paciente.getId(),

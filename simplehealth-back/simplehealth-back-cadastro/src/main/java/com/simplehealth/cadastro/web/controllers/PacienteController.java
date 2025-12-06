@@ -2,13 +2,13 @@ package com.simplehealth.cadastro.web.controllers;
 
 import com.simplehealth.cadastro.application.dto.HistoricoPacienteDTO;
 import com.simplehealth.cadastro.application.dto.PacienteDTO;
-import com.simplehealth.cadastro.application.service.PacienteService;
+import com.simplehealth.cadastro.application.usecases.AtualizarPacienteUseCase;
+import com.simplehealth.cadastro.application.usecases.BuscarPacienteUseCase;
 import com.simplehealth.cadastro.application.usecases.CadastrarNovoPacienteUseCase;
 import com.simplehealth.cadastro.application.usecases.ConsultarHistoricoPacienteUseCase;
-import com.simplehealth.cadastro.domain.entity.Paciente;
+import com.simplehealth.cadastro.application.usecases.DeletarPacienteUseCase;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,10 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PacienteController {
 
-  private final PacienteService pacienteService;
   private final CadastrarNovoPacienteUseCase cadastrarNovoPacienteUseCase;
+  private final BuscarPacienteUseCase buscarPacienteUseCase;
+  private final AtualizarPacienteUseCase atualizarPacienteUseCase;
+  private final DeletarPacienteUseCase deletarPacienteUseCase;
   private final ConsultarHistoricoPacienteUseCase consultarHistoricoPacienteUseCase;
-
 
   @PostMapping
   public ResponseEntity<PacienteDTO> create(@Valid @RequestBody PacienteDTO dto) throws Exception {
@@ -38,31 +39,13 @@ public class PacienteController {
 
   @GetMapping("/{id}")
   public ResponseEntity<PacienteDTO> findById(@PathVariable Long id) {
-    Paciente paciente = pacienteService.findById(id);
-    PacienteDTO dto = new PacienteDTO(
-        paciente.getId(),
-        paciente.getNomeCompleto(),
-        paciente.getDataNascimento(),
-        paciente.getCpf(),
-        paciente.getTelefone(),
-        paciente.getEmail()
-    );
+    PacienteDTO dto = buscarPacienteUseCase.buscarPorId(id);
     return ResponseEntity.ok(dto);
   }
 
   @GetMapping
   public ResponseEntity<List<PacienteDTO>> findAll() {
-    List<PacienteDTO> pacientes = pacienteService.findAll()
-        .stream()
-        .map(p -> new PacienteDTO(
-            p.getId(),
-            p.getNomeCompleto(),
-            p.getDataNascimento(),
-            p.getCpf(),
-            p.getTelefone(),
-            p.getEmail()
-        ))
-        .collect(Collectors.toList());
+    List<PacienteDTO> pacientes = buscarPacienteUseCase.listarTodos();
     return ResponseEntity.ok(pacientes);
   }
 
@@ -73,29 +56,15 @@ public class PacienteController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<PacienteDTO> update(@PathVariable Long id, @Valid @RequestBody PacienteDTO dto) {
-    Paciente paciente = new Paciente();
-    paciente.setNomeCompleto(dto.getNomeCompleto());
-    paciente.setCpf(dto.getCpf());
-    paciente.setDataNascimento(dto.getDataNascimento());
-    paciente.setTelefone(dto.getTelefone());
-    paciente.setEmail(dto.getEmail());
-
-    Paciente updated = pacienteService.update(id, paciente);
-
-    return ResponseEntity.ok(new PacienteDTO(
-        updated.getId(),
-        updated.getNomeCompleto(),
-        updated.getDataNascimento(),
-        updated.getCpf(),
-        updated.getTelefone(),
-        updated.getEmail()
-    ));
+  public ResponseEntity<PacienteDTO> update(@PathVariable Long id, @Valid @RequestBody PacienteDTO dto)
+      throws Exception {
+    PacienteDTO updated = atualizarPacienteUseCase.execute(id, dto);
+    return ResponseEntity.ok(updated);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
-    pacienteService.delete(id);
+    deletarPacienteUseCase.execute(id);
     return ResponseEntity.noContent().build();
   }
 }

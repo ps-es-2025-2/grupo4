@@ -1,6 +1,5 @@
 package com.simplehealth.cadastro.application.usecases;
 
-
 import com.simplehealth.cadastro.application.dto.AgendamentoDTO;
 import com.simplehealth.cadastro.application.dto.HistoricoPacienteDTO;
 import com.simplehealth.cadastro.application.dto.ItemEstoqueDTO;
@@ -104,8 +103,9 @@ public class ConsultarHistoricoPacienteUseCase {
             paciente.getDataNascimento(),
             paciente.getCpf(),
             paciente.getTelefone(),
-            paciente.getEmail()
-        ))
+            paciente.getEmail(),
+            paciente.getConvenio() != null ? paciente.getConvenio().getId() : null,
+            paciente.getConvenio() != null ? paciente.getConvenio().getNome() : null))
         .agendamentos(ag)
         .procedimentos(proc)
         .itensBaixados(est)
