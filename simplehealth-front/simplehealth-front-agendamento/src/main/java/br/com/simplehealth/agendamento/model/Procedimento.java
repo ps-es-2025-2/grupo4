@@ -8,13 +8,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Procedimento extends Agendamento {
 
-    @JsonProperty("descricao_procedimento")
+    @JsonProperty("descricaoProcedimento")
     private String descricaoProcedimento;
 
-    @JsonProperty("sala_equipamento_necessario")
+    @JsonProperty("salaEquipamentoNecessario")
     private String salaEquipamentoNecessario;
 
-    @JsonProperty("nivel_risco")
+    @JsonProperty("nivelRisco")
     private String nivelRisco;
 
     // Construtores

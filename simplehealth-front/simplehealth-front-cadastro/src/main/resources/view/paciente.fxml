@@ -39,7 +39,8 @@
                         <TableColumn fx:id="colunaDataNascimento" text="Data Nascimento" prefWidth="130"/>
                         <TableColumn fx:id="colunaCpf" text="CPF" prefWidth="130"/>
                         <TableColumn fx:id="colunaTelefone" text="Telefone" prefWidth="130"/>
-                        <TableColumn fx:id="colunaEmail" text="Email" prefWidth="200"/>
+                        <TableColumn fx:id="colunaEmail" text="Email" prefWidth="150"/>
+                        <TableColumn fx:id="colunaConvenio" text="Convênio" prefWidth="150"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -87,6 +88,8 @@
                             style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
                     <Button fx:id="btnAlterar" text="Alterar" onAction="#handleAlterar"/>
                     <Button fx:id="btnDeletar" text="Deletar" onAction="#handleDeletar"/>
+                    <Button fx:id="btnHistorico" text="Ver Histórico" onAction="#handleHistorico" 
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
                 </HBox>
                 
                 <!-- Botões de Confirmação -->

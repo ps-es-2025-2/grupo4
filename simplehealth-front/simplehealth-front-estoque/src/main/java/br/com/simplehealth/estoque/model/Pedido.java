@@ -1,9 +1,10 @@
 package br.com.simplehealth.estoque.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Modelo para pedidos
@@ -11,46 +12,46 @@ import java.util.List;
 public class Pedido {
     
     @JsonProperty("idPedido")
-    private Long idPedido;
+    private UUID idPedido;
     
     @JsonProperty("dataPedido")
-    private LocalDateTime dataPedido;
+    private Date dataPedido;
     
     @JsonProperty("status")
     private String status;
     
-    @JsonProperty("fornecedor")
-    private Fornecedor fornecedor;
+    @JsonProperty("itemIds")
+    private List<UUID> itemIds;
     
-    @JsonProperty("itens")
-    private List<Item> itens;
+    @JsonProperty("fornecedorId")
+    private UUID fornecedorId;
     
     // Construtores
     public Pedido() {
-        this.itens = new ArrayList<>();
+        this.itemIds = new ArrayList<>();
     }
     
-    public Pedido(LocalDateTime dataPedido, String status, Fornecedor fornecedor) {
+    public Pedido(Date dataPedido, String status, UUID fornecedorId) {
         this.dataPedido = dataPedido;
         this.status = status;
-        this.fornecedor = fornecedor;
-        this.itens = new ArrayList<>();
+        this.fornecedorId = fornecedorId;
+        this.itemIds = new ArrayList<>();
     }
     
     // Getters e Setters
-    public Long getIdPedido() {
+    public UUID getIdPedido() {
         return idPedido;
     }
     
-    public void setIdPedido(Long idPedido) {
+    public void setIdPedido(UUID idPedido) {
         this.idPedido = idPedido;
     }
     
-    public LocalDateTime getDataPedido() {
+    public Date getDataPedido() {
         return dataPedido;
     }
     
-    public void setDataPedido(LocalDateTime dataPedido) {
+    public void setDataPedido(Date dataPedido) {
         this.dataPedido = dataPedido;
     }
     
@@ -62,25 +63,24 @@ public class Pedido {
         this.status = status;
     }
     
-    public Fornecedor getFornecedor() {
-        return fornecedor;
+    public List<UUID> getItemIds() {
+        return itemIds;
     }
     
-    public void setFornecedor(Fornecedor fornecedor) {
-        this.fornecedor = fornecedor;
+    public void setItemIds(List<UUID> itemIds) {
+        this.itemIds = itemIds;
     }
     
-    public List<Item> getItens() {
-        return itens;
+    public UUID getFornecedorId() {
+        return fornecedorId;
     }
     
-    public void setItens(List<Item> itens) {
-        this.itens = itens;
+    public void setFornecedorId(UUID fornecedorId) {
+        this.fornecedorId = fornecedorId;
     }
     
     @Override
     public String toString() {
-        return "Pedido #" + idPedido + " - " + status + " - " + 
-               (fornecedor != null ? fornecedor.getNome() : "Sem fornecedor");
+        return "Pedido #" + idPedido + " - " + status;
     }
 }

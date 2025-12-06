@@ -16,10 +16,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * Service para listar e buscar itens (somente leitura)
+ * @deprecated O backend não possui endpoint específico para Itens.
+ * Os itens são gerenciados através do endpoint /controle/entrada (EntradaItensDTO)
+ * e /controle/baixa (BaixaInsumoDTO).
+ * Este service permanece apenas para compatibilidade com controllers legados.
  */
+@Deprecated
 public class ItemService {
     
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
@@ -29,7 +34,9 @@ public class ItemService {
     public ItemService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_ITENS;
+        // NOTA: Backend não possui endpoint específico para Itens
+        // Os itens são gerenciados através do endpoint /controle/entrada
+        this.baseUrl = AppConfig.API_BASE_URL + "/itens"; // Endpoint não implementado
     }
     
     public List<Item> listar() throws IOException {
@@ -49,7 +56,7 @@ public class ItemService {
         }
     }
     
-    public Item buscarPorId(Long id) throws IOException {
+    public Item buscarPorId(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl + "/" + id);
             
@@ -65,7 +72,7 @@ public class ItemService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             

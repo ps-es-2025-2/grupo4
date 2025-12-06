@@ -8,13 +8,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Exame extends Agendamento {
 
-    @JsonProperty("nome_exame")
+    @JsonProperty("nomeExame")
     private String nomeExame;
 
-    @JsonProperty("requer_preparo")
+    @JsonProperty("requerPreparo")
     private Boolean requerPreparo;
 
-    @JsonProperty("instrucoes_preparo")
+    @JsonProperty("instrucoesPreparo")
     private String instrucoesPreparo;
 
     // Construtores

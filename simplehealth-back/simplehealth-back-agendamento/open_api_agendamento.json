@@ -1,0 +1,388 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8082/agendamento",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/encaixe": {
+      "post": {
+        "tags": [
+          "encaixe-controller"
+        ],
+        "operationId": "solicitar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EncaixeDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bloqueio-agenda": {
+      "post": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "criar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BloqueioAgendaDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamentos": {
+      "post": {
+        "tags": [
+          "agendamento-controller"
+        ],
+        "operationId": "agendar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendarConsultaDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamentos/cancelar": {
+      "post": {
+        "tags": [
+          "agendamento-controller"
+        ],
+        "operationId": "cancelar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarAgendamentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EncaixeDTO": {
+        "type": "object",
+        "properties": {
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          }
+        }
+      },
+      "ConsultaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ATIVO",
+              "REALIZADO",
+              "CANCELADO",
+              "NAO_COMPARECEU"
+            ]
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
+            "type": "string"
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
+          }
+        }
+      },
+      "BloqueioAgendaDTO": {
+        "type": "object",
+        "properties": {
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "antecedenciaMinima": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "BloqueioAgendaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "antecedenciaMinima": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AgendarConsultaDTO": {
+        "type": "object",
+        "properties": {
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          }
+        }
+      },
+      "CancelarAgendamentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "usuarioLogin": {
+            "type": "string"
+          },
+          "dataHoraCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

@@ -26,8 +26,14 @@ public class Paciente {
     @JsonProperty("email")
     private String email;
 
-    @JsonProperty("convenio")
-    private Convenio convenio;
+    @JsonProperty("convenioId")
+    private Long convenioId;
+    
+    @JsonProperty("convenioNome")
+    private String convenioNome;
+    
+    // Objeto convenio temporário para uso na interface (não enviado para API)
+    private transient Convenio convenio;
 
     public Paciente() {
     }
@@ -41,14 +47,15 @@ public class Paciente {
         this.email = email;
     }
 
-    public Paciente(Long id, String nomeCompleto, LocalDate dataNascimento, String cpf, String telefone, String email, Convenio convenio) {
+    public Paciente(Long id, String nomeCompleto, LocalDate dataNascimento, String cpf, String telefone, String email, Long convenioId, String convenioNome) {
         this.id = id;
         this.nomeCompleto = nomeCompleto;
         this.dataNascimento = dataNascimento;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
-        this.convenio = convenio;
+        this.convenioId = convenioId;
+        this.convenioNome = convenioNome;
     }
 
     // Getters e Setters
@@ -100,12 +107,32 @@ public class Paciente {
         this.email = email;
     }
 
+    public Long getConvenioId() {
+        return convenioId;
+    }
+
+    public void setConvenioId(Long convenioId) {
+        this.convenioId = convenioId;
+    }
+    
+    public String getConvenioNome() {
+        return convenioNome;
+    }
+
+    public void setConvenioNome(String convenioNome) {
+        this.convenioNome = convenioNome;
+    }
+    
     public Convenio getConvenio() {
         return convenio;
     }
 
     public void setConvenio(Convenio convenio) {
         this.convenio = convenio;
+        if (convenio != null) {
+            this.convenioId = convenio.getId();
+            this.convenioNome = convenio.getNome();
+        }
     }
 
     @Override

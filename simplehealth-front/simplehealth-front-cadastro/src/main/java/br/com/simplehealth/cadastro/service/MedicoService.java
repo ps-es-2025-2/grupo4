@@ -72,10 +72,15 @@ public class MedicoService {
             request.setEntity(new StringEntity(json));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String jsonResponse = EntityUtils.toString(response.getEntity());
-                logger.debug("Resposta da API: {}", jsonResponse);
+                logger.debug("Resposta da API: {} - {}", statusCode, jsonResponse);
                 
-                return objectMapper.readValue(jsonResponse, Medico.class);
+                if (statusCode == 201 || statusCode == 200) {
+                    return objectMapper.readValue(jsonResponse, Medico.class);
+                } else {
+                    throw new IOException("Erro ao criar médico. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }
@@ -92,10 +97,15 @@ public class MedicoService {
             request.setEntity(new StringEntity(json));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String jsonResponse = EntityUtils.toString(response.getEntity());
-                logger.debug("Resposta da API: {}", jsonResponse);
+                logger.debug("Resposta da API: {} - {}", statusCode, jsonResponse);
                 
-                return objectMapper.readValue(jsonResponse, Medico.class);
+                if (statusCode == 200) {
+                    return objectMapper.readValue(jsonResponse, Medico.class);
+                } else {
+                    throw new IOException("Erro ao atualizar médico. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }
@@ -103,12 +113,22 @@ public class MedicoService {
     /**
      * Deleta um médico.
      */
-    public void deletar(Long id) throws IOException {
+    public void deletar(Long id) throws IOException, org.apache.hc.core5.http.ParseException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(AppConfig.MEDICOS_ENDPOINT + "/" + id);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                logger.debug("Médico deletado com sucesso. Status: {}", response.getCode());
+                int statusCode = response.getCode();
+                logger.debug("Médico deletado. Status: {}", statusCode);
+                
+                if (statusCode != 204 && statusCode != 200) {
+                    try {
+                        String jsonResponse = EntityUtils.toString(response.getEntity());
+                        throw new IOException("Erro ao deletar médico. Status: " + statusCode + " - " + jsonResponse);
+                    } catch (org.apache.hc.core5.http.ParseException e) {
+                        throw new IOException("Erro ao deletar médico. Status: " + statusCode, e);
+                    }
+                }
             }
         }
     }

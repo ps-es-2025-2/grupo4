@@ -12,13 +12,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class PedidoController extends AbstractCrudController<Pedido> {
     
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
     
     @FXML private TableView<Pedido> tablePedidos;
-    @FXML private TableColumn<Pedido, Long> colId;
+    @FXML private TableColumn<Pedido, UUID> colId;
     @FXML private TableColumn<Pedido, LocalDateTime> colData;
     @FXML private TableColumn<Pedido, String> colStatus;
     @FXML private TableColumn<Pedido, String> colFornecedor;
@@ -70,8 +71,8 @@ public class PedidoController extends AbstractCrudController<Pedido> {
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
         colFornecedor.setCellValueFactory(cellData -> 
             new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getFornecedor() != null ? 
-                cellData.getValue().getFornecedor().getNome() : "N/A"
+                cellData.getValue().getFornecedorId() != null ? 
+                cellData.getValue().getFornecedorId().toString() : "N/A"
             )
         );
         tablePedidos.setItems(pedidos);
@@ -121,11 +122,12 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     
     private void preencherFormulario(Pedido pedido) {
         if (pedido.getDataPedido() != null) {
-            dtDataPedido.setValue(pedido.getDataPedido().toLocalDate());
+            // Converter Date para LocalDate
+            dtDataPedido.setValue(new java.sql.Date(pedido.getDataPedido().getTime()).toLocalDate());
         }
         cbStatus.setValue(pedido.getStatus());
-        if (pedido.getFornecedor() != null && pedido.getFornecedor().getIdFornecedor() != null) {
-            txtIdFornecedor.setText(String.valueOf(pedido.getFornecedor().getIdFornecedor()));
+        if (pedido.getFornecedorId() != null) {
+            txtIdFornecedor.setText(String.valueOf(pedido.getFornecedorId()));
         }
     }
     
@@ -242,9 +244,10 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     private Pedido construirPedidoDoFormulario() {
         Pedido pedido = new Pedido();
         if (dtDataPedido.getValue() != null) {
-            pedido.setDataPedido(dtDataPedido.getValue().atStartOfDay());
+            // Converter LocalDate para Date
+            pedido.setDataPedido(java.sql.Date.valueOf(dtDataPedido.getValue()));
         } else {
-            pedido.setDataPedido(LocalDateTime.now());
+            pedido.setDataPedido(new java.util.Date());
         }
         pedido.setStatus(cbStatus.getValue());
         // Note: Fornecedor e Itens devem ser configurados via relacionamento no backend

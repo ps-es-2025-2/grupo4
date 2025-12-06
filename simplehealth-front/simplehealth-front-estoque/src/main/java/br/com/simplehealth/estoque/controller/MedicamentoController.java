@@ -12,13 +12,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+/**
+ * @deprecated Este controller usa MedicamentoService que está deprecado.
+ * Considere refatorar para usar EntradaItensService com tipo=MEDICAMENTO.
+ */
+@Deprecated
 public class MedicamentoController extends AbstractCrudController<Medicamento> {
     
     private static final Logger logger = LoggerFactory.getLogger(MedicamentoController.class);
     
     @FXML private TableView<Medicamento> tableMedicamentos;
-    @FXML private TableColumn<Medicamento, Long> colId;
+    @FXML private TableColumn<Medicamento, UUID> colId;
     @FXML private TableColumn<Medicamento, String> colNome;
     @FXML private TableColumn<Medicamento, String> colTipo;
     @FXML private TableColumn<Medicamento, Integer> colQuantidade;
@@ -111,12 +117,8 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     
     private void preencherFormulario(Medicamento medicamento) {
         txtNome.setText(medicamento.getNome());
-        txtDescricao.setText(medicamento.getDescricao());
-        txtTipo.setText(medicamento.getTipo());
-        txtUnidadeMedida.setText(medicamento.getUnidadeMedida());
         txtQuantidade.setText(String.valueOf(medicamento.getQuantidadeTotal()));
-        txtLote.setText(medicamento.getLote());
-        txtNf.setText(medicamento.getNf());
+        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         txtPrescricao.setText(medicamento.getPrescricao());
         txtComposicao.setText(medicamento.getComposicao());
         txtBula.setText(medicamento.getBula());
@@ -274,13 +276,9 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     private Medicamento construirMedicamentoDoFormulario() {
         Medicamento medicamento = new Medicamento();
         medicamento.setNome(txtNome.getText());
-        medicamento.setDescricao(txtDescricao.getText());
-        medicamento.setTipo(txtTipo.getText());
-        medicamento.setUnidadeMedida(txtUnidadeMedida.getText());
         medicamento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-        medicamento.setValidade(LocalDateTime.now().plusYears(1)); // Default
-        medicamento.setLote(txtLote.getText());
-        medicamento.setNf(txtNf.getText());
+        medicamento.setValidade(new java.util.Date()); // Data atual
+        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         medicamento.setPrescricao(txtPrescricao.getText());
         medicamento.setComposicao(txtComposicao.getText());
         medicamento.setBula(txtBula.getText());

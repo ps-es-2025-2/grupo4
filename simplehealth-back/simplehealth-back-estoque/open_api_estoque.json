@@ -1,0 +1,621 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8083/estoque",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/pedidos": {
+      "get": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "listarTodos",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pedido"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "salvarPedido",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pedido"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fornecedores": {
+      "get": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "listarTodos_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fornecedor"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "salvarFornecedor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fornecedor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fornecedor"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/controle": {
+      "get": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "listarEstoques",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Estoque"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "salvarEstoque",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estoque"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estoque"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/controle/validade": {
+      "post": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "verificarValidade",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControleValidadeDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/controle/entrada": {
+      "post": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "entradaDeItens",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaItensDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/controle/baixa": {
+      "post": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "darBaixa",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BaixaInsumoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaixaInsumoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{id}": {
+      "get": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "deletarPedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fornecedores/{id}": {
+      "get": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "buscarPorId_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fornecedor"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "deletarFornecedor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/controle/{id}": {
+      "get": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "buscarEstoquePorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estoque"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "deletarEstoque",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dataPedido": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "fornecedorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Fornecedor": {
+        "type": "object",
+        "properties": {
+          "idFornecedor": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cnpj": {
+            "type": "string"
+          }
+        }
+      },
+      "Estoque": {
+        "type": "object",
+        "properties": {
+          "idEstoque": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "local": {
+            "type": "string"
+          }
+        }
+      },
+      "ControleValidadeDTO": {
+        "type": "object",
+        "properties": {
+          "diasAntecedencia": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "incluirVencidos": {
+            "type": "boolean"
+          },
+          "descartarItens": {
+            "type": "boolean"
+          },
+          "codigoCusto": {
+            "type": "string"
+          }
+        }
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "idItem": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidadeTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validade": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EntradaItensDTO": {
+        "type": "object",
+        "properties": {
+          "nfNumero": {
+            "type": "string"
+          },
+          "fornecedorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pedidoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemDTO"
+            }
+          }
+        }
+      },
+      "ItemDTO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validade": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "ALIMENTO",
+              "MEDICAMENTO",
+              "HOSPITALAR"
+            ]
+          },
+          "lote": {
+            "type": "string"
+          },
+          "confirmacaoGestor": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BaixaInsumoDTO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quantidadeNecessaria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "destinoConsumo": {
+            "type": "string"
+          },
+          "lote": {
+            "type": "string"
+          }
+        }
+      },
+      "BaixaInsumoResponse": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidadeBaixada": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saldoAnterior": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saldoAtual": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lote": {
+            "type": "string"
+          },
+          "estoqueCritico": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,11 +8,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller para o CRUD de Convênios.
  */
 public class ConvenioController extends AbstractCrudController<Convenio> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConvenioController.class);
 
     @FXML
     private TableView<Convenio> tabelaConvenios;
@@ -218,16 +222,16 @@ public class ConvenioController extends AbstractCrudController<Convenio> {
         if (!validarCampoNaoVazio(txtNome.getText(), "Nome")) {
             return false;
         }
-        if (!validarCampoNaoVazio(txtPlano.getText(), "Plano")) {
-            return false;
-        }
+        // Campo 'plano' não é obrigatório conforme backend (ConvenioDTO)
         return true;
     }
 
     private Convenio construirConvenioDoFormulario() {
         Convenio convenio = new Convenio();
         convenio.setNome(txtNome.getText().trim());
-        convenio.setPlano(txtPlano.getText().trim());
+        // Plano é opcional
+        String plano = txtPlano.getText().trim();
+        convenio.setPlano(plano.isEmpty() ? null : plano);
         convenio.setAtivo(chkAtivo.isSelected());
         return convenio;
     }

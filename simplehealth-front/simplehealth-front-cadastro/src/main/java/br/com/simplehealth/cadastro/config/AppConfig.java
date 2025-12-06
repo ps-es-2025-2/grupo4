@@ -17,7 +17,8 @@ public class AppConfig {
     public static final String PACIENTES_ENDPOINT = API_BASE_URL + "/pacientes";
     public static final String MEDICOS_ENDPOINT = API_BASE_URL + "/api/cadastro/medicos";
     public static final String CONVENIOS_ENDPOINT = API_BASE_URL + "/api/cadastro/convenios";
-    public static final String USUARIOS_ENDPOINT = API_BASE_URL + "/api/cadastro/usuarios";
+    public static final String USUARIOS_ENDPOINT = API_BASE_URL + "/usuarios";
+    public static final String HISTORICO_PACIENTE_ENDPOINT = API_BASE_URL + "/pacientes/historico";
 
     // Timeout para requisições HTTP (em segundos)
     public static final int HTTP_TIMEOUT = 30;

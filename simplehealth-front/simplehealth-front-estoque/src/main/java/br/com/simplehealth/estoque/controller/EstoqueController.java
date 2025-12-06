@@ -12,17 +12,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 public class EstoqueController extends AbstractCrudController<Estoque> {
     
     private static final Logger logger = LoggerFactory.getLogger(EstoqueController.class);
     
     @FXML private TableView<Estoque> tableEstoques;
-    @FXML private TableColumn<Estoque, Long> colId;
+    @FXML private TableColumn<Estoque, UUID> colId;
     @FXML private TableColumn<Estoque, String> colLocal;
-    @FXML private TableColumn<Estoque, String> colItem;
     
     @FXML private TextField txtLocal;
-    @FXML private TextField txtIdItem;
     
     @FXML
     private Button btnCriar;
@@ -62,12 +62,6 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idEstoque"));
         colLocal.setCellValueFactory(new PropertyValueFactory<>("local"));
-        colItem.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getItem() != null ? 
-                cellData.getValue().getItem().getNome() : "N/A"
-            )
-        );
         tableEstoques.setItems(estoques);
     }
     
@@ -105,9 +99,6 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     
     private void preencherFormulario(Estoque estoque) {
         txtLocal.setText(estoque.getLocal());
-        if (estoque.getItem() != null && estoque.getItem().getIdItem() != null) {
-            txtIdItem.setText(String.valueOf(estoque.getItem().getIdItem()));
-        }
     }
     
     @FXML
@@ -206,20 +197,17 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     protected void limparFormulario() {
         itemSelecionado = null;
         txtLocal.clear();
-        txtIdItem.clear();
         tableEstoques.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         txtLocal.setDisable(!habilitar);
-        txtIdItem.setDisable(!habilitar);
     }
     
     private Estoque construirEstoqueDoFormulario() {
         Estoque estoque = new Estoque();
         estoque.setLocal(txtLocal.getText());
-        // Note: Item deve ser configurado via relacionamento no backend
         return estoque;
     }
 }

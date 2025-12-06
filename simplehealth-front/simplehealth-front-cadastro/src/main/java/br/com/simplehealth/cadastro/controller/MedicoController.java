@@ -9,11 +9,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controller para o CRUD de Médicos.
  */
 public class MedicoController extends AbstractCrudController<Medico> {
+
+    private static final Logger logger = LoggerFactory.getLogger(MedicoController.class);
 
     @FXML
     private TableView<Medico> tabelaMedicos;
@@ -249,10 +253,7 @@ public class MedicoController extends AbstractCrudController<Medico> {
             mostrarErro("Validação", "CRM inválido. Deve conter de 4 a 7 dígitos.");
             return false;
         }
-        if (!ValidationUtils.validarCampoObrigatorio(txtEspecialidade.getText())) {
-            mostrarErro("Validação", "O campo Especialidade é obrigatório.");
-            return false;
-        }
+        // Especialidade não é obrigatória no backend
         // Validações opcionais
         if (ValidationUtils.validarCampoObrigatorio(txtEmail.getText()) && 
             !ValidationUtils.validarEmail(txtEmail.getText())) {
@@ -271,9 +272,13 @@ public class MedicoController extends AbstractCrudController<Medico> {
         Medico medico = new Medico();
         medico.setNomeCompleto(txtNome.getText().trim());
         medico.setCrm(txtCrm.getText().trim());
-        medico.setEspecialidade(txtEspecialidade.getText().trim());
-        medico.setTelefone(txtTelefone.getText().trim());
-        medico.setEmail(txtEmail.getText().trim());
+        // Só envia campos opcionais se estiverem preenchidos
+        String especialidade = txtEspecialidade.getText().trim();
+        medico.setEspecialidade(especialidade.isEmpty() ? null : especialidade);
+        String telefone = txtTelefone.getText().trim();
+        medico.setTelefone(telefone.isEmpty() ? null : telefone);
+        String email = txtEmail.getText().trim();
+        medico.setEmail(email.isEmpty() ? null : email);
         return medico;
     }
 }

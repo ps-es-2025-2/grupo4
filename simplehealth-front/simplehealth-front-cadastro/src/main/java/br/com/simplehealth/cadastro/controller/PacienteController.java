@@ -1,7 +1,6 @@
 package br.com.simplehealth.cadastro.controller;
 
-import br.com.simplehealth.cadastro.model.Convenio;
-import br.com.simplehealth.cadastro.model.Paciente;
+import br.com.simplehealth.cadastro.model.*;
 import br.com.simplehealth.cadastro.service.ConvenioService;
 import br.com.simplehealth.cadastro.service.PacienteService;
 import br.com.simplehealth.cadastro.util.RefreshManager;
@@ -14,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -35,6 +35,8 @@ public class PacienteController extends AbstractCrudController<Paciente> {
     private TableColumn<Paciente, String> colunaTelefone;
     @FXML
     private TableColumn<Paciente, String> colunaEmail;
+    @FXML
+    private TableColumn<Paciente, String> colunaConvenio;
 
     @FXML
     private TextField txtBusca;
@@ -62,6 +64,8 @@ public class PacienteController extends AbstractCrudController<Paciente> {
     private Button btnConfirmar;
     @FXML
     private Button btnCancelar;
+    @FXML
+    private Button btnHistorico;
 
     private final PacienteService pacienteService = new PacienteService();
     private final ConvenioService convenioService = new ConvenioService();
@@ -110,6 +114,7 @@ public class PacienteController extends AbstractCrudController<Paciente> {
         colunaCpf.setCellValueFactory(new PropertyValueFactory<>("cpf"));
         colunaTelefone.setCellValueFactory(new PropertyValueFactory<>("telefone"));
         colunaEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
+        colunaConvenio.setCellValueFactory(new PropertyValueFactory<>("convenioNome"));
         
         tabelaPacientes.setItems(listaPacientes);
     }
@@ -303,6 +308,12 @@ public class PacienteController extends AbstractCrudController<Paciente> {
             mostrarErro("Validação", "CPF inválido.");
             return false;
         }
+        // Verificar tamanho do CPF (deve ter 11 caracteres sem formatação)
+        String cpfLimpo = txtCpf.getText().replaceAll("[^0-9]", "");
+        if (cpfLimpo.length() != 11) {
+            mostrarErro("Validação", "CPF deve ter exatamente 11 dígitos.");
+            return false;
+        }
         // Validações opcionais (se campos não estiverem vazios)
         if (ValidationUtils.validarCampoObrigatorio(txtEmail.getText()) && 
             !ValidationUtils.validarEmail(txtEmail.getText())) {
@@ -321,10 +332,104 @@ public class PacienteController extends AbstractCrudController<Paciente> {
         Paciente paciente = new Paciente();
         paciente.setNomeCompleto(txtNome.getText().trim());
         paciente.setDataNascimento(dtDataNascimento.getValue());
-        paciente.setCpf(txtCpf.getText().trim());
-        paciente.setTelefone(txtTelefone.getText().trim());
-        paciente.setEmail(txtEmail.getText().trim());
+        // Remove formatação do CPF antes de enviar
+        paciente.setCpf(txtCpf.getText().replaceAll("[^0-9]", ""));
+        // Só envia telefone e email se estiverem preenchidos
+        String telefone = txtTelefone.getText().trim();
+        paciente.setTelefone(telefone.isEmpty() ? null : telefone);
+        String email = txtEmail.getText().trim();
+        paciente.setEmail(email.isEmpty() ? null : email);
         paciente.setConvenio(cbConvenio.getValue());
         return paciente;
+    }
+
+    @FXML
+    private void handleHistorico() {
+        if (itemSelecionado == null) {
+            mostrarErro("Erro", "Selecione um paciente para visualizar o histórico.");
+            return;
+        }
+
+        try {
+            HistoricoPaciente historico = pacienteService.consultarHistorico(itemSelecionado.getCpf());
+            exibirHistorico(historico);
+        } catch (Exception e) {
+            logger.error("Erro ao consultar histórico", e);
+            mostrarErro("Erro", "Não foi possível consultar o histórico: " + e.getMessage());
+        }
+    }
+
+    private void exibirHistorico(HistoricoPaciente historico) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Histórico do Paciente");
+        alert.setHeaderText("Histórico Completo - " + historico.getDadosCadastrais().getNomeCompleto());
+        
+        StringBuilder conteudo = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        // Dados cadastrais
+        conteudo.append("=== DADOS CADASTRAIS ===\n");
+        conteudo.append("Nome: ").append(historico.getDadosCadastrais().getNomeCompleto()).append("\n");
+        conteudo.append("CPF: ").append(historico.getDadosCadastrais().getCpf()).append("\n");
+        conteudo.append("Email: ").append(historico.getDadosCadastrais().getEmail()).append("\n");
+        conteudo.append("Telefone: ").append(historico.getDadosCadastrais().getTelefone()).append("\n\n");
+        
+        // Agendamentos
+        conteudo.append("=== AGENDAMENTOS ===\n");
+        if (historico.getAgendamentos() != null && !historico.getAgendamentos().isEmpty()) {
+            for (Agendamento ag : historico.getAgendamentos()) {
+                conteudo.append("• ").append(ag.getDataHoraInicio().format(formatter))
+                        .append(" - ").append(ag.getStatus())
+                        .append(" (Dr(a). CRM: ").append(ag.getMedicoCrm()).append(")\n");
+            }
+        } else {
+            conteudo.append("Nenhum agendamento encontrado.\n");
+        }
+        conteudo.append("\n");
+        
+        // Procedimentos
+        conteudo.append("=== PROCEDIMENTOS ===\n");
+        if (historico.getProcedimentos() != null && !historico.getProcedimentos().isEmpty()) {
+            for (Procedimento proc : historico.getProcedimentos()) {
+                conteudo.append("• ").append(proc.getDescricaoProcedimento())
+                        .append(" - ").append(proc.getDataHoraInicio().format(formatter))
+                        .append(" (Risco: ").append(proc.getNivelRisco()).append(")\n");
+            }
+        } else {
+            conteudo.append("Nenhum procedimento encontrado.\n");
+        }
+        conteudo.append("\n");
+        
+        // Itens baixados
+        conteudo.append("=== ITENS DE ESTOQUE UTILIZADOS ===\n");
+        if (historico.getItensBaixados() != null && !historico.getItensBaixados().isEmpty()) {
+            for (ItemEstoque item : historico.getItensBaixados()) {
+                conteudo.append("• ").append(item.getNome())
+                        .append(" (Qtd: ").append(item.getQuantidade()).append(")\n");
+            }
+        } else {
+            conteudo.append("Nenhum item utilizado.\n");
+        }
+        conteudo.append("\n");
+        
+        // Pagamentos
+        conteudo.append("=== PAGAMENTOS ===\n");
+        if (historico.getPagamentos() != null && !historico.getPagamentos().isEmpty()) {
+            for (Pagamento pag : historico.getPagamentos()) {
+                conteudo.append("• ").append(pag.getDescricao())
+                        .append(" - R$ ").append(pag.getValor()).append("\n");
+            }
+        } else {
+            conteudo.append("Nenhum pagamento registrado.\n");
+        }
+        
+        TextArea textArea = new TextArea(conteudo.toString());
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+        textArea.setPrefRowCount(25);
+        textArea.setPrefColumnCount(60);
+        
+        alert.getDialogPane().setContent(textArea);
+        alert.showAndWait();
     }
 }

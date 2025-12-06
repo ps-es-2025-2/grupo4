@@ -1,8 +1,8 @@
 package br.com.simplehealth.cadastro.controller;
 
 import br.com.simplehealth.cadastro.model.Usuario;
+import br.com.simplehealth.cadastro.model.enums.EPerfilUsuario;
 import br.com.simplehealth.cadastro.service.UsuarioService;
-import br.com.simplehealth.cadastro.util.RefreshManager;
 import br.com.simplehealth.cadastro.util.ValidationUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,7 +49,7 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
     @FXML
     private TextField txtEmail;
     @FXML
-    private ComboBox<String> cbPerfil;
+    private ComboBox<EPerfilUsuario> cbPerfil;
 
     // Botões herdados do AbstractCrudController
     @FXML
@@ -94,9 +94,7 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
     }
 
     private void configurarComboBox() {
-        cbPerfil.setItems(FXCollections.observableArrayList(
-            "MEDICO", "SECRETARIA", "GESTOR", "FINANCEIRO", "TESOURARIA"
-        ));
+        cbPerfil.setItems(FXCollections.observableArrayList(EPerfilUsuario.values()));
     }
 
     private void configurarEventos() {
@@ -294,11 +292,14 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
 
     private Usuario construirUsuarioDoFormulario() {
         Usuario usuario = new Usuario();
-        usuario.setNomeCompleto(txtNomeCompleto.getText());
-        usuario.setLogin(txtLogin.getText());
-        usuario.setSenha(txtSenha.getText());
-        usuario.setTelefone(txtTelefone.getText());
-        usuario.setEmail(txtEmail.getText());
+        usuario.setNomeCompleto(txtNomeCompleto.getText().trim());
+        usuario.setLogin(txtLogin.getText().trim());
+        usuario.setSenha(txtSenha.getText().trim());
+        // Só envia telefone e email se estiverem preenchidos
+        String telefone = txtTelefone.getText().trim();
+        usuario.setTelefone(telefone.isEmpty() ? null : telefone);
+        String email = txtEmail.getText().trim();
+        usuario.setEmail(email.isEmpty() ? null : email);
         usuario.setPerfil(cbPerfil.getValue());
         return usuario;
     }

@@ -1,6 +1,7 @@
 package br.com.simplehealth.estoque.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.UUID;
 
 /**
  * Modelo para controle de estoque
@@ -8,29 +9,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Estoque {
     
     @JsonProperty("idEstoque")
-    private Long idEstoque;
+    private UUID idEstoque;
     
     @JsonProperty("local")
     private String local;
-    
-    @JsonProperty("item")
-    private Item item;
     
     // Construtores
     public Estoque() {
     }
     
-    public Estoque(String local, Item item) {
+    public Estoque(String local) {
         this.local = local;
-        this.item = item;
     }
     
     // Getters e Setters
-    public Long getIdEstoque() {
+    public UUID getIdEstoque() {
         return idEstoque;
     }
     
-    public void setIdEstoque(Long idEstoque) {
+    public void setIdEstoque(UUID idEstoque) {
         this.idEstoque = idEstoque;
     }
     
@@ -42,16 +39,8 @@ public class Estoque {
         this.local = local;
     }
     
-    public Item getItem() {
-        return item;
-    }
-    
-    public void setItem(Item item) {
-        this.item = item;
-    }
-    
     @Override
     public String toString() {
-        return local + " - " + (item != null ? item.getNome() : "Sem item");
+        return "Estoque: " + local;
     }
 }

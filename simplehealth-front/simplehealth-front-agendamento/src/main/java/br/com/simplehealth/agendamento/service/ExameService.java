@@ -22,6 +22,23 @@ import java.util.List;
 
 /**
  * Serviço para gerenciar operações de Exames via API REST.
+ * 
+ * IMPORTANTE: Este serviço está preparado para integração com a API de agendamentos,
+ * porém a API backend atual (open_api_agendamento.json) NÃO possui endpoints específicos
+ * para Exames. A API atual suporta apenas:
+ * - POST /agendamentos (Consultas)
+ * - POST /agendamentos/cancelar
+ * - POST /encaixe
+ * - POST /bloqueio-agenda
+ * 
+ * Para que este serviço funcione completamente, o backend precisa implementar:
+ * - GET /agendamentos/exames (listar exames)
+ * - GET /agendamentos/exames/{id} (buscar exame por ID)
+ * - POST /agendamentos/exames (criar exame)
+ * - PUT /agendamentos/exames/{id} (atualizar exame)
+ * - DELETE /agendamentos/exames/{id} (deletar exame)
+ * 
+ * Até lá, os métodos retornarão listas vazias ou lançarão exceções apropriadas.
  */
 public class ExameService {
 

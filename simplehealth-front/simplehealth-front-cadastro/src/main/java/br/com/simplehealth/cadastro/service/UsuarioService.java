@@ -1,5 +1,6 @@
 package br.com.simplehealth.cadastro.service;
 
+import br.com.simplehealth.cadastro.config.AppConfig;
 import br.com.simplehealth.cadastro.model.Usuario;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,13 +25,10 @@ import java.util.List;
 public class UsuarioService {
 
     private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
-    private static final String BASE_URL = "http://localhost:8081/usuarios";
     private final ObjectMapper objectMapper;
 
     public UsuarioService() {
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.objectMapper = AppConfig.getObjectMapper();
     }
 
     /**
@@ -41,7 +38,7 @@ public class UsuarioService {
         logger.info("Buscando todos os usuários");
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(BASE_URL);
+            HttpGet request = new HttpGet(AppConfig.USUARIOS_ENDPOINT);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String json = EntityUtils.toString(response.getEntity());
@@ -62,7 +59,7 @@ public class UsuarioService {
         logger.info("Buscando usuário com ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(BASE_URL + "/" + id);
+            HttpGet request = new HttpGet(AppConfig.USUARIOS_ENDPOINT + "/" + id);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String json = EntityUtils.toString(response.getEntity());
@@ -83,15 +80,20 @@ public class UsuarioService {
         logger.info("Criando novo usuário: {}", usuario.getLogin());
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost(BASE_URL);
+            HttpPost request = new HttpPost(AppConfig.USUARIOS_ENDPOINT);
             String json = objectMapper.writeValueAsString(usuario);
             request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String responseJson = EntityUtils.toString(response.getEntity());
-                logger.debug("Usuário criado: {}", responseJson);
+                logger.debug("Resposta da API: {} - {}", statusCode, responseJson);
                 
-                return objectMapper.readValue(responseJson, Usuario.class);
+                if (statusCode == 200 || statusCode == 201) {
+                    return objectMapper.readValue(responseJson, Usuario.class);
+                } else {
+                    throw new IOException("Erro ao criar usuário. Status: " + statusCode + " - " + responseJson);
+                }
             }
         } catch (IOException e) {
             logger.error("Erro ao criar usuário", e);
@@ -106,15 +108,20 @@ public class UsuarioService {
         logger.info("Atualizando usuário ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPut request = new HttpPut(BASE_URL + "/" + id);
+            HttpPut request = new HttpPut(AppConfig.USUARIOS_ENDPOINT + "/" + id);
             String json = objectMapper.writeValueAsString(usuario);
             request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String responseJson = EntityUtils.toString(response.getEntity());
-                logger.debug("Usuário atualizado: {}", responseJson);
+                logger.debug("Resposta da API: {} - {}", statusCode, responseJson);
                 
-                return objectMapper.readValue(responseJson, Usuario.class);
+                if (statusCode == 200) {
+                    return objectMapper.readValue(responseJson, Usuario.class);
+                } else {
+                    throw new IOException("Erro ao atualizar usuário. Status: " + statusCode + " - " + responseJson);
+                }
             }
         } catch (IOException e) {
             logger.error("Erro ao atualizar usuário", e);
@@ -129,10 +136,16 @@ public class UsuarioService {
         logger.info("Deletando usuário ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpDelete request = new HttpDelete(BASE_URL + "/" + id);
+            HttpDelete request = new HttpDelete(AppConfig.USUARIOS_ENDPOINT + "/" + id);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                logger.debug("Usuário deletado com sucesso");
+                int statusCode = response.getCode();
+                logger.debug("Usuário deletado. Status: {}", statusCode);
+                
+                if (statusCode != 200 && statusCode != 204) {
+                    String responseJson = EntityUtils.toString(response.getEntity());
+                    throw new IOException("Erro ao deletar usuário. Status: " + statusCode + " - " + responseJson);
+                }
             }
         } catch (IOException e) {
             logger.error("Erro ao deletar usuário", e);

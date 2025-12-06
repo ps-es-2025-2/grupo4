@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class EstoqueService {
     
@@ -27,7 +28,9 @@ public class EstoqueService {
     public EstoqueService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_ESTOQUES;
+        // Nota: Backend não tem endpoint separado para estoques (locais)
+        // Estoque representa apenas um local e é gerenciado no /controle
+        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_CONTROLE;
     }
     
     public List<Estoque> listar() throws IOException {
@@ -47,7 +50,7 @@ public class EstoqueService {
         }
     }
     
-    public Estoque buscarPorId(Long id) throws IOException {
+    public Estoque buscarPorId(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl + "/" + id);
             
@@ -83,7 +86,7 @@ public class EstoqueService {
         }
     }
     
-    public Estoque atualizar(Long id, Estoque estoque) throws IOException {
+    public Estoque atualizar(UUID id, Estoque estoque) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(baseUrl + "/" + id);
             String json = objectMapper.writeValueAsString(estoque);
@@ -103,7 +106,7 @@ public class EstoqueService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             

@@ -12,26 +12,26 @@ public class BloqueioAgenda {
 
     private String id;
 
-    @JsonProperty("data_inicio")
+    @JsonProperty("dataInicio")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataInicio;
 
-    @JsonProperty("data_fim")
+    @JsonProperty("dataFim")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataFim;
 
     private String motivo;
 
-    @JsonProperty("antecedencia_minima")
+    @JsonProperty("antecedenciaMinima")
     private Integer antecedenciaMinima;
 
-    @JsonProperty("medico_crm")
+    @JsonProperty("medicoCrm")
     private String medicoCrm;
 
-    @JsonProperty("usuario_criador_login")
+    @JsonProperty("usuarioCriadorLogin")
     private String usuarioCriadorLogin;
 
-    @JsonProperty("data_criacao")
+    @JsonProperty("dataCriacao")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataCriacao;
 

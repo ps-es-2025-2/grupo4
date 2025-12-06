@@ -31,6 +31,13 @@
             <!-- Table Section -->
             <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <Label text="Lista de Consultas" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                
+                <!-- Campo de Busca -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="txtBusca" promptText="Buscar por CPF, CRM, Especialidade, Convênio..." HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnBuscar" text="Buscar" onAction="#handleBuscar" prefWidth="80"/>
+                </HBox>
+                
                 <TableView fx:id="tableView" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
                         <TableColumn fx:id="colId" text="ID" prefWidth="80"/>

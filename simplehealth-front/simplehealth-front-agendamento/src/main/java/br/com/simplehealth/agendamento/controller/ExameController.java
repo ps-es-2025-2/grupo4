@@ -1,6 +1,8 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.Exame;
+import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
+import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
 import br.com.simplehealth.agendamento.service.ExameService;
 import br.com.simplehealth.agendamento.util.RefreshManager;
 import br.com.simplehealth.agendamento.util.ValidationUtils;
@@ -38,8 +40,8 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
     @FXML private TextField txtConvenioNome;
     @FXML private TextField txtDataHoraInicio;
     @FXML private TextField txtDataHoraFim;
-    @FXML private ComboBox<String> cbModalidade;
-    @FXML private ComboBox<String> cbStatus;
+    @FXML private ComboBox<ModalidadeEnum> cbModalidade;
+    @FXML private ComboBox<StatusAgendamentoEnum> cbStatus;
     @FXML private CheckBox chkRequerPreparo;
     @FXML private TextArea txtInstrucoesPreparo;
     @FXML private TextArea txtObservacoes;
@@ -98,8 +100,9 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
             }
         });
 
-        cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
-        cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
+        // Configurar ComboBoxes com enums
+        cbModalidade.setItems(FXCollections.observableArrayList(ModalidadeEnum.values()));
+        cbStatus.setItems(FXCollections.observableArrayList(StatusAgendamentoEnum.values()));
 
         // Configurar estado inicial dos botões
         configurarEstadoInicialBotoes();
@@ -149,8 +152,8 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
         txtConvenioNome.clear();
         txtDataHoraInicio.clear();
         txtDataHoraFim.clear();
-        cbModalidade.setValue("PRESENCIAL");
-        cbStatus.setValue("ATIVO");
+        cbModalidade.setValue(ModalidadeEnum.PRESENCIAL);
+        cbStatus.setValue(StatusAgendamentoEnum.ATIVO);
         chkRequerPreparo.setSelected(false);
         txtInstrucoesPreparo.clear();
         txtObservacoes.clear();
@@ -320,7 +323,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
         }
 
         // Validar Modalidade
-        if (cbModalidade.getValue() == null || cbModalidade.getValue().isEmpty()) {
+        if (cbModalidade.getValue() == null) {
             mostrarAviso("Modalidade é obrigatória");
             cbModalidade.requestFocus();
             return false;
@@ -419,7 +422,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
             
             // Busca por status
             if (!encontrado && exame.getStatus() != null) {
-                if (exame.getStatus().toLowerCase().contains(busca)) {
+                if (exame.getStatus().name().toLowerCase().contains(busca)) {
                     encontrado = true;
                 }
             }

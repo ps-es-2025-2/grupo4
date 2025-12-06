@@ -11,13 +11,19 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+/**
+ * @deprecated Este controller usa ItemService que está deprecado.
+ * Considere refatorar para usar EntradaItensService.
+ */
+@Deprecated
 public class ItemController extends AbstractCrudController<Item> {
     
     private static final Logger logger = LoggerFactory.getLogger(ItemController.class);
     
     @FXML private TableView<Item> tableItens;
-    @FXML private TableColumn<Item, Long> colId;
+    @FXML private TableColumn<Item, UUID> colId;
     @FXML private TableColumn<Item, String> colNome;
     @FXML private TableColumn<Item, String> colTipo;
     @FXML private TableColumn<Item, Integer> colQuantidade;
@@ -114,9 +120,8 @@ public class ItemController extends AbstractCrudController<Item> {
         try {
             ObservableList<Item> todoItens = FXCollections.observableArrayList(service.listar());
             ObservableList<Item> filtrados = todoItens.filtered(item -> 
-                item.getNome().toLowerCase().contains(busca) ||
-                (item.getTipo() != null && item.getTipo().toLowerCase().contains(busca)) ||
-                (item.getLote() != null && item.getLote().toLowerCase().contains(busca))
+                item.getNome().toLowerCase().contains(busca)
+                // getTipo() e getLote() removidos - não existem mais no modelo
             );
             
             itens.clear();

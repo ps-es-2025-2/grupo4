@@ -40,6 +40,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     @FXML private TextArea txtMotivo;
     @FXML private TextField txtUsuarioCriador;
     @FXML private CheckBox chkAtivo;
+    @FXML private TextField txtBusca;
 
     @FXML
     private Button btnCriar;
@@ -51,13 +52,16 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     private Button btnConfirmar;
     @FXML
     private Button btnCancelar;
+    @FXML private Button btnBuscar;
 
     private final BloqueioAgendaService service;
     private final ObservableList<BloqueioAgenda> bloqueios;
+    private final ObservableList<BloqueioAgenda> todosBloqueios;
 
     public BloqueioAgendaController() {
         this.service = new BloqueioAgendaService();
         this.bloqueios = FXCollections.observableArrayList();
+        this.todosBloqueios = FXCollections.observableArrayList();
     }
 
     @FXML
@@ -107,8 +111,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     protected void carregarDados() {
         Platform.runLater(() -> {
             try {
+                todosBloqueios.clear();
+                todosBloqueios.addAll(service.listarTodos());
                 bloqueios.clear();
-                bloqueios.addAll(service.listarTodos());
+                bloqueios.addAll(todosBloqueios);
                 logger.info("Dados carregados: {} bloqueios", bloqueios.size());
             } catch (Exception e) {
                 logger.error("Erro ao carregar bloqueios", e);
@@ -301,6 +307,61 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     @Override
     public void onRefresh() {
         carregarDados();
+    }
+
+    @FXML
+    private void handleBuscar() {
+        String termoBusca = txtBusca != null ? txtBusca.getText() : "";
+        
+        if (termoBusca == null || termoBusca.trim().isEmpty()) {
+            // Se busca vazia, mostra todos
+            bloqueios.clear();
+            bloqueios.addAll(todosBloqueios);
+            logger.info("Busca limpa, mostrando todos {} bloqueios", bloqueios.size());
+            return;
+        }
+
+        // Busca multi-campo
+        String busca = termoBusca.trim().toLowerCase();
+        String buscaSemFormatacao = busca.replaceAll("[^0-9a-z]", "");
+        
+        bloqueios.clear();
+        for (BloqueioAgenda bloqueio : todosBloqueios) {
+            boolean encontrado = false;
+            
+            // Busca por CRM do médico
+            if (bloqueio.getMedicoCrm() != null) {
+                String crm = bloqueio.getMedicoCrm().toLowerCase();
+                String crmSemFormatacao = crm.replaceAll("[^0-9]", "");
+                if (crm.contains(busca) || crmSemFormatacao.contains(buscaSemFormatacao)) {
+                    encontrado = true;
+                }
+            }
+            
+            // Busca por motivo
+            if (!encontrado && bloqueio.getMotivo() != null) {
+                if (bloqueio.getMotivo().toLowerCase().contains(busca)) {
+                    encontrado = true;
+                }
+            }
+            
+            // Busca por ID
+            if (!encontrado && bloqueio.getId() != null) {
+                if (bloqueio.getId().toLowerCase().contains(busca)) {
+                    encontrado = true;
+                }
+            }
+            
+            if (encontrado) {
+                bloqueios.add(bloqueio);
+            }
+        }
+        
+        logger.info("Busca por '{}': {} resultados encontrados", termoBusca, bloqueios.size());
+        
+        if (bloqueios.isEmpty()) {
+            mostrarAviso("Nenhum bloqueio encontrado com o termo: " + termoBusca);
+        }
     }
 
     private void mostrarAviso(String mensagem) {

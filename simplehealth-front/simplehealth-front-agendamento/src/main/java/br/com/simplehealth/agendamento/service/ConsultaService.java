@@ -2,13 +2,9 @@ package br.com.simplehealth.agendamento.service;
 
 import br.com.simplehealth.agendamento.config.AppConfig;
 import br.com.simplehealth.agendamento.model.Consulta;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -38,51 +34,23 @@ public class ConsultaService {
 
     /**
      * Lista todas as consultas
+     * NOTA: A API atual não possui endpoint GET para listar consultas.
+     * Este método retorna lista vazia até que o backend implemente o endpoint.
      */
     public List<Consulta> listarTodos() throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Listando todas as consultas");
-        List<Consulta> consultas = new ArrayList<>();
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(baseUrl);
-            request.setHeader("Accept", "application/json");
-
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                String json = EntityUtils.toString(response.getEntity());
-                logger.debug("Response: {}", json);
-
-                if (response.getCode() == 200) {
-                    // Filtra apenas consultas da lista de agendamentos
-                    List<Object> agendamentos = objectMapper.readValue(json, new TypeReference<List<Object>>() {});
-                    // TODO: Implementar filtragem por tipo quando API retornar tipo
-                    // Por enquanto retorna todos como consulta
-                }
-            }
-        }
-
-        return consultas;
+        logger.warn("API não possui endpoint GET /agendamentos - retornando lista vazia");
+        return new ArrayList<>();
     }
 
     /**
      * Busca uma consulta por ID
+     * NOTA: A API atual não possui endpoint GET /{id} para buscar consulta específica.
+     * Este método retorna null até que o backend implemente o endpoint.
      */
     public Consulta buscarPorId(String id) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Buscando consulta por ID: {}", id);
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet(baseUrl + "/" + id);
-            request.setHeader("Accept", "application/json");
-
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                String json = EntityUtils.toString(response.getEntity());
-                logger.debug("Response: {}", json);
-
-                if (response.getCode() == 200) {
-                    return objectMapper.readValue(json, Consulta.class);
-                }
-            }
-        }
-
+        logger.warn("API não possui endpoint GET /agendamentos/{} - retornando null", id);
         return null;
     }
 
@@ -116,55 +84,30 @@ public class ConsultaService {
 
     /**
      * Atualiza uma consulta existente
+     * NOTA: A API atual não possui endpoint PUT para atualizar consultas.
+     * Para modificar um agendamento, deve-se cancelar e criar um novo.
      */
     public Consulta atualizar(String id, Consulta consulta) throws IOException, org.apache.hc.core5.http.ParseException {
-        logger.info("Atualizando consulta ID: {}", id);
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPut request = new HttpPut(baseUrl + "/" + id);
-            request.setHeader("Content-Type", "application/json");
-            request.setHeader("Accept", "application/json");
-
-            String json = objectMapper.writeValueAsString(consulta);
-            request.setEntity(new StringEntity(json));
-            logger.debug("Request body: {}", json);
-
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                String responseJson = EntityUtils.toString(response.getEntity());
-                logger.debug("Response: {}", responseJson);
-
-                if (response.getCode() == 200) {
-                    return objectMapper.readValue(responseJson, Consulta.class);
-                } else {
-                    throw new IOException("Erro ao atualizar consulta. Código: " + response.getCode());
-                }
-            }
-        }
+        logger.warn("API não possui endpoint PUT /agendamentos/{} - operação não suportada", id);
+        throw new UnsupportedOperationException("A API não suporta atualização de consultas. Cancele e crie um novo agendamento.");
     }
 
     /**
      * Deleta uma consulta
+     * NOTA: A API atual não possui endpoint DELETE.
+     * Use o método cancelar() em vez de deletar.
      */
     public void deletar(String id) throws IOException {
-        logger.info("Deletando consulta ID: {}", id);
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpDelete request = new HttpDelete(baseUrl + "/" + id);
-
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                logger.debug("Response code: {}", response.getCode());
-
-                if (response.getCode() != 200 && response.getCode() != 204) {
-                    throw new IOException("Erro ao deletar consulta. Código: " + response.getCode());
-                }
-            }
-        }
+        logger.warn("API não possui endpoint DELETE /agendamentos/{} - use cancelar() ao invés", id);
+        throw new UnsupportedOperationException("A API não suporta deleção de consultas. Use o método cancelar().");
     }
 
     /**
-     * Cancela uma consulta
+     * Cancela uma consulta conforme especificação da API
+     * Endpoint: POST /agendamentos/cancelar
+     * Body: CancelarAgendamentoDTO {id, motivo, usuarioLogin, dataHoraCancelamento}
      */
-    public Consulta cancelar(String id, String motivo, String usuarioCancelador) throws IOException, org.apache.hc.core5.http.ParseException {
+    public Consulta cancelar(String id, String motivo, String usuarioLogin) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Cancelando consulta ID: {}", id);
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -172,8 +115,14 @@ public class ConsultaService {
             request.setHeader("Content-Type", "application/json");
             request.setHeader("Accept", "application/json");
 
-            String json = String.format("{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioCancelador\":\"%s\"}", 
-                id, motivo, usuarioCancelador);
+            // Criar JSON conforme CancelarAgendamentoDTO da API
+            String json = String.format(
+                "{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioLogin\":\"%s\",\"dataHoraCancelamento\":\"%s\"}", 
+                id, 
+                motivo, 
+                usuarioLogin,
+                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            );
             request.setEntity(new StringEntity(json));
             logger.debug("Request body: {}", json);
 

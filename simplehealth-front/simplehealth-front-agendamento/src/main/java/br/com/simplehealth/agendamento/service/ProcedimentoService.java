@@ -22,6 +22,23 @@ import java.util.List;
 
 /**
  * Serviço para gerenciar operações de Procedimentos via API REST.
+ * 
+ * IMPORTANTE: Este serviço está preparado para integração com a API de agendamentos,
+ * porém a API backend atual (open_api_agendamento.json) NÃO possui endpoints específicos
+ * para Procedimentos. A API atual suporta apenas:
+ * - POST /agendamentos (Consultas)
+ * - POST /agendamentos/cancelar
+ * - POST /encaixe
+ * - POST /bloqueio-agenda
+ * 
+ * Para que este serviço funcione completamente, o backend precisa implementar:
+ * - GET /agendamentos/procedimentos (listar procedimentos)
+ * - GET /agendamentos/procedimentos/{id} (buscar procedimento por ID)
+ * - POST /agendamentos/procedimentos (criar procedimento)
+ * - PUT /agendamentos/procedimentos/{id} (atualizar procedimento)
+ * - DELETE /agendamentos/procedimentos/{id} (deletar procedimento)
+ * 
+ * Até lá, os métodos retornarão listas vazias ou lançarão exceções apropriadas.
  */
 public class ProcedimentoService {
 

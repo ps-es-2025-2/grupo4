@@ -12,20 +12,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
+
 public class FornecedorController extends AbstractCrudController<Fornecedor> {
     
     private static final Logger logger = LoggerFactory.getLogger(FornecedorController.class);
     
     @FXML private TableView<Fornecedor> tableFornecedores;
-    @FXML private TableColumn<Fornecedor, Long> colId;
-    @FXML private TableColumn<Fornecedor, String> colNome;
+    @FXML private TableColumn<Fornecedor, UUID> colId;
     @FXML private TableColumn<Fornecedor, String> colCnpj;
-    @FXML private TableColumn<Fornecedor, String> colContato;
     
-    @FXML private TextField txtNome;
     @FXML private TextField txtCnpj;
-    @FXML private TextField txtContato;
-    @FXML private TextArea txtEndereco;
     
     @FXML
     private Button btnCriar;
@@ -58,16 +55,13 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
-        setupFormatters();
         configurarEstadoInicialBotoes();
         habilitarCampos(false);
     }
     
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idFornecedor"));
-        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colCnpj.setCellValueFactory(new PropertyValueFactory<>("cnpj"));
-        colContato.setCellValueFactory(new PropertyValueFactory<>("contato"));
         tableFornecedores.setItems(fornecedores);
     }
     
@@ -91,22 +85,6 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
         });
     }
     
-    private void setupFormatters() {
-        // Formatar CNPJ ao sair do campo
-        txtCnpj.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal && txtCnpj.getText() != null && !txtCnpj.getText().isEmpty()) {
-                txtCnpj.setText(ValidationUtils.formatarCNPJ(txtCnpj.getText()));
-            }
-        });
-        
-        // Formatar telefone ao sair do campo
-        txtContato.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal && txtContato.getText() != null && !txtContato.getText().isEmpty()) {
-                txtContato.setText(ValidationUtils.formatarTelefone(txtContato.getText()));
-            }
-        });
-    }
-    
     @Override
     protected void carregarDados() {
         try {
@@ -120,10 +98,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     }
     
     private void preencherFormulario(Fornecedor fornecedor) {
-        txtNome.setText(fornecedor.getNome());
         txtCnpj.setText(fornecedor.getCnpj());
-        txtContato.setText(fornecedor.getContato());
-        txtEndereco.setText(fornecedor.getEndereco());
     }
     
     @FXML
@@ -132,7 +107,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
         habilitarCampos(true);
         ativarModoEdicao();
         modoEdicao = "CRIAR";
-        txtNome.requestFocus();
+        txtCnpj.requestFocus();
     }
     
     @FXML
@@ -210,27 +185,9 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     }
     
     protected boolean validarFormulario() {
-        // Validar nome obrigatório
-        if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
-            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
-            return false;
-        }
-        
-        // Validar CNPJ obrigatório e formato
+        // Validar CNPJ obrigatório
         if (!ValidationUtils.validarCampoObrigatorio(txtCnpj.getText(), "CNPJ")) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("CNPJ"));
-            return false;
-        }
-        
-        if (!ValidationUtils.validarCNPJ(txtCnpj.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("CNPJ", "00.000.000/0000-00"));
-            return false;
-        }
-        
-        // Validar contato (se preenchido)
-        if (!txtContato.getText().trim().isEmpty() && 
-            !ValidationUtils.validarTelefone(txtContato.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("Contato", "(00) 0000-0000 ou (00) 00000-0000"));
             return false;
         }
         
@@ -240,27 +197,18 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     @Override
     protected void limparFormulario() {
         itemSelecionado = null;
-        txtNome.clear();
         txtCnpj.clear();
-        txtContato.clear();
-        txtEndereco.clear();
         tableFornecedores.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
-        txtNome.setDisable(!habilitar);
         txtCnpj.setDisable(!habilitar);
-        txtContato.setDisable(!habilitar);
-        txtEndereco.setDisable(!habilitar);
     }
     
     private Fornecedor construirFornecedorDoFormulario() {
         Fornecedor fornecedor = new Fornecedor();
-        fornecedor.setNome(txtNome.getText());
         fornecedor.setCnpj(txtCnpj.getText().replaceAll("[./-]", "")); // Salva sem formatação
-        fornecedor.setContato(txtContato.getText());
-        fornecedor.setEndereco(txtEndereco.getText());
         return fornecedor;
     }
 }

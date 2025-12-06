@@ -10,6 +10,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated O backend não possui endpoint específico para Alimentos.
+ * Os itens do tipo Alimento são gerenciados através do endpoint /controle/entrada
+ * usando EntradaItensDTO com tipo=ALIMENTO.
+ * Este service permanece apenas para compatibilidade com controllers legados.
+ */
+@Deprecated
 public class AlimentoService {
     
     private static final Logger logger = LoggerFactory.getLogger(AlimentoService.class);
@@ -27,7 +36,9 @@ public class AlimentoService {
     public AlimentoService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_ALIMENTOS;
+        // NOTA: Backend não possui endpoint específico para Alimentos
+        // Os itens são gerenciados através do endpoint /controle
+        this.baseUrl = AppConfig.API_BASE_URL + "/alimentos"; // Endpoint não implementado
     }
     
     public List<Alimento> listar() throws IOException {
@@ -47,7 +58,7 @@ public class AlimentoService {
         }
     }
     
-    public Alimento buscarPorId(Long id) throws IOException {
+    public Alimento buscarPorId(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl + "/" + id);
             
@@ -83,7 +94,7 @@ public class AlimentoService {
         }
     }
     
-    public Alimento atualizar(Long id, Alimento alimento) throws IOException {
+    public Alimento atualizar(UUID id, Alimento alimento) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(baseUrl + "/" + id);
             String json = objectMapper.writeValueAsString(alimento);
@@ -103,7 +114,7 @@ public class AlimentoService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             

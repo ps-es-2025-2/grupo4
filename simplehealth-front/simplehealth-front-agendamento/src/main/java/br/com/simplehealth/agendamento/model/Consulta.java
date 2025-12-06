@@ -1,17 +1,19 @@
 package br.com.simplehealth.agendamento.model;
 
+import br.com.simplehealth.agendamento.model.enums.TipoConsultaEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Representa uma consulta médica no sistema.
  * Estende Agendamento com informações específicas de consultas.
+ * Alinhado com a especificação da API (ConsultaResponseDTO).
  */
 public class Consulta extends Agendamento {
 
     private String especialidade;
 
     @JsonProperty("tipoConsulta")
-    private String tipoConsulta; // PRIMEIRA_VEZ, RETORNO
+    private TipoConsultaEnum tipoConsulta; // PRIMEIRA, RETORNO, ROTINA
 
     // Construtores
     public Consulta() {
@@ -27,11 +29,11 @@ public class Consulta extends Agendamento {
         this.especialidade = especialidade;
     }
 
-    public String getTipoConsulta() {
+    public TipoConsultaEnum getTipoConsulta() {
         return tipoConsulta;
     }
 
-    public void setTipoConsulta(String tipoConsulta) {
+    public void setTipoConsulta(TipoConsultaEnum tipoConsulta) {
         this.tipoConsulta = tipoConsulta;
     }
 

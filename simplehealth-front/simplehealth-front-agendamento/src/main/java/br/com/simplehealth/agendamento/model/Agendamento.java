@@ -1,5 +1,7 @@
 package br.com.simplehealth.agendamento.model;
 
+import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
+import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
@@ -7,51 +9,52 @@ import java.time.LocalDateTime;
 /**
  * Classe base abstrata para todos os tipos de agendamento.
  * Contém os atributos comuns compartilhados por Consulta, Exame e Procedimento.
+ * Alinhado com a especificação da API (ConsultaResponseDTO).
  */
 public abstract class Agendamento {
 
     private String id;
 
-    @JsonProperty("data_hora_inicio")
+    @JsonProperty("dataHoraInicio")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataHoraInicio;
 
-    @JsonProperty("data_hora_fim")
+    @JsonProperty("dataHoraFim")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataHoraFim;
 
-    @JsonProperty("is_encaixe")
+    @JsonProperty("isEncaixe")
     private Boolean isEncaixe = false;
 
-    private String modalidade; // PRESENCIAL, ONLINE
+    private ModalidadeEnum modalidade; // PRESENCIAL, REMOTA
 
-    @JsonProperty("motivo_encaixe")
+    @JsonProperty("motivoEncaixe")
     private String motivoEncaixe;
 
     private String observacoes;
 
-    private String status; // ATIVO, CANCELADO, REALIZADO
+    private StatusAgendamentoEnum status; // ATIVO, CANCELADO, REALIZADO, NAO_COMPARECEU
 
-    @JsonProperty("motivo_cancelamento")
+    @JsonProperty("motivoCancelamento")
     private String motivoCancelamento;
 
-    @JsonProperty("data_cancelamento")
+    @JsonProperty("dataCancelamento")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataCancelamento;
 
-    @JsonProperty("paciente_cpf")
+    @JsonProperty("pacienteCpf")
     private String pacienteCpf;
 
-    @JsonProperty("medico_crm")
+    @JsonProperty("medicoCrm")
     private String medicoCrm;
 
-    @JsonProperty("convenio_nome")
+    @JsonProperty("convenioNome")
     private String convenioNome;
 
-    @JsonProperty("usuario_criador_login")
+    @JsonProperty("usuarioCriadorLogin")
     private String usuarioCriadorLogin;
 
-    @JsonProperty("usuario_cancelador_login")
+    @JsonProperty("usuarioCanceladorLogin")
     private String usuarioCanceladorLogin;
 
     // Getters e Setters
@@ -87,11 +90,11 @@ public abstract class Agendamento {
         this.isEncaixe = isEncaixe;
     }
 
-    public String getModalidade() {
+    public ModalidadeEnum getModalidade() {
         return modalidade;
     }
 
-    public void setModalidade(String modalidade) {
+    public void setModalidade(ModalidadeEnum modalidade) {
         this.modalidade = modalidade;
     }
 
@@ -111,11 +114,11 @@ public abstract class Agendamento {
         this.observacoes = observacoes;
     }
 
-    public String getStatus() {
+    public StatusAgendamentoEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusAgendamentoEnum status) {
         this.status = status;
     }
 

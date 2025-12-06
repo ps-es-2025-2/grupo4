@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class PedidoService {
     
@@ -47,7 +48,7 @@ public class PedidoService {
         }
     }
     
-    public Pedido buscarPorId(Long id) throws IOException {
+    public Pedido buscarPorId(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl + "/" + id);
             
@@ -83,7 +84,7 @@ public class PedidoService {
         }
     }
     
-    public Pedido atualizar(Long id, Pedido pedido) throws IOException {
+    public Pedido atualizar(UUID id, Pedido pedido) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(baseUrl + "/" + id);
             String json = objectMapper.writeValueAsString(pedido);
@@ -103,7 +104,7 @@ public class PedidoService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             

@@ -1,5 +1,6 @@
 package br.com.simplehealth.cadastro.model;
 
+import br.com.simplehealth.cadastro.model.enums.EPerfilUsuario;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -20,7 +21,7 @@ public class Usuario {
     private String senha;
 
     @JsonProperty("perfil")
-    private String perfil; // MEDICO, SECRETARIA, ADMINISTRADOR
+    private EPerfilUsuario perfil;
 
     @JsonProperty("telefone")
     private String telefone;
@@ -31,7 +32,7 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Long id, String nomeCompleto, String login, String senha, String perfil, String telefone, String email) {
+    public Usuario(Long id, String nomeCompleto, String login, String senha, EPerfilUsuario perfil, String telefone, String email) {
         this.id = id;
         this.nomeCompleto = nomeCompleto;
         this.login = login;
@@ -74,11 +75,11 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public String getPerfil() {
+    public EPerfilUsuario getPerfil() {
         return perfil;
     }
 
-    public void setPerfil(String perfil) {
+    public void setPerfil(EPerfilUsuario perfil) {
         this.perfil = perfil;
     }
 

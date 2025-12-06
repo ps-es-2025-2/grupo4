@@ -1,7 +1,11 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.Consulta;
+import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
+import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
+import br.com.simplehealth.agendamento.model.enums.TipoConsultaEnum;
 import br.com.simplehealth.agendamento.service.ConsultaService;
+import br.com.simplehealth.agendamento.service.EncaixeService;
 import br.com.simplehealth.agendamento.util.RefreshManager;
 import br.com.simplehealth.agendamento.util.ValidationUtils;
 import javafx.application.Platform;
@@ -39,9 +43,9 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML private TextField txtConvenioNome;
     @FXML private TextField txtDataHoraInicio;
     @FXML private TextField txtDataHoraFim;
-    @FXML private ComboBox<String> cbTipoConsulta;
-    @FXML private ComboBox<String> cbModalidade;
-    @FXML private ComboBox<String> cbStatus;
+    @FXML private ComboBox<TipoConsultaEnum> cbTipoConsulta;
+    @FXML private ComboBox<ModalidadeEnum> cbModalidade;
+    @FXML private ComboBox<StatusAgendamentoEnum> cbStatus;
     @FXML private CheckBox chkEncaixe;
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
@@ -62,11 +66,13 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML private TextField txtBusca;
 
     private final ConsultaService service;
+    private final EncaixeService encaixeService;
     private final ObservableList<Consulta> consultas;
     private final ObservableList<Consulta> todasConsultas;
 
     public ConsultaController() {
         this.service = new ConsultaService();
+        this.encaixeService = new EncaixeService();
         this.consultas = FXCollections.observableArrayList();
         this.todasConsultas = FXCollections.observableArrayList();
     }
@@ -105,10 +111,10 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
             }
         });
 
-        // Configurar ComboBoxes
-        cbTipoConsulta.setItems(FXCollections.observableArrayList("PRIMEIRA_VEZ", "RETORNO"));
-        cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
-        cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
+        // Configurar ComboBoxes com enums
+        cbTipoConsulta.setItems(FXCollections.observableArrayList(TipoConsultaEnum.values()));
+        cbModalidade.setItems(FXCollections.observableArrayList(ModalidadeEnum.values()));
+        cbStatus.setItems(FXCollections.observableArrayList(StatusAgendamentoEnum.values()));
 
         // Configurar estado inicial dos botões
         configurarEstadoInicialBotoes();
@@ -163,8 +169,8 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         txtDataHoraInicio.clear();
         txtDataHoraFim.clear();
         cbTipoConsulta.setValue(null);
-        cbModalidade.setValue("PRESENCIAL");
-        cbStatus.setValue("ATIVO");
+        cbModalidade.setValue(ModalidadeEnum.PRESENCIAL);
+        cbStatus.setValue(StatusAgendamentoEnum.ATIVO);
         chkEncaixe.setSelected(false);
         txtObservacoes.clear();
         txtUsuarioCriador.clear();
@@ -201,17 +207,20 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
 
             if ("CRIAR".equals(modoEdicao)) {
                 Consulta consulta = construirConsultaDoFormulario();
-                service.criar(consulta);
-                mostrarSucesso("Sucesso", "Consulta criada com sucesso!");
-            } else if ("ALTERAR".equals(modoEdicao)) {
-                if (itemSelecionado == null || itemSelecionado.getId() == null) {
-                    mostrarErro("Erro", "Item selecionado inválido.");
-                    return;
+                
+                // Verificar se é encaixe e usar o serviço apropriado
+                if (chkEncaixe.isSelected()) {
+                    encaixeService.solicitarEncaixe(consulta);
+                    mostrarSucesso("Sucesso", "Encaixe solicitado com sucesso!");
+                } else {
+                    service.criar(consulta);
+                    mostrarSucesso("Sucesso", "Consulta agendada com sucesso!");
                 }
-                Consulta consulta = construirConsultaDoFormulario();
-                consulta.setId(itemSelecionado.getId());
-                service.atualizar(itemSelecionado.getId(), consulta);
-                mostrarSucesso("Sucesso", "Consulta atualizada com sucesso!");
+            } else if ("ALTERAR".equals(modoEdicao)) {
+                mostrarErro("Operação não suportada", 
+                    "A API não permite alteração de consultas.\n" +
+                    "Para modificar um agendamento, cancele a consulta atual e crie uma nova.");
+                return;
             }
 
             carregarDados();
@@ -238,33 +247,58 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML
     private void handleDeletar() {
         if (itemSelecionado == null || itemSelecionado.getId() == null) {
-            mostrarErro("Erro", "Selecione uma consulta para excluir");
+            mostrarErro("Erro", "Selecione uma consulta para cancelar");
             return;
         }
 
-        // Confirmação antes de excluir
+        // Confirmação antes de cancelar
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("Confirmar Exclusão");
-        confirmacao.setHeaderText("Deseja realmente excluir esta consulta?");
+        confirmacao.setTitle("Confirmar Cancelamento");
+        confirmacao.setHeaderText("Deseja realmente cancelar esta consulta?");
         confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
                                   "Médico: " + itemSelecionado.getMedicoCrm() + "\n" +
                                   "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
-                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
-                                  "Esta ação não pode ser desfeita.");
+                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : ""));
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                try {
-                    service.deletar(itemSelecionado.getId());
-                    mostrarSucesso("Sucesso", "Consulta excluída com sucesso!");
-                    carregarDados();
-                    limparFormulario();
-                    resetarBotoes();
-                    RefreshManager.getInstance().notifyRefresh();
-                } catch (Exception e) {
-                    logger.error("Erro ao excluir consulta", e);
-                    mostrarErro("Erro ao excluir", e.getMessage());
-                }
+                // Solicitar motivo do cancelamento
+                TextInputDialog motivoDialog = new TextInputDialog();
+                motivoDialog.setTitle("Motivo do Cancelamento");
+                motivoDialog.setHeaderText("Informe o motivo do cancelamento:");
+                motivoDialog.setContentText("Motivo:");
+                
+                motivoDialog.showAndWait().ifPresent(motivo -> {
+                    if (motivo == null || motivo.trim().isEmpty()) {
+                        mostrarErro("Erro", "O motivo do cancelamento é obrigatório");
+                        return;
+                    }
+                    
+                    // Solicitar login do usuário
+                    TextInputDialog usuarioDialog = new TextInputDialog();
+                    usuarioDialog.setTitle("Identificação do Usuário");
+                    usuarioDialog.setHeaderText("Informe seu login:");
+                    usuarioDialog.setContentText("Login:");
+                    
+                    usuarioDialog.showAndWait().ifPresent(usuarioLogin -> {
+                        if (usuarioLogin == null || usuarioLogin.trim().isEmpty()) {
+                            mostrarErro("Erro", "O login do usuário é obrigatório");
+                            return;
+                        }
+                        
+                        try {
+                            service.cancelar(itemSelecionado.getId(), motivo, usuarioLogin);
+                            mostrarSucesso("Sucesso", "Consulta cancelada com sucesso!");
+                            carregarDados();
+                            limparFormulario();
+                            resetarBotoes();
+                            RefreshManager.getInstance().notifyRefresh();
+                        } catch (Exception e) {
+                            logger.error("Erro ao cancelar consulta", e);
+                            mostrarErro("Erro ao cancelar", e.getMessage());
+                        }
+                    });
+                });
             }
         });
     }
@@ -341,14 +375,14 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         }
 
         // Validar Tipo de Consulta
-        if (cbTipoConsulta.getValue() == null || cbTipoConsulta.getValue().isEmpty()) {
+        if (cbTipoConsulta.getValue() == null) {
             mostrarAviso("Tipo de consulta é obrigatório");
             cbTipoConsulta.requestFocus();
             return false;
         }
 
         // Validar Modalidade
-        if (cbModalidade.getValue() == null || cbModalidade.getValue().isEmpty()) {
+        if (cbModalidade.getValue() == null) {
             mostrarAviso("Modalidade é obrigatória");
             cbModalidade.requestFocus();
             return false;
@@ -358,6 +392,13 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         if (chkEncaixe.isSelected() && !ValidationUtils.validarCampoObrigatorio(txtMotivoEncaixe.getText())) {
             mostrarAviso("Motivo do encaixe é obrigatório quando marcado como encaixe");
             txtMotivoEncaixe.requestFocus();
+            return false;
+        }
+
+        // Validar Usuário Criador (obrigatório conforme API)
+        if (!ValidationUtils.validarCampoObrigatorio(txtUsuarioCriador.getText())) {
+            mostrarAviso("Usuário criador é obrigatório");
+            txtUsuarioCriador.requestFocus();
             return false;
         }
 
@@ -457,14 +498,14 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
             
             // Busca por tipo de consulta
             if (!encontrado && consulta.getTipoConsulta() != null) {
-                if (consulta.getTipoConsulta().toLowerCase().contains(busca)) {
+                if (consulta.getTipoConsulta().name().toLowerCase().contains(busca)) {
                     encontrado = true;
                 }
             }
             
             // Busca por status
             if (!encontrado && consulta.getStatus() != null) {
-                if (consulta.getStatus().toLowerCase().contains(busca)) {
+                if (consulta.getStatus().name().toLowerCase().contains(busca)) {
                     encontrado = true;
                 }
             }

@@ -13,13 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+/**
+ * @deprecated Este controller usa AlimentoService que está deprecado.
+ * Considere refatorar para usar EntradaItensService com tipo=ALIMENTO.
+ */
+@Deprecated
 public class AlimentoController extends AbstractCrudController<Alimento> {
     
     private static final Logger logger = LoggerFactory.getLogger(AlimentoController.class);
     
     @FXML private TableView<Alimento> tableAlimentos;
-    @FXML private TableColumn<Alimento, Long> colId;
+    @FXML private TableColumn<Alimento, UUID> colId;
     @FXML private TableColumn<Alimento, String> colNome;
     @FXML private TableColumn<Alimento, String> colTipo;
     @FXML private TableColumn<Alimento, Integer> colQuantidade;
@@ -125,12 +131,8 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     
     private void preencherFormulario(Alimento alimento) {
         txtNome.setText(alimento.getNome());
-        txtDescricao.setText(alimento.getDescricao());
-        txtTipo.setText(alimento.getTipo());
-        txtUnidadeMedida.setText(alimento.getUnidadeMedida());
         txtQuantidade.setText(String.valueOf(alimento.getQuantidadeTotal()));
-        txtLote.setText(alimento.getLote());
-        txtNf.setText(alimento.getNf());
+        // txtLote e txtNf removidos - não existem mais no modelo
         txtAlergenicos.setText(alimento.getAlergenicos());
         cbTipoArmazenamento.setValue(alimento.getTipoArmazenamento());
     }
@@ -285,13 +287,9 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     private Alimento construirAlimentoDoFormulario() {
         Alimento alimento = new Alimento();
         alimento.setNome(txtNome.getText());
-        alimento.setDescricao(txtDescricao.getText());
-        alimento.setTipo(txtTipo.getText());
-        alimento.setUnidadeMedida(txtUnidadeMedida.getText());
         alimento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-        alimento.setValidade(LocalDateTime.now().plusMonths(6)); // Default 6 meses
-        alimento.setLote(txtLote.getText());
-        alimento.setNf(txtNf.getText());
+        alimento.setValidade(new java.util.Date()); // Data atual
+        // txtLote e txtNf removidos - não existem mais no modelo
         alimento.setAlergenicos(txtAlergenicos.getText());
         alimento.setTipoArmazenamento(cbTipoArmazenamento.getValue());
         return alimento;

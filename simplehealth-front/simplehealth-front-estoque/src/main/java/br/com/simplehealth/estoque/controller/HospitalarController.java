@@ -12,13 +12,19 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+/**
+ * @deprecated Este controller usa HospitalarService que está deprecado.
+ * Considere refatorar para usar EntradaItensService com tipo=HOSPITALAR.
+ */
+@Deprecated
 public class HospitalarController extends AbstractCrudController<Hospitalar> {
     
     private static final Logger logger = LoggerFactory.getLogger(HospitalarController.class);
     
     @FXML private TableView<Hospitalar> tableHospitalares;
-    @FXML private TableColumn<Hospitalar, Long> colId;
+    @FXML private TableColumn<Hospitalar, UUID> colId;
     @FXML private TableColumn<Hospitalar, String> colNome;
     @FXML private TableColumn<Hospitalar, String> colTipo;
     @FXML private TableColumn<Hospitalar, Integer> colQuantidade;
@@ -112,12 +118,8 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     
     private void preencherFormulario(Hospitalar hospitalar) {
         txtNome.setText(hospitalar.getNome());
-        txtDescricao.setText(hospitalar.getDescricao());
-        txtTipo.setText(hospitalar.getTipo());
-        txtUnidadeMedida.setText(hospitalar.getUnidadeMedida());
         txtQuantidade.setText(String.valueOf(hospitalar.getQuantidadeTotal()));
-        txtLote.setText(hospitalar.getLote());
-        txtNf.setText(hospitalar.getNf());
+        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         chkDescartabilidade.setSelected(hospitalar.getDescartabilidade() != null && hospitalar.getDescartabilidade());
         txtUso.setText(hospitalar.getUso());
     }
@@ -260,13 +262,9 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     private Hospitalar construirHospitalarDoFormulario() {
         Hospitalar hospitalar = new Hospitalar();
         hospitalar.setNome(txtNome.getText());
-        hospitalar.setDescricao(txtDescricao.getText());
-        hospitalar.setTipo(txtTipo.getText());
-        hospitalar.setUnidadeMedida(txtUnidadeMedida.getText());
         hospitalar.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-        hospitalar.setValidade(LocalDateTime.now().plusYears(2));
-        hospitalar.setLote(txtLote.getText());
-        hospitalar.setNf(txtNf.getText());
+        hospitalar.setValidade(new java.util.Date()); // Data atual
+        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         hospitalar.setDescartabilidade(chkDescartabilidade.isSelected());
         hospitalar.setUso(txtUso.getText());
         return hospitalar;

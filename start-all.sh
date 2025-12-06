@@ -114,9 +114,11 @@ main() {
     print_color $YELLOW "   ├─ MongoDB iniciado"
     check_service "MongoDB" 27017
     
-    # Inicia o Spring Boot em background
+    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
+    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
+    chmod +x mvnw
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
-    ./mvnw spring-boot:run > /tmp/agendamento-backend.log 2>&1 &
+    ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/agendamento-backend.log 2>&1 &
     AGENDAMENTO_PID=$!
     echo $AGENDAMENTO_PID > /tmp/agendamento-backend.pid
     check_service "Backend Agendamento" 8082
@@ -133,9 +135,11 @@ main() {
     print_color $YELLOW "   ├─ Redis (porta 6380) iniciado"
     check_service "Redis Cadastro" 6380
     
-    # Inicia o Spring Boot em background
+    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
+    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
+    chmod +x mvnw
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
-    ./mvnw spring-boot:run > /tmp/cadastro-backend.log 2>&1 &
+    ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/cadastro-backend.log 2>&1 &
     CADASTRO_PID=$!
     echo $CADASTRO_PID > /tmp/cadastro-backend.pid
     check_service "Backend Cadastro" 8081
@@ -152,9 +156,11 @@ main() {
     print_color $YELLOW "   ├─ Redis (porta 6381) iniciado"
     check_service "Redis Estoque" 6381
     
-    # Inicia o Spring Boot em background
+    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
+    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
+    chmod +x mvnw
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
-    ./mvnw spring-boot:run > /tmp/estoque-backend.log 2>&1 &
+    ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/estoque-backend.log 2>&1 &
     ESTOQUE_PID=$!
     echo $ESTOQUE_PID > /tmp/estoque-backend.pid
     check_service "Backend Estoque" 8083

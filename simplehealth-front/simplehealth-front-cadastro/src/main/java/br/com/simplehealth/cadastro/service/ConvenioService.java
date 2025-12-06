@@ -72,10 +72,15 @@ public class ConvenioService {
             request.setEntity(new StringEntity(json));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String jsonResponse = EntityUtils.toString(response.getEntity());
-                logger.debug("Resposta da API: {}", jsonResponse);
+                logger.debug("Resposta da API: {} - {}", statusCode, jsonResponse);
                 
-                return objectMapper.readValue(jsonResponse, Convenio.class);
+                if (statusCode == 201 || statusCode == 200) {
+                    return objectMapper.readValue(jsonResponse, Convenio.class);
+                } else {
+                    throw new IOException("Erro ao criar convênio. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }
@@ -92,10 +97,15 @@ public class ConvenioService {
             request.setEntity(new StringEntity(json));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String jsonResponse = EntityUtils.toString(response.getEntity());
-                logger.debug("Resposta da API: {}", jsonResponse);
+                logger.debug("Resposta da API: {} - {}", statusCode, jsonResponse);
                 
-                return objectMapper.readValue(jsonResponse, Convenio.class);
+                if (statusCode == 200) {
+                    return objectMapper.readValue(jsonResponse, Convenio.class);
+                } else {
+                    throw new IOException("Erro ao atualizar convênio. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }
@@ -108,7 +118,13 @@ public class ConvenioService {
             HttpDelete request = new HttpDelete(AppConfig.CONVENIOS_ENDPOINT + "/" + id);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                logger.debug("Convênio deletado com sucesso. Status: {}", response.getCode());
+                int statusCode = response.getCode();
+                logger.debug("Convênio deletado. Status: {}", statusCode);
+                
+                if (statusCode != 204 && statusCode != 200) {
+                    String jsonResponse = EntityUtils.toString(response.getEntity());
+                    throw new IOException("Erro ao deletar convênio. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }

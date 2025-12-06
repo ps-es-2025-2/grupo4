@@ -1,6 +1,7 @@
 package br.com.simplehealth.cadastro.service;
 
 import br.com.simplehealth.cadastro.config.AppConfig;
+import br.com.simplehealth.cadastro.model.HistoricoPaciente;
 import br.com.simplehealth.cadastro.model.Paciente;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,10 +73,15 @@ public class PacienteService {
             request.setEntity(new StringEntity(json));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getCode();
                 String jsonResponse = EntityUtils.toString(response.getEntity());
-                logger.debug("Resposta da API: {}", jsonResponse);
+                logger.debug("Resposta da API: {} - {}", statusCode, jsonResponse);
                 
-                return objectMapper.readValue(jsonResponse, Paciente.class);
+                if (statusCode == 201 || statusCode == 200) {
+                    return objectMapper.readValue(jsonResponse, Paciente.class);
+                } else {
+                    throw new IOException("Erro ao criar paciente. Status: " + statusCode + " - " + jsonResponse);
+                }
             }
         }
     }
@@ -103,12 +109,34 @@ public class PacienteService {
     /**
      * Deleta um paciente.
      */
-    public void deletar(Long id) throws IOException {
+    public void deletar(Long id) throws IOException, org.apache.hc.core5.http.ParseException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(AppConfig.PACIENTES_ENDPOINT + "/" + id);
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
-                logger.debug("Paciente deletado com sucesso. Status: {}", response.getCode());
+                int statusCode = response.getCode();
+                logger.debug("Paciente deletado. Status: {}", statusCode);
+                
+                if (statusCode != 204 && statusCode != 200) {
+                    throw new IOException("Erro ao deletar paciente. Status: " + statusCode);
+                }
+            }
+        }
+    }
+
+    /**
+     * Consulta o histórico completo de um paciente pelo CPF.
+     * Retorna dados cadastrais, agendamentos, procedimentos, itens baixados e pagamentos.
+     */
+    public HistoricoPaciente consultarHistorico(String cpf) throws IOException, org.apache.hc.core5.http.ParseException {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(AppConfig.HISTORICO_PACIENTE_ENDPOINT + "/" + cpf);
+            
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String jsonResponse = EntityUtils.toString(response.getEntity());
+                logger.debug("Resposta da API (Histórico): {}", jsonResponse);
+                
+                return objectMapper.readValue(jsonResponse, HistoricoPaciente.class);
             }
         }
     }

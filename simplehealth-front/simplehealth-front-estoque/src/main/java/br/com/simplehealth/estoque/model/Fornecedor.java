@@ -1,6 +1,7 @@
 package br.com.simplehealth.estoque.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.UUID;
 
 /**
  * Modelo para fornecedores
@@ -8,46 +9,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Fornecedor {
     
     @JsonProperty("idFornecedor")
-    private Long idFornecedor;
-    
-    @JsonProperty("nome")
-    private String nome;
+    private UUID idFornecedor;
     
     @JsonProperty("cnpj")
     private String cnpj;
-    
-    @JsonProperty("contato")
-    private String contato;
-    
-    @JsonProperty("endereco")
-    private String endereco;
     
     // Construtores
     public Fornecedor() {
     }
     
-    public Fornecedor(String nome, String cnpj, String contato, String endereco) {
-        this.nome = nome;
+    public Fornecedor(String cnpj) {
         this.cnpj = cnpj;
-        this.contato = contato;
-        this.endereco = endereco;
     }
     
     // Getters e Setters
-    public Long getIdFornecedor() {
+    public UUID getIdFornecedor() {
         return idFornecedor;
     }
     
-    public void setIdFornecedor(Long idFornecedor) {
+    public void setIdFornecedor(UUID idFornecedor) {
         this.idFornecedor = idFornecedor;
-    }
-    
-    public String getNome() {
-        return nome;
-    }
-    
-    public void setNome(String nome) {
-        this.nome = nome;
     }
     
     public String getCnpj() {
@@ -58,24 +39,8 @@ public class Fornecedor {
         this.cnpj = cnpj;
     }
     
-    public String getContato() {
-        return contato;
-    }
-    
-    public void setContato(String contato) {
-        this.contato = contato;
-    }
-    
-    public String getEndereco() {
-        return endereco;
-    }
-    
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-    
     @Override
     public String toString() {
-        return nome + " - " + cnpj;
+        return "Fornecedor: " + cnpj;
     }
 }

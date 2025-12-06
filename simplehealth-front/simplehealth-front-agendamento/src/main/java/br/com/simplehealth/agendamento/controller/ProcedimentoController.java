@@ -1,6 +1,8 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.Procedimento;
+import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
+import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
 import br.com.simplehealth.agendamento.service.ProcedimentoService;
 import br.com.simplehealth.agendamento.util.RefreshManager;
 import br.com.simplehealth.agendamento.util.ValidationUtils;
@@ -40,8 +42,8 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
     @FXML private TextField txtDataHoraInicio;
     @FXML private TextField txtDataHoraFim;
     @FXML private ComboBox<String> cbNivelRisco;
-    @FXML private ComboBox<String> cbModalidade;
-    @FXML private ComboBox<String> cbStatus;
+    @FXML private ComboBox<ModalidadeEnum> cbModalidade;
+    @FXML private ComboBox<StatusAgendamentoEnum> cbStatus;
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
     @FXML private TextField txtBusca;
@@ -99,8 +101,9 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         });
 
         cbNivelRisco.setItems(FXCollections.observableArrayList("BAIXO", "MÉDIO", "ALTO"));
-        cbModalidade.setItems(FXCollections.observableArrayList("PRESENCIAL", "ONLINE"));
-        cbStatus.setItems(FXCollections.observableArrayList("ATIVO", "CANCELADO", "REALIZADO"));
+        // Configurar ComboBoxes com enums
+        cbModalidade.setItems(FXCollections.observableArrayList(ModalidadeEnum.values()));
+        cbStatus.setItems(FXCollections.observableArrayList(StatusAgendamentoEnum.values()));
 
         // Configurar estado inicial dos botões
         configurarEstadoInicialBotoes();
@@ -152,8 +155,8 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         txtDataHoraInicio.clear();
         txtDataHoraFim.clear();
         cbNivelRisco.setValue(null);
-        cbModalidade.setValue("PRESENCIAL");
-        cbStatus.setValue("ATIVO");
+        cbModalidade.setValue(ModalidadeEnum.PRESENCIAL);
+        cbStatus.setValue(StatusAgendamentoEnum.ATIVO);
         txtObservacoes.clear();
         txtUsuarioCriador.clear();
         tableView.getSelectionModel().clearSelection();
@@ -321,7 +324,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         }
 
         // Validar Modalidade
-        if (cbModalidade.getValue() == null || cbModalidade.getValue().isEmpty()) {
+        if (cbModalidade.getValue() == null) {
             mostrarAviso("Modalidade é obrigatória");
             cbModalidade.requestFocus();
             return false;
@@ -422,14 +425,14 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
             
             // Busca por modalidade
             if (!encontrado && procedimento.getModalidade() != null) {
-                if (procedimento.getModalidade().toLowerCase().contains(busca)) {
+                if (procedimento.getModalidade().name().toLowerCase().contains(busca)) {
                     encontrado = true;
                 }
             }
             
             // Busca por status
             if (!encontrado && procedimento.getStatus() != null) {
-                if (procedimento.getStatus().toLowerCase().contains(busca)) {
+                if (procedimento.getStatus().name().toLowerCase().contains(busca)) {
                     encontrado = true;
                 }
             }

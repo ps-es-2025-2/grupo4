@@ -28,9 +28,8 @@
                 
                 <TableView fx:id="tableEstoques" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                        <TableColumn fx:id="colLocal" text="Local" prefWidth="250"/>
-                        <TableColumn fx:id="colItem" text="Item" prefWidth="250"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
+                        <TableColumn fx:id="colLocal" text="Local" prefWidth="400"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -48,9 +47,6 @@
                         
                         <Label text="Local:*" GridPane.rowIndex="0"/>
                         <TextField fx:id="txtLocal" promptText="Localização do estoque" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        
-                        <Label text="ID do Item:" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtIdItem" promptText="ID do item" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

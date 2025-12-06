@@ -1,7 +1,7 @@
 package br.com.simplehealth.estoque.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * Modelo para medicamentos (extends Item)
@@ -28,10 +28,9 @@ public class Medicamento extends Item {
         super();
     }
     
-    public Medicamento(String nome, String descricao, String tipo, String unidadeMedida,
-                      Integer quantidadeTotal, LocalDateTime validade, String lote, String nf,
+    public Medicamento(String nome, Integer quantidadeTotal, Date validade,
                       String prescricao, String composicao, String bula, String targa, String modoConsumo) {
-        super(nome, descricao, tipo, unidadeMedida, quantidadeTotal, validade, lote, nf);
+        super(nome, quantidadeTotal, validade);
         this.prescricao = prescricao;
         this.composicao = composicao;
         this.bula = bula;

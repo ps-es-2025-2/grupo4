@@ -17,7 +17,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * @deprecated O backend não possui endpoint específico para Hospitalares.
+ * Os itens do tipo Hospitalar são gerenciados através do endpoint /controle/entrada
+ * usando EntradaItensDTO com tipo=HOSPITALAR.
+ * Este service permanece apenas para compatibilidade com controllers legados.
+ */
+@Deprecated
 public class HospitalarService {
     
     private static final Logger logger = LoggerFactory.getLogger(HospitalarService.class);
@@ -27,7 +35,9 @@ public class HospitalarService {
     public HospitalarService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_HOSPITALARES;
+        // NOTA: Backend não possui endpoint específico para Hospitalares
+        // Os itens são gerenciados através do endpoint /controle
+        this.baseUrl = AppConfig.API_BASE_URL + "/hospitalares"; // Endpoint não implementado
     }
     
     public List<Hospitalar> listar() throws IOException {
@@ -47,7 +57,7 @@ public class HospitalarService {
         }
     }
     
-    public Hospitalar buscarPorId(Long id) throws IOException {
+    public Hospitalar buscarPorId(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl + "/" + id);
             
@@ -83,7 +93,7 @@ public class HospitalarService {
         }
     }
     
-    public Hospitalar atualizar(Long id, Hospitalar hospitalar) throws IOException {
+    public Hospitalar atualizar(UUID id, Hospitalar hospitalar) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(baseUrl + "/" + id);
             String json = objectMapper.writeValueAsString(hospitalar);
@@ -103,7 +113,7 @@ public class HospitalarService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             

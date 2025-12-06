@@ -17,10 +17,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * Service para operações HTTP com medicamentos
+ * @deprecated O backend não possui endpoint específico para Medicamentos.
+ * Os itens do tipo Medicamento são gerenciados através do endpoint /controle/entrada
+ * usando EntradaItensDTO com tipo=MEDICAMENTO.
+ * Este service permanece apenas para compatibilidade com controllers legados.
  */
+@Deprecated
 public class MedicamentoService {
     
     private static final Logger logger = LoggerFactory.getLogger(MedicamentoService.class);
@@ -30,7 +35,9 @@ public class MedicamentoService {
     public MedicamentoService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_MEDICAMENTOS;
+        // NOTA: Backend não possui endpoint específico para Medicamentos
+        // Os itens são gerenciados através do endpoint /controle
+        this.baseUrl = AppConfig.API_BASE_URL + "/medicamentos"; // Endpoint não implementado
     }
     
     public List<Medicamento> listar() throws IOException {
@@ -54,7 +61,7 @@ public class MedicamentoService {
         }
     }
     
-    public Medicamento buscarPorId(Long id) throws IOException {
+    public Medicamento buscarPorId(UUID id) throws IOException {
         logger.debug("Buscando medicamento por ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -98,8 +105,8 @@ public class MedicamentoService {
         }
     }
     
-    public Medicamento atualizar(Long id, Medicamento medicamento) throws IOException {
-        logger.debug("Atualizando medicamento ID {}: {}", id, medicamento);
+    public Medicamento atualizar(UUID id, Medicamento medicamento) throws IOException {
+        logger.debug("Atualizando medicamento ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(baseUrl + "/" + id);
@@ -122,7 +129,7 @@ public class MedicamentoService {
         }
     }
     
-    public boolean deletar(Long id) throws IOException {
+    public boolean deletar(UUID id) throws IOException {
         logger.debug("Deletando medicamento ID: {}", id);
         
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {

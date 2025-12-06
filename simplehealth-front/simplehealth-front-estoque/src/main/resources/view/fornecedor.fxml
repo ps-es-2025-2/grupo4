@@ -28,10 +28,8 @@
                 
                 <TableView fx:id="tableFornecedores" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
-                        <TableColumn fx:id="colCnpj" text="CNPJ" prefWidth="150"/>
-                        <TableColumn fx:id="colContato" text="Contato" prefWidth="180"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="200"/>
+                        <TableColumn fx:id="colCnpj" text="CNPJ" prefWidth="300"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -47,17 +45,8 @@
                             <ColumnConstraints hgrow="ALWAYS"/>
                         </columnConstraints>
                         
-                        <Label text="Nome:*" GridPane.rowIndex="0"/>
-                        <TextField fx:id="txtNome" promptText="Nome do fornecedor" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        
-                        <Label text="CNPJ:*" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtCnpj" promptText="00.000.000/0000-00" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                        
-                        <Label text="Contato:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtContato" promptText="Telefone ou email" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                        
-                        <Label text="Endereço:" GridPane.rowIndex="3"/>
-                        <TextArea fx:id="txtEndereco" promptText="Endereço completo" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label text="CNPJ:*" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtCnpj" promptText="00.000.000/0000-00" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->
