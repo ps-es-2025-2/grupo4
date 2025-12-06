@@ -56,4 +56,16 @@ public class AgendamentoService {
       throw new IllegalStateException("Não é possível cancelar um agendamento que já ocorreu.");
     }
   }
+
+  public void verificarAgendamentosAtivosNoPeriodo(String medicoCrm, LocalDateTime inicio, LocalDateTime fim)
+      throws Exception {
+    List<Agendamento> agendamentosAtivos = agendamentoRepository
+        .findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+            medicoCrm, fim, inicio, StatusAgendamentoEnum.ATIVO);
+
+    if (!agendamentosAtivos.isEmpty()) {
+      throw new Exception("Bloqueio não permitido. " + agendamentosAtivos.size() +
+          " agendamento(s) ativo(s) devem ser cancelados ou reagendados primeiro.");
+    }
+  }
 }

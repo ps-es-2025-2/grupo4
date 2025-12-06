@@ -1,6 +1,7 @@
 package com.simplehealth.agendamento.application.usecases;
 
 import com.simplehealth.agendamento.application.dtos.CancelarAgendamentoDTO;
+import com.simplehealth.agendamento.application.dtos.ConsultaResponseDTO;
 import com.simplehealth.agendamento.application.services.AgendamentoService;
 import com.simplehealth.agendamento.application.services.ConsultaService;
 import com.simplehealth.agendamento.domain.entity.Consulta;
@@ -15,13 +16,12 @@ public class CancelarAgendamentoUseCase {
 
   public CancelarAgendamentoUseCase(
       ConsultaService consultaService,
-      AgendamentoService agendamentoService
-  ) {
+      AgendamentoService agendamentoService) {
     this.consultaService = consultaService;
     this.agendamentoService = agendamentoService;
   }
 
-  public Consulta execute(CancelarAgendamentoDTO dto) throws Exception {
+  public ConsultaResponseDTO execute(CancelarAgendamentoDTO dto) throws Exception {
     Consulta consulta = consultaService.buscarPorId(dto.getId())
         .orElseThrow(() -> new Exception("Consulta não encontrada"));
 
@@ -34,7 +34,29 @@ public class CancelarAgendamentoUseCase {
 
     Consulta salva = consultaService.salvar(consulta);
 
-    return salva;
+    return toResponseDTO(salva);
+  }
+
+  private ConsultaResponseDTO toResponseDTO(Consulta consulta) {
+    return ConsultaResponseDTO.builder()
+        .id(consulta.getId())
+        .dataHoraInicio(consulta.getDataHoraInicio())
+        .dataHoraFim(consulta.getDataHoraFim())
+        .isEncaixe(consulta.getIsEncaixe())
+        .modalidade(consulta.getModalidade())
+        .motivoEncaixe(consulta.getMotivoEncaixe())
+        .observacoes(consulta.getObservacoes())
+        .status(consulta.getStatus())
+        .motivoCancelamento(consulta.getMotivoCancelamento())
+        .dataCancelamento(consulta.getDataCancelamento())
+        .pacienteCpf(consulta.getPacienteCpf())
+        .medicoCrm(consulta.getMedicoCrm())
+        .convenioNome(consulta.getConvenioNome())
+        .usuarioCriadorLogin(consulta.getUsuarioCriadorLogin())
+        .usuarioCanceladorLogin(consulta.getUsuarioCanceladorLogin())
+        .especialidade(consulta.getEspecialidade())
+        .tipoConsulta(consulta.getTipoConsulta())
+        .build();
   }
 
 }

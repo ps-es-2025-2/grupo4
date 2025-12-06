@@ -1,8 +1,8 @@
 package com.simplehealth.agendamento.web.controllers;
 
+import com.simplehealth.agendamento.application.dtos.ConsultaResponseDTO;
 import com.simplehealth.agendamento.application.dtos.EncaixeDTO;
 import com.simplehealth.agendamento.application.usecases.SolicitarEncaixeUseCase;
-import com.simplehealth.agendamento.domain.entity.Consulta;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,7 @@ public class EncaixeController {
   }
 
   @PostMapping
-  public ResponseEntity<Consulta> solicitar(@RequestBody EncaixeDTO dto) throws Exception {
+  public ResponseEntity<ConsultaResponseDTO> solicitar(@RequestBody EncaixeDTO dto) throws Exception {
     return ResponseEntity.ok(solicitarEncaixeUseCase.execute(dto));
   }
 }

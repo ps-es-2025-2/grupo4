@@ -1,8 +1,8 @@
 package com.simplehealth.agendamento.web.controllers;
 
 import com.simplehealth.agendamento.application.dtos.BloqueioAgendaDTO;
+import com.simplehealth.agendamento.application.dtos.BloqueioAgendaResponseDTO;
 import com.simplehealth.agendamento.application.usecases.RegistrarBloqueioAgendaUseCase;
-import com.simplehealth.agendamento.domain.entity.BloqueioAgenda;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,7 @@ public class BloqueioAgendaController {
   }
 
   @PostMapping
-  public ResponseEntity<BloqueioAgenda> criar(@RequestBody BloqueioAgendaDTO dto) {
+  public ResponseEntity<BloqueioAgendaResponseDTO> criar(@RequestBody BloqueioAgendaDTO dto) throws Exception {
     return ResponseEntity.ok(registrarBloqueioAgendaUseCase.registrar(dto));
   }
 }

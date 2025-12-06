@@ -1,6 +1,8 @@
 package com.simplehealth.agendamento.application.usecases;
 
 import com.simplehealth.agendamento.application.dtos.BloqueioAgendaDTO;
+import com.simplehealth.agendamento.application.dtos.BloqueioAgendaResponseDTO;
+import com.simplehealth.agendamento.application.services.AgendamentoService;
 import com.simplehealth.agendamento.application.services.BloqueioAgendaService;
 import com.simplehealth.agendamento.domain.entity.BloqueioAgenda;
 import org.springframework.stereotype.Service;
@@ -9,14 +11,21 @@ import org.springframework.stereotype.Service;
 public class RegistrarBloqueioAgendaUseCase {
 
   private final BloqueioAgendaService bloqueioAgendaService;
+  private final AgendamentoService agendamentoService;
 
   public RegistrarBloqueioAgendaUseCase(
-      BloqueioAgendaService bloqueioAgendaService
-  ) {
+      BloqueioAgendaService bloqueioAgendaService,
+      AgendamentoService agendamentoService) {
     this.bloqueioAgendaService = bloqueioAgendaService;
+    this.agendamentoService = agendamentoService;
   }
 
-  public BloqueioAgenda registrar(BloqueioAgendaDTO dto) {
+  public BloqueioAgendaResponseDTO registrar(BloqueioAgendaDTO dto) throws Exception {
+    agendamentoService.verificarAgendamentosAtivosNoPeriodo(
+        dto.getMedicoCrm(),
+        dto.getDataInicio(),
+        dto.getDataFim());
+
     BloqueioAgenda bloqueio = new BloqueioAgenda();
     bloqueio.setDataInicio(dto.getDataInicio());
     bloqueio.setDataFim(dto.getDataFim());
@@ -27,6 +36,20 @@ public class RegistrarBloqueioAgendaUseCase {
 
     BloqueioAgenda salvo = bloqueioAgendaService.salvar(bloqueio);
 
-    return salvo;
+    return toResponseDTO(salvo);
+  }
+
+  private BloqueioAgendaResponseDTO toResponseDTO(BloqueioAgenda bloqueio) {
+    return BloqueioAgendaResponseDTO.builder()
+        .id(bloqueio.getId())
+        .dataInicio(bloqueio.getDataInicio())
+        .dataFim(bloqueio.getDataFim())
+        .motivo(bloqueio.getMotivo())
+        .antecedenciaMinima(bloqueio.getAntecedenciaMinima())
+        .medicoCrm(bloqueio.getMedicoCrm())
+        .usuarioCriadorLogin(bloqueio.getUsuarioCriadorLogin())
+        .dataCriacao(bloqueio.getDataCriacao())
+        .ativo(bloqueio.getAtivo())
+        .build();
   }
 }
