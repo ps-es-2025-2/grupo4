@@ -10,5 +10,20 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo/data:/data/db
-      - ./mongo/config:/data/configdb
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+
+  redis:
+    image: redis:7
+    container_name: redis_agendamento
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  mongo_data:
+  mongo_config:
+  redis_data:

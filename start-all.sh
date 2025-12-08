@@ -50,11 +50,15 @@ check_service() {
             print_color $GREEN "✅ $service_name está rodando!"
             return 0
         fi
+        # Mostra progresso a cada 5 tentativas
+        if [ $((attempt % 5)) -eq 0 ]; then
+            print_color $CYAN "   → Tentativa $attempt/$max_attempts..."
+        fi
         sleep 2
         attempt=$((attempt + 1))
     done
     
-    print_color $RED "❌ Timeout: $service_name não iniciou na porta $port"
+    print_color $RED "❌ Timeout: $service_name não iniciou na porta $port após $max_attempts tentativas"
     return 1
 }
 
@@ -75,18 +79,49 @@ check_netcat() {
     fi
 }
 
-# Função para limpar containers antigos (sempre executa)
-cleanup() {
-    print_header "🧹 LIMPEZA DE CONTAINERS ANTIGOS"
+# Função para limpar containers antigos (limpeza leve)
+cleanup_light() {
+    print_header "🧹 LIMPEZA RÁPIDA DE CONTAINERS"
     
-    print_color $YELLOW "🗑️  Parando e removendo containers antigos dos backends..."
+    print_color $YELLOW "🗑️  Parando containers dos backends..."
     
-    # Para e remove containers dos backends (bancos de dados)
+    # Para containers dos backends (bancos de dados) - SEM remover volumes
     cd simplehealth-back/simplehealth-back-agendamento && docker-compose down 2>/dev/null; cd ../..
     cd simplehealth-back/simplehealth-back-cadastro && docker-compose down 2>/dev/null; cd ../..
     cd simplehealth-back/simplehealth-back-estoque && docker-compose down 2>/dev/null; cd ../..
     
-    print_color $GREEN "✅ Limpeza concluída"
+    print_color $GREEN "✅ Limpeza rápida concluída"
+}
+
+# Função para hard reset completo (remove TUDO - containers, volumes, dados)
+cleanup_hard() {
+    print_header "🔥 HARD RESET COMPLETO - LIMPANDO TUDO"
+    
+    print_color $RED "⚠️  ATENÇÃO: Isso vai apagar TODOS os dados dos bancos!"
+    print_color $YELLOW "🗑️  Parando e removendo containers, volumes e dados..."
+    
+    # Para e remove containers e VOLUMES dos backends (apaga todos os dados)
+    print_color $CYAN "   • Limpando Backend Agendamento (MongoDB)..."
+    cd simplehealth-back/simplehealth-back-agendamento && docker-compose down -v 2>/dev/null; cd ../..
+    
+    print_color $CYAN "   • Limpando Backend Cadastro (PostgreSQL + Redis)..."
+    cd simplehealth-back/simplehealth-back-cadastro && docker-compose down -v 2>/dev/null; cd ../..
+    
+    print_color $CYAN "   • Limpando Backend Estoque (Cassandra + Redis)..."
+    cd simplehealth-back/simplehealth-back-estoque && docker-compose down -v 2>/dev/null; cd ../..
+    
+    # Remove volumes órfãos do Docker
+    print_color $YELLOW "🧹 Limpando volumes órfãos do Docker..."
+    docker volume prune -f 2>/dev/null || true
+    
+    # Limpa logs antigos
+    print_color $YELLOW "📄 Limpando logs antigos..."
+    rm -f /tmp/agendamento-*.log 2>/dev/null || true
+    rm -f /tmp/cadastro-*.log 2>/dev/null || true
+    rm -f /tmp/estoque-*.log 2>/dev/null || true
+    rm -f /tmp/*.pid 2>/dev/null || true
+    
+    print_color $GREEN "✅ Hard reset completo! Sistema limpo como se fosse a primeira vez"
 }
 
 # Função principal
@@ -97,20 +132,29 @@ main() {
     echo ""
     print_color $CYAN "Escolha uma opção de inicialização:"
     echo ""
-    print_color $YELLOW "  1) Inicialização Completa (Limpar + Verificar Dependências + Inicializar)"
-    print_color $YELLOW "  2) Inicialização Rápida (Limpar + Inicializar sem verificar dependências)"
+    print_color $YELLOW "  1) Inicialização Completa do Zero (Hard Reset + Verificar Dependências + Inicializar)"
+    print_color $CYAN "     → Apaga TODOS os dados dos bancos e começa do zero"
+    print_color $CYAN "     → Verifica e baixa dependências Maven"
+    print_color $CYAN "     → Ideal para primeira execução ou reset total"
+    echo ""
+    print_color $YELLOW "  2) Inicialização Rápida (Apenas inicializar sem limpar dados)"
+    print_color $CYAN "     → Mantém os dados existentes nos bancos"
+    print_color $CYAN "     → Não verifica dependências"
+    print_color $CYAN "     → Ideal para desenvolvimento rápido"
     echo ""
     print_color $CYAN "Digite sua escolha [1-2]: "
     read -r OPTION
     
     case $OPTION in
         1)
-            print_color $GREEN "✅ Opção 1 selecionada: Inicialização Completa"
+            print_color $GREEN "✅ Opção 1 selecionada: Inicialização Completa do Zero"
             SKIP_DEPS=false
+            DO_HARD_RESET=true
             ;;
         2)
             print_color $GREEN "✅ Opção 2 selecionada: Inicialização Rápida"
             SKIP_DEPS=true
+            DO_HARD_RESET=false
             ;;
         *)
             print_color $RED "❌ Opção inválida. Use 1 ou 2"
@@ -123,8 +167,12 @@ main() {
     check_docker
     check_netcat
     
-    # Limpeza opcional
-    cleanup
+    # Limpeza baseada na opção escolhida
+    if [ "$DO_HARD_RESET" = true ]; then
+        cleanup_hard
+    else
+        cleanup_light
+    fi
     
     #==========================================================================
     # FASE 0: VERIFICAÇÃO E DOWNLOAD DE DEPENDÊNCIAS
@@ -151,11 +199,13 @@ main() {
             
             # Verifica se precisa baixar dependências
             print_color $YELLOW "   ├─ Analisando dependências..."
-            if $MVN_CMD dependency:go-offline -Dmaven.test.skip=true 2>&1 | tee "$log_file"; then
+            if $MVN_CMD dependency:go-offline -Dmaven.test.skip=true > "$log_file" 2>&1; then
                 print_color $GREEN "   └─ ✅ Dependências do $module_name OK"
             else
                 print_color $RED "   └─ ❌ Erro ao verificar dependências do $module_name"
-                print_color $RED "      Verifique o log: $log_file"
+                print_color $RED "📄 Últimas linhas do log:"
+                tail -30 "$log_file"
+                print_color $RED "\n📁 Log completo: $log_file"
                 exit 1
             fi
             cd - > /dev/null
@@ -232,13 +282,21 @@ main() {
     docker-compose up -d
     print_color $YELLOW "   ├─ MongoDB iniciado"
     check_service "MongoDB" 27017
+    print_color $YELLOW "   ├─ Redis (porta 6379) iniciado"
+    check_service "Redis Agendamento" 6379
     
     # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
+    print_color $CYAN "      Log: tail -f /tmp/agendamento-backend.log"
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/agendamento-backend.log 2>&1 &
     AGENDAMENTO_PID=$!
     echo $AGENDAMENTO_PID > /tmp/agendamento-backend.pid
-    check_service "Backend Agendamento" 8082
+    print_color $YELLOW "      PID: $AGENDAMENTO_PID - Aguardando inicialização..."
+    check_service "Backend Agendamento" 8082 || {
+        print_color $RED "      ❌ Falha ao inicializar. Últimas linhas do log:"
+        tail -20 /tmp/agendamento-backend.log
+        exit 1
+    }
     cd ../..
     
     # Backend Cadastro (PostgreSQL + Redis + Spring Boot porta 8081)
@@ -257,10 +315,16 @@ main() {
     
     # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
+    print_color $CYAN "      Log: tail -f /tmp/cadastro-backend.log"
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/cadastro-backend.log 2>&1 &
     CADASTRO_PID=$!
     echo $CADASTRO_PID > /tmp/cadastro-backend.pid
-    check_service "Backend Cadastro" 8081
+    print_color $YELLOW "      PID: $CADASTRO_PID - Aguardando inicialização..."
+    check_service "Backend Cadastro" 8081 || {
+        print_color $RED "      ❌ Falha ao inicializar. Últimas linhas do log:"
+        tail -20 /tmp/cadastro-backend.log
+        exit 1
+    }
     cd ../..
     
     # Backend Estoque (Cassandra + Redis + Spring Boot porta 8083)
@@ -279,10 +343,16 @@ main() {
     
     # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
+    print_color $CYAN "      Log: tail -f /tmp/estoque-backend.log"
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/estoque-backend.log 2>&1 &
     ESTOQUE_PID=$!
     echo $ESTOQUE_PID > /tmp/estoque-backend.pid
-    check_service "Backend Estoque" 8083
+    print_color $YELLOW "      PID: $ESTOQUE_PID - Aguardando inicialização..."
+    check_service "Backend Estoque" 8083 || {
+        print_color $RED "      ❌ Falha ao inicializar. Últimas linhas do log:"
+        tail -20 /tmp/estoque-backend.log
+        exit 1
+    }
     cd ../..
     
     print_color $GREEN "🎉 Todos os backends estão rodando!"
@@ -307,7 +377,10 @@ main() {
     if mvn clean compile > /tmp/agendamento-frontend-compile.log 2>&1; then
         print_color $GREEN "✅ Compilação do Frontend Agendamento OK"
     else
-        print_color $RED "❌ Erro na compilação do Frontend Agendamento. Verifique /tmp/agendamento-frontend-compile.log"
+        print_color $RED "❌ Erro na compilação do Frontend Agendamento."
+        print_color $RED "📄 Últimas linhas do log:"
+        tail -30 /tmp/agendamento-frontend-compile.log
+        print_color $RED "\n📁 Log completo: /tmp/agendamento-frontend-compile.log"
         exit 1
     fi
     cd ../..
@@ -318,7 +391,10 @@ main() {
     if mvn clean compile > /tmp/cadastro-frontend-compile.log 2>&1; then
         print_color $GREEN "✅ Compilação do Frontend Cadastro OK"
     else
-        print_color $RED "❌ Erro na compilação do Frontend Cadastro. Verifique /tmp/cadastro-frontend-compile.log"
+        print_color $RED "❌ Erro na compilação do Frontend Cadastro."
+        print_color $RED "📄 Últimas linhas do log:"
+        tail -30 /tmp/cadastro-frontend-compile.log
+        print_color $RED "\n📁 Log completo: /tmp/cadastro-frontend-compile.log"
         exit 1
     fi
     cd ../..
@@ -329,7 +405,10 @@ main() {
     if mvn clean compile > /tmp/estoque-frontend-compile.log 2>&1; then
         print_color $GREEN "✅ Compilação do Frontend Estoque OK"
     else
-        print_color $RED "❌ Erro na compilação do Frontend Estoque. Verifique /tmp/estoque-frontend-compile.log"
+        print_color $RED "❌ Erro na compilação do Frontend Estoque."
+        print_color $RED "📄 Últimas linhas do log:"
+        tail -30 /tmp/estoque-frontend-compile.log
+        print_color $RED "\n📁 Log completo: /tmp/estoque-frontend-compile.log"
         exit 1
     fi
     cd ../..
@@ -343,33 +422,39 @@ main() {
     
     # Frontend Agendamento
     print_color $BLUE "🖥️  2.4. Iniciando Frontend de Agendamento..."
+    print_color $CYAN "   Log: tail -f /tmp/agendamento-frontend.log"
     cd simplehealth-front/simplehealth-front-agendamento
     mvn javafx:run > /tmp/agendamento-frontend.log 2>&1 &
     AGENDAMENTO_FRONT_PID=$!
     echo $AGENDAMENTO_FRONT_PID > /tmp/agendamento-frontend.pid
     print_color $GREEN "✅ Frontend Agendamento iniciado (PID: $AGENDAMENTO_FRONT_PID)"
+    print_color $YELLOW "   ⏳ Aguardando JavaFX carregar (pode levar alguns segundos)..."
     cd ../..
     
     sleep 2
     
     # Frontend Cadastro
     print_color $BLUE "🖥️  2.5. Iniciando Frontend de Cadastro..."
+    print_color $CYAN "   Log: tail -f /tmp/cadastro-frontend.log"
     cd simplehealth-front/simplehealth-front-cadastro
     mvn javafx:run > /tmp/cadastro-frontend.log 2>&1 &
     CADASTRO_FRONT_PID=$!
     echo $CADASTRO_FRONT_PID > /tmp/cadastro-frontend.pid
     print_color $GREEN "✅ Frontend Cadastro iniciado (PID: $CADASTRO_FRONT_PID)"
+    print_color $YELLOW "   ⏳ Aguardando JavaFX carregar (pode levar alguns segundos)..."
     cd ../..
     
     sleep 2
     
     # Frontend Estoque
     print_color $BLUE "🖥️  2.6. Iniciando Frontend de Estoque..."
+    print_color $CYAN "   Log: tail -f /tmp/estoque-frontend.log"
     cd simplehealth-front/simplehealth-front-estoque
     mvn javafx:run > /tmp/estoque-frontend.log 2>&1 &
     ESTOQUE_FRONT_PID=$!
     echo $ESTOQUE_FRONT_PID > /tmp/estoque-frontend.pid
     print_color $GREEN "✅ Frontend Estoque iniciado (PID: $ESTOQUE_FRONT_PID)"
+    print_color $YELLOW "   ⏳ Aguardando JavaFX carregar (pode levar alguns segundos)..."
     cd ../..
     
     print_color $GREEN "🎉 Todos os frontends foram iniciados!"
@@ -394,8 +479,9 @@ main() {
     print_color $MAGENTA "💾 BANCOS DE DADOS:"
     print_color $CYAN "  • MongoDB:     localhost:27017"
     print_color $CYAN "  • PostgreSQL:  localhost:5430"
-    print_color $CYAN "  • Redis (Cadastro): localhost:6380"
-    print_color $CYAN "  • Redis (Estoque):  localhost:6381"
+    print_color $CYAN "  • Redis (Agendamento): localhost:6379"
+    print_color $CYAN "  • Redis (Cadastro):    localhost:6380"
+    print_color $CYAN "  • Redis (Estoque):     localhost:6381"
     print_color $CYAN "  • Cassandra:   localhost:9042"
     
     echo ""
