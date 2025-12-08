@@ -15,7 +15,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -26,6 +28,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
 
     private static final Logger logger = LoggerFactory.getLogger(ProcedimentoController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @FXML private TableView<Procedimento> tableView;
     @FXML private TableColumn<Procedimento, String> colId;
@@ -39,8 +42,10 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
     @FXML private TextArea txtDescricaoProcedimento;
     @FXML private TextField txtSalaEquipamento;
     @FXML private TextField txtConvenioNome;
-    @FXML private TextField txtDataHoraInicio;
-    @FXML private TextField txtDataHoraFim;
+    @FXML private DatePicker dtDataInicio;
+    @FXML private TextField txtHoraInicio;
+    @FXML private DatePicker dtDataFim;
+    @FXML private TextField txtHoraFim;
     @FXML private ComboBox<String> cbNivelRisco;
     @FXML private ComboBox<ModalidadeEnum> cbModalidade;
     @FXML private ComboBox<StatusAgendamentoEnum> cbStatus;
@@ -134,10 +139,17 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         txtDescricaoProcedimento.setText(procedimento.getDescricaoProcedimento());
         txtSalaEquipamento.setText(procedimento.getSalaEquipamentoNecessario());
         txtConvenioNome.setText(procedimento.getConvenioNome());
-        txtDataHoraInicio.setText(procedimento.getDataHoraInicio() != null ? 
-            procedimento.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "");
-        txtDataHoraFim.setText(procedimento.getDataHoraFim() != null ? 
-            procedimento.getDataHoraFim().format(DATE_TIME_FORMATTER) : "");
+        
+        if (procedimento.getDataHoraInicio() != null) {
+            dtDataInicio.setValue(procedimento.getDataHoraInicio().toLocalDate());
+            txtHoraInicio.setText(procedimento.getDataHoraInicio().format(TIME_FORMATTER));
+        }
+        
+        if (procedimento.getDataHoraFim() != null) {
+            dtDataFim.setValue(procedimento.getDataHoraFim().toLocalDate());
+            txtHoraFim.setText(procedimento.getDataHoraFim().format(TIME_FORMATTER));
+        }
+        
         cbNivelRisco.setValue(procedimento.getNivelRisco());
         cbModalidade.setValue(procedimento.getModalidade());
         cbStatus.setValue(procedimento.getStatus());
@@ -152,8 +164,10 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         txtDescricaoProcedimento.clear();
         txtSalaEquipamento.clear();
         txtConvenioNome.clear();
-        txtDataHoraInicio.clear();
-        txtDataHoraFim.clear();
+        dtDataInicio.setValue(null);
+        txtHoraInicio.clear();
+        dtDataFim.setValue(null);
+        txtHoraFim.clear();
         cbNivelRisco.setValue(null);
         cbModalidade.setValue(ModalidadeEnum.PRESENCIAL);
         cbStatus.setValue(StatusAgendamentoEnum.ATIVO);
@@ -288,37 +302,54 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         }
 
         // Validar Data/Hora Início
-        if (!ValidationUtils.validarCampoObrigatorio(txtDataHoraInicio.getText())) {
-            mostrarAviso("Data/hora de início é obrigatória");
-            txtDataHoraInicio.requestFocus();
+        if (dtDataInicio.getValue() == null) {
+            mostrarAviso("Data de início é obrigatória");
+            dtDataInicio.requestFocus();
             return false;
         }
-        if (!ValidationUtils.validarFormatoDataHora(txtDataHoraInicio.getText())) {
-            mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 14:30");
-            txtDataHoraInicio.requestFocus();
+        if (!ValidationUtils.validarCampoObrigatorio(txtHoraInicio.getText())) {
+            mostrarAviso("Hora de início é obrigatória");
+            txtHoraInicio.requestFocus();
+            return false;
+        }
+        if (!ValidationUtils.validarFormatoHora(txtHoraInicio.getText())) {
+            mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 14:30");
+            txtHoraInicio.requestFocus();
             return false;
         }
 
-        // Validar Data/Hora Fim (se preenchida)
-        if (ValidationUtils.validarCampoObrigatorio(txtDataHoraFim.getText())) {
-            if (!ValidationUtils.validarFormatoDataHora(txtDataHoraFim.getText())) {
-                mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 15:30");
-                txtDataHoraFim.requestFocus();
+        // Validar Data/Hora Fim (opcional)
+        if (dtDataFim.getValue() != null || ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
+            if (dtDataFim.getValue() == null) {
+                mostrarAviso("Data de fim é obrigatória quando hora de fim é preenchida");
+                dtDataFim.requestFocus();
+                return false;
+            }
+            if (!ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
+                mostrarAviso("Hora de fim é obrigatória quando data de fim é preenchida");
+                txtHoraFim.requestFocus();
+                return false;
+            }
+            if (!ValidationUtils.validarFormatoHora(txtHoraFim.getText())) {
+                mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 15:30");
+                txtHoraFim.requestFocus();
                 return false;
             }
 
             // Validar Período (início antes do fim)
             try {
-                LocalDateTime inicio = LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER);
-                LocalDateTime fim = LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER);
+                LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+                LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+                LocalDateTime inicio = LocalDateTime.of(dtDataInicio.getValue(), horaInicio);
+                LocalDateTime fim = LocalDateTime.of(dtDataFim.getValue(), horaFim);
                 
                 if (!ValidationUtils.validarPeriodo(inicio, fim)) {
                     mostrarAviso("Data/hora de início deve ser anterior à data/hora de fim");
-                    txtDataHoraInicio.requestFocus();
+                    dtDataInicio.requestFocus();
                     return false;
                 }
             } catch (DateTimeParseException e) {
-                mostrarAviso("Erro ao processar datas. Verifique o formato: yyyy-MM-dd HH:mm");
+                mostrarAviso("Erro ao processar horas. Verifique o formato: HH:mm");
                 return false;
             }
         }
@@ -346,8 +377,10 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         txtDescricaoProcedimento.setDisable(!habilitar);
         txtSalaEquipamento.setDisable(!habilitar);
         txtConvenioNome.setDisable(!habilitar);
-        txtDataHoraInicio.setDisable(!habilitar);
-        txtDataHoraFim.setDisable(!habilitar);
+        dtDataInicio.setDisable(!habilitar);
+        txtHoraInicio.setDisable(!habilitar);
+        dtDataFim.setDisable(!habilitar);
+        txtHoraFim.setDisable(!habilitar);
         cbNivelRisco.setDisable(!habilitar);
         cbModalidade.setDisable(!habilitar);
         cbStatus.setDisable(!habilitar);
@@ -362,9 +395,11 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         procedimento.setDescricaoProcedimento(txtDescricaoProcedimento.getText());
         procedimento.setSalaEquipamentoNecessario(txtSalaEquipamento.getText());
         procedimento.setConvenioNome(txtConvenioNome.getText());
-        procedimento.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
-        if (txtDataHoraFim.getText() != null && !txtDataHoraFim.getText().trim().isEmpty()) {
-            procedimento.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
+        LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+        procedimento.setDataHoraInicio(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        if (dtDataFim.getValue() != null && ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
+            LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+            procedimento.setDataHoraFim(LocalDateTime.of(dtDataFim.getValue(), horaFim));
         }
         procedimento.setNivelRisco(cbNivelRisco.getValue());
         procedimento.setModalidade(cbModalidade.getValue());

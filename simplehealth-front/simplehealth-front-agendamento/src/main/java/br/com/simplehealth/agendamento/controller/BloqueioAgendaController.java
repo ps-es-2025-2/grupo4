@@ -13,7 +13,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -24,6 +26,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
 
     private static final Logger logger = LoggerFactory.getLogger(BloqueioAgendaController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @FXML private TableView<BloqueioAgenda> tableView;
     @FXML private TableColumn<BloqueioAgenda, String> colId;
@@ -34,8 +37,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     @FXML private TableColumn<BloqueioAgenda, Boolean> colAtivo;
 
     @FXML private TextField txtMedicoCrm;
-    @FXML private TextField txtDataInicio;
-    @FXML private TextField txtDataFim;
+    @FXML private DatePicker dtDataInicio;
+    @FXML private TextField txtHoraInicio;
+    @FXML private DatePicker dtDataFim;
+    @FXML private TextField txtHoraFim;
     @FXML private TextField txtAntecedenciaMinima;
     @FXML private TextArea txtMotivo;
     @FXML private TextField txtUsuarioCriador;
@@ -125,10 +130,17 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
 
     private void preencherFormulario(BloqueioAgenda bloqueio) {
         txtMedicoCrm.setText(bloqueio.getMedicoCrm());
-        txtDataInicio.setText(bloqueio.getDataInicio() != null ? 
-            bloqueio.getDataInicio().format(DATE_TIME_FORMATTER) : "");
-        txtDataFim.setText(bloqueio.getDataFim() != null ? 
-            bloqueio.getDataFim().format(DATE_TIME_FORMATTER) : "");
+        
+        if (bloqueio.getDataInicio() != null) {
+            dtDataInicio.setValue(bloqueio.getDataInicio().toLocalDate());
+            txtHoraInicio.setText(bloqueio.getDataInicio().format(TIME_FORMATTER));
+        }
+        
+        if (bloqueio.getDataFim() != null) {
+            dtDataFim.setValue(bloqueio.getDataFim().toLocalDate());
+            txtHoraFim.setText(bloqueio.getDataFim().format(TIME_FORMATTER));
+        }
+        
         txtAntecedenciaMinima.setText(bloqueio.getAntecedenciaMinima() != null ? 
             bloqueio.getAntecedenciaMinima().toString() : "");
         txtMotivo.setText(bloqueio.getMotivo());
@@ -139,8 +151,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     protected void limparFormulario() {
         itemSelecionado = null;
         txtMedicoCrm.clear();
-        txtDataInicio.clear();
-        txtDataFim.clear();
+        dtDataInicio.setValue(null);
+        txtHoraInicio.clear();
+        dtDataFim.setValue(null);
+        txtHoraFim.clear();
         txtAntecedenciaMinima.clear();
         txtMotivo.clear();
         txtUsuarioCriador.clear();
@@ -230,41 +244,53 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
         }
 
         // Validar Data de Início
-        if (!ValidationUtils.validarCampoObrigatorio(txtDataInicio.getText())) {
+        if (dtDataInicio.getValue() == null) {
             mostrarAviso("Data de início é obrigatória");
-            txtDataInicio.requestFocus();
+            dtDataInicio.requestFocus();
             return false;
         }
-        if (!ValidationUtils.validarFormatoDataHora(txtDataInicio.getText())) {
-            mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 08:00");
-            txtDataInicio.requestFocus();
+        if (!ValidationUtils.validarCampoObrigatorio(txtHoraInicio.getText())) {
+            mostrarAviso("Hora de início é obrigatória");
+            txtHoraInicio.requestFocus();
+            return false;
+        }
+        if (!ValidationUtils.validarFormatoHora(txtHoraInicio.getText())) {
+            mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 08:00");
+            txtHoraInicio.requestFocus();
             return false;
         }
 
         // Validar Data de Fim
-        if (!ValidationUtils.validarCampoObrigatorio(txtDataFim.getText())) {
+        if (dtDataFim.getValue() == null) {
             mostrarAviso("Data de fim é obrigatória");
-            txtDataFim.requestFocus();
+            dtDataFim.requestFocus();
             return false;
         }
-        if (!ValidationUtils.validarFormatoDataHora(txtDataFim.getText())) {
-            mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 18:00");
-            txtDataFim.requestFocus();
+        if (!ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
+            mostrarAviso("Hora de fim é obrigatória");
+            txtHoraFim.requestFocus();
+            return false;
+        }
+        if (!ValidationUtils.validarFormatoHora(txtHoraFim.getText())) {
+            mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 18:00");
+            txtHoraFim.requestFocus();
             return false;
         }
 
         // Validar Período (início antes do fim)
         try {
-            LocalDateTime inicio = LocalDateTime.parse(txtDataInicio.getText(), DATE_TIME_FORMATTER);
-            LocalDateTime fim = LocalDateTime.parse(txtDataFim.getText(), DATE_TIME_FORMATTER);
+            LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+            LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+            LocalDateTime inicio = LocalDateTime.of(dtDataInicio.getValue(), horaInicio);
+            LocalDateTime fim = LocalDateTime.of(dtDataFim.getValue(), horaFim);
             
             if (!ValidationUtils.validarPeriodo(inicio, fim)) {
                 mostrarAviso("Data/hora de início deve ser anterior à data/hora de fim");
-                txtDataInicio.requestFocus();
+                dtDataInicio.requestFocus();
                 return false;
             }
         } catch (DateTimeParseException e) {
-            mostrarAviso("Erro ao processar datas. Verifique o formato: yyyy-MM-dd HH:mm");
+            mostrarAviso("Erro ao processar horas. Verifique o formato: HH:mm");
             return false;
         }
 
@@ -280,8 +306,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
 
     protected void habilitarCampos(boolean habilitar) {
         txtMedicoCrm.setDisable(!habilitar);
-        txtDataInicio.setDisable(!habilitar);
-        txtDataFim.setDisable(!habilitar);
+        dtDataInicio.setDisable(!habilitar);
+        txtHoraInicio.setDisable(!habilitar);
+        dtDataFim.setDisable(!habilitar);
+        txtHoraFim.setDisable(!habilitar);
         txtAntecedenciaMinima.setDisable(!habilitar);
         txtMotivo.setDisable(!habilitar);
         txtUsuarioCriador.setDisable(!habilitar);
@@ -291,8 +319,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     private BloqueioAgenda construirBloqueioAgendaDoFormulario() {
         BloqueioAgenda bloqueio = new BloqueioAgenda();
         bloqueio.setMedicoCrm(txtMedicoCrm.getText());
-        bloqueio.setDataInicio(LocalDateTime.parse(txtDataInicio.getText(), DATE_TIME_FORMATTER));
-        bloqueio.setDataFim(LocalDateTime.parse(txtDataFim.getText(), DATE_TIME_FORMATTER));
+        LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+        LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+        bloqueio.setDataInicio(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        bloqueio.setDataFim(LocalDateTime.of(dtDataFim.getValue(), horaFim));
         
         if (!txtAntecedenciaMinima.getText().trim().isEmpty()) {
             bloqueio.setAntecedenciaMinima(Integer.parseInt(txtAntecedenciaMinima.getText()));

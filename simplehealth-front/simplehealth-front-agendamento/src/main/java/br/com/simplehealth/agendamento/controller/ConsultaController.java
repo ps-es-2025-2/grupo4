@@ -17,7 +17,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -28,6 +30,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
 
     private static final Logger logger = LoggerFactory.getLogger(ConsultaController.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @FXML private TableView<Consulta> tableView;
     @FXML private TableColumn<Consulta, String> colId;
@@ -41,8 +44,10 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML private TextField txtMedicoCrm;
     @FXML private TextField txtEspecialidade;
     @FXML private TextField txtConvenioNome;
-    @FXML private TextField txtDataHoraInicio;
-    @FXML private TextField txtDataHoraFim;
+    @FXML private DatePicker dtDataInicio;
+    @FXML private TextField txtHoraInicio;
+    @FXML private DatePicker dtDataFim;
+    @FXML private TextField txtHoraFim;
     @FXML private ComboBox<TipoConsultaEnum> cbTipoConsulta;
     @FXML private ComboBox<ModalidadeEnum> cbModalidade;
     @FXML private ComboBox<StatusAgendamentoEnum> cbStatus;
@@ -147,10 +152,17 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         txtMedicoCrm.setText(consulta.getMedicoCrm());
         txtEspecialidade.setText(consulta.getEspecialidade());
         txtConvenioNome.setText(consulta.getConvenioNome());
-        txtDataHoraInicio.setText(consulta.getDataHoraInicio() != null ? 
-            consulta.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "");
-        txtDataHoraFim.setText(consulta.getDataHoraFim() != null ? 
-            consulta.getDataHoraFim().format(DATE_TIME_FORMATTER) : "");
+        
+        if (consulta.getDataHoraInicio() != null) {
+            dtDataInicio.setValue(consulta.getDataHoraInicio().toLocalDate());
+            txtHoraInicio.setText(consulta.getDataHoraInicio().format(TIME_FORMATTER));
+        }
+        
+        if (consulta.getDataHoraFim() != null) {
+            dtDataFim.setValue(consulta.getDataHoraFim().toLocalDate());
+            txtHoraFim.setText(consulta.getDataHoraFim().format(TIME_FORMATTER));
+        }
+        
         cbTipoConsulta.setValue(consulta.getTipoConsulta());
         cbModalidade.setValue(consulta.getModalidade());
         cbStatus.setValue(consulta.getStatus());
@@ -166,8 +178,10 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         txtMedicoCrm.clear();
         txtEspecialidade.clear();
         txtConvenioNome.clear();
-        txtDataHoraInicio.clear();
-        txtDataHoraFim.clear();
+        dtDataInicio.setValue(null);
+        txtHoraInicio.clear();
+        dtDataFim.setValue(null);
+        txtHoraFim.clear();
         cbTipoConsulta.setValue(null);
         cbModalidade.setValue(ModalidadeEnum.PRESENCIAL);
         cbStatus.setValue(StatusAgendamentoEnum.ATIVO);
@@ -336,41 +350,53 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         }
 
         // Validar Data/Hora Início
-        if (!ValidationUtils.validarCampoObrigatorio(txtDataHoraInicio.getText())) {
-            mostrarAviso("Data/hora de início é obrigatória");
-            txtDataHoraInicio.requestFocus();
+        if (dtDataInicio.getValue() == null) {
+            mostrarAviso("Data de início é obrigatória");
+            dtDataInicio.requestFocus();
             return false;
         }
-        if (!ValidationUtils.validarFormatoDataHora(txtDataHoraInicio.getText())) {
-            mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 14:30");
-            txtDataHoraInicio.requestFocus();
+        if (!ValidationUtils.validarCampoObrigatorio(txtHoraInicio.getText())) {
+            mostrarAviso("Hora de início é obrigatória");
+            txtHoraInicio.requestFocus();
+            return false;
+        }
+        if (!ValidationUtils.validarFormatoHora(txtHoraInicio.getText())) {
+            mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 14:30");
+            txtHoraInicio.requestFocus();
             return false;
         }
 
         // Validar Data/Hora Fim
-        if (!ValidationUtils.validarCampoObrigatorio(txtDataHoraFim.getText())) {
-            mostrarAviso("Data/hora de fim é obrigatória");
-            txtDataHoraFim.requestFocus();
+        if (dtDataFim.getValue() == null) {
+            mostrarAviso("Data de fim é obrigatória");
+            dtDataFim.requestFocus();
             return false;
         }
-        if (!ValidationUtils.validarFormatoDataHora(txtDataHoraFim.getText())) {
-            mostrarAviso("Formato de data/hora inválido. Use: yyyy-MM-dd HH:mm\nExemplo: 2025-12-31 15:30");
-            txtDataHoraFim.requestFocus();
+        if (!ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
+            mostrarAviso("Hora de fim é obrigatória");
+            txtHoraFim.requestFocus();
+            return false;
+        }
+        if (!ValidationUtils.validarFormatoHora(txtHoraFim.getText())) {
+            mostrarAviso("Formato de hora inválido. Use: HH:mm\nExemplo: 15:30");
+            txtHoraFim.requestFocus();
             return false;
         }
 
         // Validar Período (início antes do fim)
         try {
-            LocalDateTime inicio = LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER);
-            LocalDateTime fim = LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER);
+            LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+            LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+            LocalDateTime inicio = LocalDateTime.of(dtDataInicio.getValue(), horaInicio);
+            LocalDateTime fim = LocalDateTime.of(dtDataFim.getValue(), horaFim);
             
             if (!ValidationUtils.validarPeriodo(inicio, fim)) {
                 mostrarAviso("Data/hora de início deve ser anterior à data/hora de fim");
-                txtDataHoraInicio.requestFocus();
+                dtDataInicio.requestFocus();
                 return false;
             }
         } catch (DateTimeParseException e) {
-            mostrarAviso("Erro ao processar datas. Verifique o formato: yyyy-MM-dd HH:mm");
+            mostrarAviso("Erro ao processar horas. Verifique o formato: HH:mm");
             return false;
         }
 
@@ -410,8 +436,10 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         txtMedicoCrm.setDisable(!habilitar);
         txtEspecialidade.setDisable(!habilitar);
         txtConvenioNome.setDisable(!habilitar);
-        txtDataHoraInicio.setDisable(!habilitar);
-        txtDataHoraFim.setDisable(!habilitar);
+        dtDataInicio.setDisable(!habilitar);
+        txtHoraInicio.setDisable(!habilitar);
+        dtDataFim.setDisable(!habilitar);
+        txtHoraFim.setDisable(!habilitar);
         cbTipoConsulta.setDisable(!habilitar);
         cbModalidade.setDisable(!habilitar);
         cbStatus.setDisable(!habilitar);
@@ -427,8 +455,12 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         consulta.setMedicoCrm(txtMedicoCrm.getText());
         consulta.setEspecialidade(txtEspecialidade.getText());
         consulta.setConvenioNome(txtConvenioNome.getText());
-        consulta.setDataHoraInicio(LocalDateTime.parse(txtDataHoraInicio.getText(), DATE_TIME_FORMATTER));
-        consulta.setDataHoraFim(LocalDateTime.parse(txtDataHoraFim.getText(), DATE_TIME_FORMATTER));
+        
+        LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
+        LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
+        consulta.setDataHoraInicio(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        consulta.setDataHoraFim(LocalDateTime.of(dtDataFim.getValue(), horaFim));
+        
         consulta.setTipoConsulta(cbTipoConsulta.getValue());
         consulta.setModalidade(cbModalidade.getValue());
         consulta.setStatus(cbStatus.getValue());

@@ -1,5 +1,6 @@
 package br.com.simplehealth.cadastro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 
@@ -33,7 +34,8 @@ public class Paciente {
     private String convenioNome;
     
     // Objeto convenio temporário para uso na interface (não enviado para API)
-    private transient Convenio convenio;
+    @JsonIgnore
+    private Convenio convenio;
 
     public Paciente() {
     }

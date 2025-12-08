@@ -93,12 +93,128 @@ cleanup() {
 main() {
     print_header "🏥 SIMPLEHEALTH - INICIALIZAÇÃO COMPLETA DO SISTEMA"
     
+    # Menu de opções
+    echo ""
+    print_color $CYAN "Escolha uma opção de inicialização:"
+    echo ""
+    print_color $YELLOW "  1) Inicialização Completa (Limpar + Verificar Dependências + Inicializar)"
+    print_color $YELLOW "  2) Inicialização Rápida (Limpar + Inicializar sem verificar dependências)"
+    echo ""
+    print_color $CYAN "Digite sua escolha [1-2]: "
+    read -r OPTION
+    
+    case $OPTION in
+        1)
+            print_color $GREEN "✅ Opção 1 selecionada: Inicialização Completa"
+            SKIP_DEPS=false
+            ;;
+        2)
+            print_color $GREEN "✅ Opção 2 selecionada: Inicialização Rápida"
+            SKIP_DEPS=true
+            ;;
+        *)
+            print_color $RED "❌ Opção inválida. Use 1 ou 2"
+            exit 1
+            ;;
+    esac
+    echo ""
+    
     # Verificações preliminares
     check_docker
     check_netcat
     
     # Limpeza opcional
     cleanup
+    
+    #==========================================================================
+    # FASE 0: VERIFICAÇÃO E DOWNLOAD DE DEPENDÊNCIAS
+    #==========================================================================
+    if [ "$SKIP_DEPS" = false ]; then
+        print_header "📥 FASE 0: VERIFICANDO E BAIXANDO DEPENDÊNCIAS"
+        
+        # Função para verificar e baixar dependências
+        check_and_download_deps() {
+            local module_name=$1
+            local module_path=$2
+            local use_mvnw=$3
+            local log_file=$4
+            
+            print_color $BLUE "📦 Verificando dependências do $module_name..."
+            cd "$module_path"
+            
+            if [ "$use_mvnw" = "true" ]; then
+                chmod +x mvnw
+                MVN_CMD="./mvnw"
+            else
+                MVN_CMD="mvn"
+            fi
+            
+            # Verifica se precisa baixar dependências
+            print_color $YELLOW "   ├─ Analisando dependências..."
+            if $MVN_CMD dependency:go-offline -Dmaven.test.skip=true 2>&1 | tee "$log_file"; then
+                print_color $GREEN "   └─ ✅ Dependências do $module_name OK"
+            else
+                print_color $RED "   └─ ❌ Erro ao verificar dependências do $module_name"
+                print_color $RED "      Verifique o log: $log_file"
+                exit 1
+            fi
+            cd - > /dev/null
+        }
+        
+        # Backend Agendamento - Dependências
+        check_and_download_deps \
+            "Backend de Agendamento" \
+            "simplehealth-back/simplehealth-back-agendamento" \
+            "true" \
+            "/tmp/agendamento-backend-deps.log"
+        echo ""
+        
+        # Backend Cadastro - Dependências
+        check_and_download_deps \
+            "Backend de Cadastro" \
+            "simplehealth-back/simplehealth-back-cadastro" \
+            "true" \
+            "/tmp/cadastro-backend-deps.log"
+        echo ""
+        
+        # Backend Estoque - Dependências
+        check_and_download_deps \
+            "Backend de Estoque" \
+            "simplehealth-back/simplehealth-back-estoque" \
+            "true" \
+            "/tmp/estoque-backend-deps.log"
+        echo ""
+        
+        # Frontend Agendamento - Dependências
+        check_and_download_deps \
+            "Frontend de Agendamento" \
+            "simplehealth-front/simplehealth-front-agendamento" \
+            "false" \
+            "/tmp/agendamento-frontend-deps.log"
+        echo ""
+        
+        # Frontend Cadastro - Dependências
+        check_and_download_deps \
+            "Frontend de Cadastro" \
+            "simplehealth-front/simplehealth-front-cadastro" \
+            "false" \
+            "/tmp/cadastro-frontend-deps.log"
+        echo ""
+        
+        # Frontend Estoque - Dependências
+        check_and_download_deps \
+            "Frontend de Estoque" \
+            "simplehealth-front/simplehealth-front-estoque" \
+            "false" \
+            "/tmp/estoque-frontend-deps.log"
+        echo ""
+        
+        print_color $GREEN "🎉 Todas as dependências foram verificadas e estão prontas!"
+        echo ""
+    else
+        print_color $YELLOW "⏭️  Pulando verificação de dependências (Inicialização Rápida)"
+        echo ""
+    fi
     
     #==========================================================================
     # FASE 1: BACKENDS (Bancos de Dados + Spring Boot)
@@ -109,14 +225,15 @@ main() {
     print_color $BLUE "📦 1.1. Iniciando Backend de Agendamento..."
     cd simplehealth-back/simplehealth-back-agendamento
     
+    # Garante permissão de execução do mvnw
+    chmod +x mvnw
+    
     # Inicia apenas o banco de dados
     docker-compose up -d
     print_color $YELLOW "   ├─ MongoDB iniciado"
     check_service "MongoDB" 27017
     
-    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
-    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
-    chmod +x mvnw
+    # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/agendamento-backend.log 2>&1 &
     AGENDAMENTO_PID=$!
@@ -128,6 +245,9 @@ main() {
     print_color $BLUE "📦 1.2. Iniciando Backend de Cadastro..."
     cd simplehealth-back/simplehealth-back-cadastro
     
+    # Garante permissão de execução do mvnw
+    chmod +x mvnw
+    
     # Inicia bancos de dados
     docker-compose up -d
     print_color $YELLOW "   ├─ PostgreSQL iniciado"
@@ -135,9 +255,7 @@ main() {
     print_color $YELLOW "   ├─ Redis (porta 6380) iniciado"
     check_service "Redis Cadastro" 6380
     
-    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
-    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
-    chmod +x mvnw
+    # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/cadastro-backend.log 2>&1 &
     CADASTRO_PID=$!
@@ -149,6 +267,9 @@ main() {
     print_color $BLUE "📦 1.3. Iniciando Backend de Estoque..."
     cd simplehealth-back/simplehealth-back-estoque
     
+    # Garante permissão de execução do mvnw
+    chmod +x mvnw
+    
     # Inicia bancos de dados
     docker-compose up -d
     print_color $YELLOW "   ├─ Cassandra iniciado"
@@ -156,9 +277,7 @@ main() {
     print_color $YELLOW "   ├─ Redis (porta 6381) iniciado"
     check_service "Redis Estoque" 6381
     
-    # Adiciona permissão de execução ao mvnw e inicia o Spring Boot em background
-    print_color $YELLOW "   ├─ Preparando Maven Wrapper..."
-    chmod +x mvnw
+    # Inicia o Spring Boot em background
     print_color $YELLOW "   └─ Iniciando aplicação Spring Boot..."
     ./mvnw spring-boot:run -Dmaven.test.skip=true > /tmp/estoque-backend.log 2>&1 &
     ESTOQUE_PID=$!

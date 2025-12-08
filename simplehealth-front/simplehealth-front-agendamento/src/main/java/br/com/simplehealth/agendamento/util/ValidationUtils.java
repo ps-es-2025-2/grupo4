@@ -138,6 +138,21 @@ public class ValidationUtils {
     }
 
     /**
+     * Valida um formato de hora.
+     * 
+     * @param hora String com hora no formato HH:mm
+     * @return true se o formato é válido, false caso contrário
+     */
+    public static boolean validarFormatoHora(String hora) {
+        if (hora == null || hora.trim().isEmpty()) {
+            return false;
+        }
+        // Formato esperado: HH:mm
+        Pattern pattern = Pattern.compile("^([01]\\d|2[0-3]):([0-5]\\d)$");
+        return pattern.matcher(hora.trim()).matches();
+    }
+
+    /**
      * Valida se a data/hora de início é anterior à data/hora de fim.
      * 
      * @param dataHoraInicio Data/hora de início

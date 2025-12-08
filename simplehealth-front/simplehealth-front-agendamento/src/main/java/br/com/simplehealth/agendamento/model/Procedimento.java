@@ -1,11 +1,14 @@
 package br.com.simplehealth.agendamento.model;
 
+import br.com.simplehealth.agendamento.model.enums.TipoConsultaEnum;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Representa um procedimento médico no sistema.
  * Estende Agendamento com informações específicas de procedimentos.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Procedimento extends Agendamento {
 
     @JsonProperty("descricaoProcedimento")
@@ -16,6 +19,13 @@ public class Procedimento extends Agendamento {
 
     @JsonProperty("nivelRisco")
     private String nivelRisco;
+
+    // Campos necessários para compatibilidade com o backend (AgendarConsultaDTO)
+    @JsonProperty("especialidade")
+    private String especialidade = "PROCEDIMENTO"; // Valor padrão para identificar como procedimento
+    
+    @JsonProperty("tipoConsulta")
+    private TipoConsultaEnum tipoConsulta = TipoConsultaEnum.ROTINA; // Valor padrão
 
     // Construtores
     public Procedimento() {
@@ -45,6 +55,22 @@ public class Procedimento extends Agendamento {
 
     public void setNivelRisco(String nivelRisco) {
         this.nivelRisco = nivelRisco;
+    }
+
+    public String getEspecialidade() {
+        return especialidade;
+    }
+
+    public void setEspecialidade(String especialidade) {
+        this.especialidade = especialidade;
+    }
+
+    public TipoConsultaEnum getTipoConsulta() {
+        return tipoConsulta;
+    }
+
+    public void setTipoConsulta(TipoConsultaEnum tipoConsulta) {
+        this.tipoConsulta = tipoConsulta;
     }
 
     @Override

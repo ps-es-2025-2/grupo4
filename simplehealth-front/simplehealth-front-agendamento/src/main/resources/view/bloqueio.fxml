@@ -61,11 +61,17 @@
                         <Label text="Antecedência Mínima (h):" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
                         <TextField fx:id="txtAntecedenciaMinima" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-                        <Label text="Data/Hora Início:*" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtDataInicio" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="Data Início:*" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <DatePicker fx:id="dtDataInicio" promptText="Selecione a data" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtHoraInicio" promptText="HH:mm" prefWidth="60" maxWidth="60"/>
+                        </HBox>
                         
-                        <Label text="Data/Hora Fim:*" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtDataFim" promptText="yyyy-MM-dd HH:mm" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                        <Label text="Data Fim:*" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                        <HBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                            <DatePicker fx:id="dtDataFim" promptText="Selecione a data" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="txtHoraFim" promptText="HH:mm" prefWidth="60" maxWidth="60"/>
+                        </HBox>
 
                         <Label text="Usuário Criador:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                         <TextField fx:id="txtUsuarioCriador" GridPane.columnIndex="1" GridPane.rowIndex="2"/>

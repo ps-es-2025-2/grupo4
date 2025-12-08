@@ -1,6 +1,8 @@
 package br.com.simplehealth.agendamento.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
@@ -8,6 +10,7 @@ import java.time.LocalDateTime;
  * Representa um bloqueio de agenda para um médico.
  * Impede que agendamentos sejam feitos em determinado período.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BloqueioAgenda {
 
     private String id;
@@ -31,10 +34,12 @@ public class BloqueioAgenda {
     @JsonProperty("usuarioCriadorLogin")
     private String usuarioCriadorLogin;
 
+    @JsonIgnore  // Campo gerado pelo backend, não deve ser enviado na criação
     @JsonProperty("dataCriacao")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataCriacao;
 
+    @JsonIgnore  // Campo gerado pelo backend, não deve ser enviado na criação
     private Boolean ativo = true;
 
     // Construtores

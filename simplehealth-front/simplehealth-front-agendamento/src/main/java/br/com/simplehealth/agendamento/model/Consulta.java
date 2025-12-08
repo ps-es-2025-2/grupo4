@@ -1,6 +1,7 @@
 package br.com.simplehealth.agendamento.model;
 
 import br.com.simplehealth.agendamento.model.enums.TipoConsultaEnum;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -8,8 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Estende Agendamento com informações específicas de consultas.
  * Alinhado com a especificação da API (ConsultaResponseDTO).
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Consulta extends Agendamento {
 
+    @JsonProperty("especialidade")
     private String especialidade;
 
     @JsonProperty("tipoConsulta")
