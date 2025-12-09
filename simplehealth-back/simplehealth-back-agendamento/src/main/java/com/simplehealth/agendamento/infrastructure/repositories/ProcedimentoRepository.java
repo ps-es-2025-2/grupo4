@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProcedimentoRepository extends MongoRepository<Procedimento, String> {
 
-  List<Procedimento> findByMedicoCrmAndDataHoraInicioGreaterThanEqualAndDataHoraFimLessThanEqualAndStatus(
+  List<Procedimento> findByMedicoCrmAndDataHoraInicioPrevistaGreaterThanEqualAndDataHoraFimPrevistaLessThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataInicio, LocalDateTime dataFim, StatusAgendamentoEnum status
   );
 
-  List<Procedimento> findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+  List<Procedimento> findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, StatusAgendamentoEnum status
   );
 }

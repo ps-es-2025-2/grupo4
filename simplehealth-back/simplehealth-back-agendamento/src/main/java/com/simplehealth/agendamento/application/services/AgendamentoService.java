@@ -27,7 +27,7 @@ public class AgendamentoService {
 
   public void verificarDisponibilidade(String medicoCrm, LocalDateTime inicio, LocalDateTime fim) throws Exception {
 
-    if (!agendamentoRepository.findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+    if (!agendamentoRepository.findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
         medicoCrm, inicio, fim, StatusAgendamentoEnum.ATIVO).isEmpty()) {
       throw new Exception("Horário indisponível.");
     }
@@ -39,7 +39,7 @@ public class AgendamentoService {
   }
 
   public List<Agendamento> buscarHistorico(String cpf) {
-    return agendamentoRepository.findByPacienteCpfOrderByDataHoraInicioDesc(cpf);
+    return agendamentoRepository.findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(cpf);
   }
 
   public void validarCancelamento(Agendamento agendamento, String motivo) {
@@ -52,15 +52,17 @@ public class AgendamentoService {
       throw new IllegalArgumentException("O motivo do cancelamento é obrigatório.");
     }
 
-    if (agendamento.getDataHoraInicio().isBefore(LocalDateTime.now())) {
-      throw new IllegalStateException("Não é possível cancelar um agendamento que já ocorreu.");
+    // Verifica se já foi executado (iniciado)
+    if (agendamento.getDataHoraInicioExecucao() != null &&
+        agendamento.getDataHoraInicioExecucao().isBefore(LocalDateTime.now())) {
+      throw new IllegalStateException("Não é possível cancelar um agendamento que já foi iniciado.");
     }
   }
 
   public void verificarAgendamentosAtivosNoPeriodo(String medicoCrm, LocalDateTime inicio, LocalDateTime fim)
       throws Exception {
     List<Agendamento> agendamentosAtivos = agendamentoRepository
-        .findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+        .findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
             medicoCrm, fim, inicio, StatusAgendamentoEnum.ATIVO);
 
     if (!agendamentosAtivos.isEmpty()) {

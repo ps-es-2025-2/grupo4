@@ -8,6 +8,8 @@ import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class AgendarConsultaUseCase {
 
@@ -21,21 +23,26 @@ public class AgendarConsultaUseCase {
   }
 
   public ConsultaResponseDTO execute(AgendarConsultaDTO dto) throws Exception {
-
-    agendamentoService.verificarDisponibilidade(
-        dto.getMedicoCrm(),
-        dto.getDataHoraInicio(),
-        dto.getDataHoraFim());
+    // Verifica disponibilidade baseado nas datas previstas
+    if (dto.getDataHoraInicioPrevista() != null && dto.getDataHoraFimPrevista() != null) {
+      agendamentoService.verificarDisponibilidade(
+          dto.getMedicoCrm(),
+          dto.getDataHoraInicioPrevista(),
+          dto.getDataHoraFimPrevista());
+    }
 
     Consulta consulta = new Consulta();
     consulta.setPacienteCpf(dto.getPacienteCpf());
     consulta.setMedicoCrm(dto.getMedicoCrm());
-    consulta.setDataHoraInicio(dto.getDataHoraInicio());
-    consulta.setDataHoraFim(dto.getDataHoraFim());
+    consulta.setDataHoraAgendamento(LocalDateTime.now());
+    consulta.setDataHoraInicioPrevista(dto.getDataHoraInicioPrevista());
+    consulta.setDataHoraFimPrevista(dto.getDataHoraFimPrevista());
+    // dataHoraInicioExecucao e dataHoraFimExecucao serão definidos ao iniciar/finalizar serviço
     consulta.setTipoConsulta(dto.getTipoConsulta());
     consulta.setEspecialidade(dto.getEspecialidade());
     consulta.setConvenioNome(dto.getConvenioNome());
     consulta.setModalidade(dto.getModalidade());
+    consulta.setObservacoes(dto.getObservacoes());
     consulta.setUsuarioCriadorLogin(dto.getUsuarioCriadorLogin());
     consulta.setStatus(StatusAgendamentoEnum.ATIVO);
 
@@ -47,8 +54,11 @@ public class AgendarConsultaUseCase {
   private ConsultaResponseDTO toResponseDTO(Consulta consulta) {
     return ConsultaResponseDTO.builder()
         .id(consulta.getId())
-        .dataHoraInicio(consulta.getDataHoraInicio())
-        .dataHoraFim(consulta.getDataHoraFim())
+        .dataHoraAgendamento(consulta.getDataHoraAgendamento())
+        .dataHoraInicioPrevista(consulta.getDataHoraInicioPrevista())
+        .dataHoraFimPrevista(consulta.getDataHoraFimPrevista())
+        .dataHoraInicioExecucao(consulta.getDataHoraInicioExecucao())
+        .dataHoraFimExecucao(consulta.getDataHoraFimExecucao())
         .isEncaixe(consulta.getIsEncaixe())
         .modalidade(consulta.getModalidade())
         .motivoEncaixe(consulta.getMotivoEncaixe())

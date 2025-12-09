@@ -10,17 +10,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ConsultaRepository extends MongoRepository<Consulta, String> {
 
-  List<Consulta> findByPacienteCpfOrderByDataHoraInicioDesc(String pacienteCpf);
+  List<Consulta> findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(String pacienteCpf);
 
-  List<Consulta> findByMedicoCrmAndDataHoraInicioGreaterThanEqualAndDataHoraFimLessThanEqualAndStatus(
+  List<Consulta> findByMedicoCrmAndDataHoraInicioPrevistaGreaterThanEqualAndDataHoraFimPrevistaLessThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataInicio, LocalDateTime dataFim, StatusAgendamentoEnum status
   );
 
-  List<Consulta> findByPacienteCpfAndStatusOrderByDataHoraInicioDesc(
+  List<Consulta> findByPacienteCpfAndStatusOrderByDataHoraInicioPrevistaDesc(
       String pacienteCpf, StatusAgendamentoEnum status
   );
 
-  List<Consulta> findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+  List<Consulta> findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, StatusAgendamentoEnum status
   );
 }

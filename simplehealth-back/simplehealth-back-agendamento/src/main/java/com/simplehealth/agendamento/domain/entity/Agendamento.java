@@ -15,11 +15,20 @@ public abstract class Agendamento {
   @Id
   private String id;
 
-  @Field("data_hora_inicio")
-  private LocalDateTime dataHoraInicio;
+  @Field("data_hora_agendamento")
+  private LocalDateTime dataHoraAgendamento;
 
-  @Field("data_hora_fim")
-  private LocalDateTime dataHoraFim;
+  @Field("data_hora_inicio_prevista")
+  private LocalDateTime dataHoraInicioPrevista;
+
+  @Field("data_hora_fim_prevista")
+  private LocalDateTime dataHoraFimPrevista;
+
+  @Field("data_hora_inicio_execucao")
+  private LocalDateTime dataHoraInicioExecucao;
+
+  @Field("data_hora_fim_execucao")
+  private LocalDateTime dataHoraFimExecucao;
 
   @Field("is_encaixe")
   private Boolean isEncaixe = false;
@@ -53,4 +62,10 @@ public abstract class Agendamento {
 
   @Field("usuario_cancelador_login")
   private String usuarioCanceladorLogin;
+
+  @Field("usuario_iniciou_servico_login")
+  private String usuarioIniciouServicoLogin;
+
+  @Field("usuario_finalizou_servico_login")
+  private String usuarioFinalizouServicoLogin;
 }

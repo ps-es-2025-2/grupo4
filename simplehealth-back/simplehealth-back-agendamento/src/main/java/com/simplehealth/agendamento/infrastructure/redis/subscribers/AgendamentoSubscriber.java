@@ -37,7 +37,7 @@ public class AgendamentoSubscriber implements MessageListener {
           requestEvent.getCpf());
 
       List<Consulta> consultas = consultaRepository
-          .findByPacienteCpfOrderByDataHoraInicioDesc(requestEvent.getCpf());
+            .findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(requestEvent.getCpf());
 
       List<AgendamentoDTO> agendamentosDto = consultas.stream()
           .map(consulta -> mapper.convertValue(consulta, AgendamentoDTO.class))

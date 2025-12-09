@@ -3,7 +3,6 @@ package com.simplehealth.agendamento.application.dtos;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.simplehealth.agendamento.domain.enums.ModalidadeEnum;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
-import com.simplehealth.agendamento.domain.enums.TipoConsultaEnum;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ConsultaResponseDTO {
+public class ExameResponseDTO {
 
   private String id;
   private LocalDateTime dataHoraAgendamento;
@@ -35,7 +34,7 @@ public class ConsultaResponseDTO {
   private String convenioNome;
   private String usuarioCriadorLogin;
   private String usuarioCanceladorLogin;
-
-  private String especialidade;
-  private TipoConsultaEnum tipoConsulta;
+  private String nomeExame;
+  private Boolean requerPreparo;
+  private String instrucoesPreparo;
 }

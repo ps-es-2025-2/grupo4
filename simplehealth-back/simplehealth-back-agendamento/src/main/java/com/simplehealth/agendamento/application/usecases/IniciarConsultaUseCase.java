@@ -1,41 +1,39 @@
 package com.simplehealth.agendamento.application.usecases;
 
-import com.simplehealth.agendamento.application.dtos.CancelarAgendamentoDTO;
 import com.simplehealth.agendamento.application.dtos.ConsultaResponseDTO;
-import com.simplehealth.agendamento.application.services.AgendamentoService;
-import com.simplehealth.agendamento.application.services.ConsultaService;
+import com.simplehealth.agendamento.application.dtos.IniciarServicoDTO;
+import com.simplehealth.agendamento.application.exception.AgendamentoException;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
+import com.simplehealth.agendamento.infrastructure.repositories.ConsultaRepository;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CancelarAgendamentoUseCase {
+@RequiredArgsConstructor
+public class IniciarConsultaUseCase {
 
-  private final AgendamentoService agendamentoService;
-  private final ConsultaService consultaService;
+  private final ConsultaRepository consultaRepository;
 
-  public CancelarAgendamentoUseCase(
-      ConsultaService consultaService,
-      AgendamentoService agendamentoService) {
-    this.consultaService = consultaService;
-    this.agendamentoService = agendamentoService;
-  }
+  public ConsultaResponseDTO execute(IniciarServicoDTO dto) {
+    Consulta consulta = consultaRepository.findById(dto.getId())
+        .orElseThrow(() -> new AgendamentoException("Consulta não encontrada com ID: " + dto.getId()));
 
-  public ConsultaResponseDTO execute(CancelarAgendamentoDTO dto) throws Exception {
-    Consulta consulta = consultaService.buscarPorId(dto.getId())
-        .orElseThrow(() -> new Exception("Consulta não encontrada"));
+    if (consulta.getStatus() != StatusAgendamentoEnum.ATIVO) {
+      throw new IllegalStateException("Apenas consultas ativas podem ser iniciadas");
+    }
 
-    agendamentoService.validarCancelamento(consulta, dto.getMotivo());
+    if (consulta.getDataHoraInicioExecucao() != null) {
+      throw new IllegalStateException("Esta consulta já foi iniciada");
+    }
 
-    consulta.setStatus(StatusAgendamentoEnum.CANCELADO);
-    consulta.setMotivoCancelamento(dto.getMotivo());
-    consulta.setDataCancelamento(LocalDateTime.now());
-    consulta.setUsuarioCanceladorLogin(dto.getUsuarioLogin());
+    consulta.setDataHoraInicioExecucao(LocalDateTime.now());
+    consulta.setUsuarioIniciouServicoLogin(dto.getUsuarioLogin());
 
-    Consulta salva = consultaService.salvar(consulta);
+    Consulta atualizada = consultaRepository.save(consulta);
 
-    return toResponseDTO(salva);
+    return toResponseDTO(atualizada);
   }
 
   private ConsultaResponseDTO toResponseDTO(Consulta consulta) {
@@ -62,5 +60,4 @@ public class CancelarAgendamentoUseCase {
         .tipoConsulta(consulta.getTipoConsulta())
         .build();
   }
-
 }

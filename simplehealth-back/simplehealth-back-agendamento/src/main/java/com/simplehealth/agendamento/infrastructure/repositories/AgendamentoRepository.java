@@ -10,13 +10,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AgendamentoRepository extends MongoRepository<Agendamento, String> {
 
-  List<Agendamento> findByPacienteCpfOrderByDataHoraInicioDesc(String pacienteCpf);
+  List<Agendamento> findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(String pacienteCpf);
 
-  List<Agendamento> findByMedicoCrmAndDataHoraInicioGreaterThanEqualAndDataHoraInicioLessThanOrderByDataHoraInicio(
+  List<Agendamento> findByMedicoCrmAndDataHoraInicioPrevistaGreaterThanEqualAndDataHoraInicioPrevistaLessThanOrderByDataHoraInicioPrevista(
       String medicoCrm, LocalDateTime dataInicio, LocalDateTime dataFim
   );
 
-  List<Agendamento> findByMedicoCrmAndDataHoraInicioLessThanEqualAndDataHoraFimGreaterThanEqualAndStatus(
+  List<Agendamento> findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, StatusAgendamentoEnum status
   );
 }

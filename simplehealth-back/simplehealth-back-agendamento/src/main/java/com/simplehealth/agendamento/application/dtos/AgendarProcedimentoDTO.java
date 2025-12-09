@@ -1,25 +1,23 @@
 package com.simplehealth.agendamento.application.dtos;
 
 import com.simplehealth.agendamento.domain.enums.ModalidadeEnum;
-import com.simplehealth.agendamento.domain.enums.TipoConsultaEnum;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class AgendarConsultaDTO {
+public class AgendarProcedimentoDTO {
 
   private String pacienteCpf;
   private String medicoCrm;
   private LocalDateTime dataHoraInicioPrevista;
   private LocalDateTime dataHoraFimPrevista;
-  private TipoConsultaEnum tipoConsulta;
-  private String especialidade;
+  private String descricaoProcedimento;
+  private String salaEquipamentoNecessario;
+  private String nivelRisco;
   private String convenioNome;
   private ModalidadeEnum modalidade;
   private String observacoes;
