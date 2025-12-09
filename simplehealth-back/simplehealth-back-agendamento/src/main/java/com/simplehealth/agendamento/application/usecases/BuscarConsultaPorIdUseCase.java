@@ -1,24 +1,23 @@
 package com.simplehealth.agendamento.application.usecases;
 
 import com.simplehealth.agendamento.application.dtos.ConsultaResponseDTO;
+import com.simplehealth.agendamento.application.exception.AgendamentoException;
 import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.infrastructure.repositories.ConsultaRepository;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ListarAgendamentosUseCase {
+public class BuscarConsultaPorIdUseCase {
 
   private final ConsultaRepository consultaRepository;
 
-  public List<ConsultaResponseDTO> execute() {
-    List<Consulta> agendamentos = consultaRepository.findAll();
-    return agendamentos.stream()
-        .map(this::toDTO)
-        .collect(Collectors.toList());
+  public ConsultaResponseDTO execute(String id) {
+    Consulta consulta = consultaRepository.findById(id)
+        .orElseThrow(() -> new AgendamentoException("Consulta não encontrada com ID: " + id));
+
+    return toDTO(consulta);
   }
 
   private ConsultaResponseDTO toDTO(Consulta consulta) {
@@ -46,4 +45,3 @@ public class ListarAgendamentosUseCase {
         .build();
   }
 }
-

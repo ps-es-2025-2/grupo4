@@ -9,7 +9,9 @@ import com.simplehealth.agendamento.application.dtos.IniciarServicoDTO;
 import com.simplehealth.agendamento.application.dtos.AgendamentoDTO;
 import com.simplehealth.agendamento.application.usecases.AgendarConsultaUseCase;
 import com.simplehealth.agendamento.application.usecases.AtualizarAgendamentoUseCase;
+import com.simplehealth.agendamento.application.usecases.AtualizarConsultaUseCase;
 import com.simplehealth.agendamento.application.usecases.BuscarAgendamentoPorIdUseCase;
+import com.simplehealth.agendamento.application.usecases.BuscarConsultaPorIdUseCase;
 import com.simplehealth.agendamento.application.usecases.BuscarAgendamentosPorPacienteUseCase;
 import com.simplehealth.agendamento.application.usecases.CancelarAgendamentoUseCase;
 import com.simplehealth.agendamento.application.usecases.DeletarAgendamentoUseCase;
@@ -34,9 +36,11 @@ public class ConsultaController {
   private final AgendarConsultaUseCase agendarConsultaUseCase;
   private final CancelarAgendamentoUseCase cancelarAgendamentoUseCase;
   private final BuscarAgendamentoPorIdUseCase buscarAgendamentoPorIdUseCase;
+  private final BuscarConsultaPorIdUseCase buscarConsultaPorIdUseCase;
   private final ListarAgendamentosUseCase listarAgendamentosUseCase;
   private final BuscarAgendamentosPorPacienteUseCase buscarAgendamentosPorPacienteUseCase;
   private final AtualizarAgendamentoUseCase atualizarAgendamentoUseCase;
+  private final AtualizarConsultaUseCase atualizarConsultaUseCase;
   private final DeletarAgendamentoUseCase deletarAgendamentoUseCase;
   private final IniciarConsultaUseCase iniciarConsultaUseCase;
   private final FinalizarConsultaUseCase finalizarConsultaUseCase;
@@ -45,18 +49,22 @@ public class ConsultaController {
       AgendarConsultaUseCase agendarConsultaUseCase,
       CancelarAgendamentoUseCase cancelarAgendamentoUseCase,
       BuscarAgendamentoPorIdUseCase buscarAgendamentoPorIdUseCase,
+      BuscarConsultaPorIdUseCase buscarConsultaPorIdUseCase,
       ListarAgendamentosUseCase listarAgendamentosUseCase,
       BuscarAgendamentosPorPacienteUseCase buscarAgendamentosPorPacienteUseCase,
       AtualizarAgendamentoUseCase atualizarAgendamentoUseCase,
+      AtualizarConsultaUseCase atualizarConsultaUseCase,
       DeletarAgendamentoUseCase deletarAgendamentoUseCase,
       IniciarConsultaUseCase iniciarConsultaUseCase,
       FinalizarConsultaUseCase finalizarConsultaUseCase) {
     this.agendarConsultaUseCase = agendarConsultaUseCase;
     this.cancelarAgendamentoUseCase = cancelarAgendamentoUseCase;
     this.buscarAgendamentoPorIdUseCase = buscarAgendamentoPorIdUseCase;
+    this.buscarConsultaPorIdUseCase = buscarConsultaPorIdUseCase;
     this.listarAgendamentosUseCase = listarAgendamentosUseCase;
     this.buscarAgendamentosPorPacienteUseCase = buscarAgendamentosPorPacienteUseCase;
     this.atualizarAgendamentoUseCase = atualizarAgendamentoUseCase;
+    this.atualizarConsultaUseCase = atualizarConsultaUseCase;
     this.deletarAgendamentoUseCase = deletarAgendamentoUseCase;
     this.iniciarConsultaUseCase = iniciarConsultaUseCase;
     this.finalizarConsultaUseCase = finalizarConsultaUseCase;
@@ -68,13 +76,13 @@ public class ConsultaController {
   }
 
   @GetMapping
-  public ResponseEntity<List<AgendamentoDTO>> listarTodos() {
+  public ResponseEntity<List<ConsultaResponseDTO>> listarTodos() {
     return ResponseEntity.ok(listarAgendamentosUseCase.execute());
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<AgendamentoDTO> buscarPorId(@PathVariable String id) {
-    return ResponseEntity.ok(buscarAgendamentoPorIdUseCase.execute(id));
+  public ResponseEntity<ConsultaResponseDTO> buscarPorId(@PathVariable String id) {
+    return ResponseEntity.ok(buscarConsultaPorIdUseCase.execute(id));
   }
 
   @GetMapping("/paciente/{cpf}")
@@ -83,11 +91,11 @@ public class ConsultaController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<AgendamentoDTO> atualizar(
+  public ResponseEntity<ConsultaResponseDTO> atualizar(
       @PathVariable String id,
       @RequestBody AtualizarAgendamentoDTO dto) throws Exception {
     dto.setId(id);
-    return ResponseEntity.ok(atualizarAgendamentoUseCase.execute(dto));
+    return ResponseEntity.ok(atualizarConsultaUseCase.execute(dto));
   }
 
   @PostMapping("/{id}/iniciar")

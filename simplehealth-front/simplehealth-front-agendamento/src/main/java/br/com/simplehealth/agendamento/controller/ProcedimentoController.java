@@ -239,11 +239,22 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
                 mostrarSucesso("Sucesso", "Procedimento criado com sucesso!");
             } else if ("ALTERAR".equals(modoEdicao)) {
                 if (itemSelecionado == null || itemSelecionado.getId() == null) {
-                    mostrarErro("Erro", "Item selecionado inválido.");
+                    mostrarErro("Erro", "Nenhum procedimento selecionado para alterar.");
                     return;
                 }
+                
+                logger.info("Alterando procedimento com ID: {}", itemSelecionado.getId());
+                
                 Procedimento procedimento = construirProcedimentoDoFormulario();
+                // Preservar campos que não estão no formulário
                 procedimento.setId(itemSelecionado.getId());
+                procedimento.setDataHoraAgendamento(itemSelecionado.getDataHoraAgendamento());
+                procedimento.setDataHoraInicioExecucao(itemSelecionado.getDataHoraInicioExecucao());
+                procedimento.setDataHoraFimExecucao(itemSelecionado.getDataHoraFimExecucao());
+                procedimento.setDataCancelamento(itemSelecionado.getDataCancelamento());
+                procedimento.setMotivoCancelamento(itemSelecionado.getMotivoCancelamento());
+                procedimento.setUsuarioCanceladorLogin(itemSelecionado.getUsuarioCanceladorLogin());
+                
                 service.atualizar(itemSelecionado.getId(), procedimento);
                 mostrarSucesso("Sucesso", "Procedimento atualizado com sucesso!");
             }

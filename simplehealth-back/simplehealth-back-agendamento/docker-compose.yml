@@ -13,6 +13,16 @@ services:
       - mongo_data:/data/db
       - mongo_config:/data/configdb
 
+  redis:
+    image: redis:7
+    container_name: redis_agendamento
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
 volumes:
   mongo_data:
   mongo_config:

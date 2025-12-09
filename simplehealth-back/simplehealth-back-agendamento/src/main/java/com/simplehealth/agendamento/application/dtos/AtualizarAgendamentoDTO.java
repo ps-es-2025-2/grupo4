@@ -1,6 +1,7 @@
 package com.simplehealth.agendamento.application.dtos;
 
 import com.simplehealth.agendamento.domain.enums.ModalidadeEnum;
+import com.simplehealth.agendamento.domain.enums.TipoConsultaEnum;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,5 +19,13 @@ public class AtualizarAgendamentoDTO {
   private String observacoes;
   private String convenioNome;
   private String usuarioAlteradorLogin;
+  
+  // Campos específicos de Consulta
+  private String especialidade;
+  private TipoConsultaEnum tipoConsulta;
+  
+  // Campos de encaixe
+  private Boolean isEncaixe;
+  private String motivoEncaixe;
 }
 

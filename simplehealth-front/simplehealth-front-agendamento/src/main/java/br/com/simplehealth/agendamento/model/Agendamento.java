@@ -17,22 +17,27 @@ public abstract class Agendamento {
 
     // Data/hora em que o agendamento foi criado no sistema
     @JsonProperty("dataHoraAgendamento")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraAgendamento;
 
     // Data/hora prevista para início do atendimento (planejamento)
     @JsonProperty("dataHoraInicioPrevista")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraInicioPrevista;
 
     // Data/hora prevista para fim do atendimento (planejamento)
     @JsonProperty("dataHoraFimPrevista")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraFimPrevista;
 
     // Data/hora real de início do atendimento (execução)
     @JsonProperty("dataHoraInicioExecucao")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraInicioExecucao;
 
     // Data/hora real de fim do atendimento (execução)
     @JsonProperty("dataHoraFimExecucao")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraFimExecucao;
 
     @JsonProperty("isEncaixe")
@@ -45,13 +50,13 @@ public abstract class Agendamento {
 
     private String observacoes;
 
-    private StatusAgendamentoEnum status; // ATIVO, CANCELADO, REALIZADO, NAO_COMPARECEU
+    private StatusAgendamentoEnum status; // ATIVO, INICIADO, FINALIZADO, CANCELADO, NAO_COMPARECEU
 
     @JsonProperty("motivoCancelamento")
     private String motivoCancelamento;
 
     @JsonProperty("dataCancelamento")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataCancelamento;
 
     @JsonProperty("pacienteCpf")
@@ -100,6 +105,17 @@ public abstract class Agendamento {
 
     public void setDataHoraFimPrevista(LocalDateTime dataHoraFimPrevista) {
         this.dataHoraFimPrevista = dataHoraFimPrevista;
+    }
+    
+    // Setters alternativos para compatibilidade com backend antigo
+    @JsonProperty("dataHoraInicio")
+    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
+        this.dataHoraInicioPrevista = dataHoraInicio;
+    }
+    
+    @JsonProperty("dataHoraFim")
+    public void setDataHoraFim(LocalDateTime dataHoraFim) {
+        this.dataHoraFimPrevista = dataHoraFim;
     }
 
     public LocalDateTime getDataHoraInicioExecucao() {

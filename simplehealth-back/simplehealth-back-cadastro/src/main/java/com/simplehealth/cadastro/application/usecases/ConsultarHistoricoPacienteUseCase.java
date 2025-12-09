@@ -1,12 +1,14 @@
 package com.simplehealth.cadastro.application.usecases;
 
-import com.simplehealth.cadastro.application.dto.AgendamentoDTO;
+import com.simplehealth.cadastro.application.dto.ConsultaDTO;
+import com.simplehealth.cadastro.application.dto.ExameDTO;
 import com.simplehealth.cadastro.application.dto.HistoricoPacienteDTO;
 import com.simplehealth.cadastro.application.dto.ItemEstoqueDTO;
 import com.simplehealth.cadastro.application.dto.PacienteDTO;
 import com.simplehealth.cadastro.application.dto.PagamentoDTO;
 import com.simplehealth.cadastro.application.dto.ProcedimentoDTO;
-import com.simplehealth.cadastro.domain.events.HistoricoAgendamentoResponseEvent;
+import com.simplehealth.cadastro.domain.events.HistoricoConsultaResponseEvent;
+import com.simplehealth.cadastro.domain.events.HistoricoExameResponseEvent;
 import com.simplehealth.cadastro.domain.events.HistoricoEstoqueResponseEvent;
 import com.simplehealth.cadastro.domain.events.HistoricoPagamentoResponseEvent;
 import com.simplehealth.cadastro.domain.events.HistoricoProcedimentoResponseEvent;
@@ -35,55 +37,64 @@ public class ConsultarHistoricoPacienteUseCase {
 
     String cid = UUID.randomUUID().toString();
 
-    publisher.solicitarAgendamentos(cid, cpf);
+    publisher.solicitarConsultas(cid, cpf);
+    publisher.solicitarExames(cid, cpf);
     publisher.solicitarProcedimentos(cid, cpf);
     publisher.solicitarEstoque(cid, cpf);
     publisher.solicitarPagamentos(cid, cpf);
 
-    List<AgendamentoDTO> ag = Collections.emptyList();
+    List<ConsultaDTO> cons = Collections.emptyList();
+    List<ExameDTO> exam = Collections.emptyList();
     List<ProcedimentoDTO> proc = Collections.emptyList();
     List<ItemEstoqueDTO> est = Collections.emptyList();
     List<PagamentoDTO> pag = Collections.emptyList();
 
     int tentativas = 0;
     final int maxTentativas = 50;
+    
+    boolean consultasRecebidas = false;
+    boolean examesRecebidos = false;
+    boolean procedimentosRecebidos = false;
 
-    while (tentativas < maxTentativas) {
+    while (tentativas < maxTentativas && (!consultasRecebidas || !examesRecebidos || !procedimentosRecebidos)) {
 
-      var r1 = cache.get(cid + ":ag");
-      var r2 = cache.get(cid + ":proc");
-      var r3 = cache.get(cid + ":est");
-      var r4 = cache.get(cid + ":pag");
+      var r1 = cache.get(cid + ":cons");
+      var r2 = cache.get(cid + ":exam");
+      var r3 = cache.get(cid + ":proc");
+      var r4 = cache.get(cid + ":est");
+      var r5 = cache.get(cid + ":pag");
 
-      if (r1 != null || r2 != null || r3 != null || r4 != null) {
+      if (r1 instanceof HistoricoConsultaResponseEvent) {
+        cons = Optional.ofNullable(((HistoricoConsultaResponseEvent) r1).getConsultas())
+            .orElse(Collections.emptyList());
+        cache.remove(cid + ":cons");
+        consultasRecebidas = true;
+      }
 
-        if (r1 instanceof HistoricoAgendamentoResponseEvent) {
-          ag = Optional.ofNullable(((HistoricoAgendamentoResponseEvent) r1).getAgendamentos())
-              .orElse(Collections.emptyList());
-          cache.remove(cid + ":ag");
-        }
+      if (r2 instanceof HistoricoExameResponseEvent) {
+        exam = Optional.ofNullable(((HistoricoExameResponseEvent) r2).getExames())
+            .orElse(Collections.emptyList());
+        cache.remove(cid + ":exam");
+        examesRecebidos = true;
+      }
 
-        if (r2 instanceof HistoricoProcedimentoResponseEvent) {
-          proc = Optional.ofNullable(((HistoricoProcedimentoResponseEvent) r2).getProcedimentos())
-              .orElse(Collections.emptyList());
-          cache.remove(cid + ":proc");
-        }
+      if (r3 instanceof HistoricoProcedimentoResponseEvent) {
+        proc = Optional.ofNullable(((HistoricoProcedimentoResponseEvent) r3).getProcedimentos())
+            .orElse(Collections.emptyList());
+        cache.remove(cid + ":proc");
+        procedimentosRecebidos = true;
+      }
 
-        if (r3 instanceof HistoricoEstoqueResponseEvent) {
-          est = Optional.ofNullable(((HistoricoEstoqueResponseEvent) r3).getItens())
-              .orElse(Collections.emptyList());
-          cache.remove(cid + ":est");
-        }
+      if (r4 instanceof HistoricoEstoqueResponseEvent) {
+        est = Optional.ofNullable(((HistoricoEstoqueResponseEvent) r4).getItens())
+            .orElse(Collections.emptyList());
+        cache.remove(cid + ":est");
+      }
 
-        if (r4 instanceof HistoricoPagamentoResponseEvent) {
-          pag = Optional.ofNullable(((HistoricoPagamentoResponseEvent) r4).getPagamentos())
-              .orElse(Collections.emptyList());
-          cache.remove(cid + ":pag");
-        }
-
-        if (!ag.isEmpty() || !proc.isEmpty() || !est.isEmpty() || !pag.isEmpty()) {
-          break;
-        }
+      if (r5 instanceof HistoricoPagamentoResponseEvent) {
+        pag = Optional.ofNullable(((HistoricoPagamentoResponseEvent) r5).getPagamentos())
+            .orElse(Collections.emptyList());
+        cache.remove(cid + ":pag");
       }
 
       try {
@@ -106,7 +117,8 @@ public class ConsultarHistoricoPacienteUseCase {
             paciente.getEmail(),
             paciente.getConvenio() != null ? paciente.getConvenio().getId() : null,
             paciente.getConvenio() != null ? paciente.getConvenio().getNome() : null))
-        .agendamentos(ag)
+        .consultas(cons)
+        .exames(exam)
         .procedimentos(proc)
         .itensBaixados(est)
         .pagamentos(pag)

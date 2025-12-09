@@ -42,6 +42,8 @@ public class AgendarConsultaUseCase {
     consulta.setEspecialidade(dto.getEspecialidade());
     consulta.setConvenioNome(dto.getConvenioNome());
     consulta.setModalidade(dto.getModalidade());
+    consulta.setIsEncaixe(dto.getIsEncaixe() != null ? dto.getIsEncaixe() : false);
+    consulta.setMotivoEncaixe(dto.getMotivoEncaixe());
     consulta.setObservacoes(dto.getObservacoes());
     consulta.setUsuarioCriadorLogin(dto.getUsuarioCriadorLogin());
     consulta.setStatus(StatusAgendamentoEnum.ATIVO);

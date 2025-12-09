@@ -22,6 +22,8 @@ public class AgendarConsultaDTO {
   private String especialidade;
   private String convenioNome;
   private ModalidadeEnum modalidade;
+  private Boolean isEncaixe;
+  private String motivoEncaixe;
   private String observacoes;
   private String usuarioCriadorLogin;
 }

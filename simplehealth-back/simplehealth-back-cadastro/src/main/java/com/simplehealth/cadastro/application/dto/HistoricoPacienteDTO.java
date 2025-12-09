@@ -16,7 +16,8 @@ public class HistoricoPacienteDTO {
 
   private PessoaDTO pessoa;
 
-  private List<AgendamentoDTO> agendamentos;
+  private List<ConsultaDTO> consultas;
+  private List<ExameDTO> exames;
   private List<ProcedimentoDTO> procedimentos;
   private List<ItemEstoqueDTO> itensBaixados;
   private List<PagamentoDTO> pagamentos;

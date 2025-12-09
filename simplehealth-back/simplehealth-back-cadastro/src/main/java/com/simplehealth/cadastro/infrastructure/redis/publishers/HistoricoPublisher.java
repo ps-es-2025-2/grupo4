@@ -11,6 +11,20 @@ public class HistoricoPublisher {
 
   private final RedisTemplate<String, Object> redisTemplate;
 
+  public void solicitarConsultas(String correlationId, String cpf) {
+    redisTemplate.convertAndSend(
+        "historico.consulta.request",
+        new HistoricoRequestEvent(correlationId, cpf)
+    );
+  }
+
+  public void solicitarExames(String correlationId, String cpf) {
+    redisTemplate.convertAndSend(
+        "historico.exame.request",
+        new HistoricoRequestEvent(correlationId, cpf)
+    );
+  }
+
   public void solicitarAgendamentos(String correlationId, String cpf) {
     redisTemplate.convertAndSend(
         "historico.agendamento.request",

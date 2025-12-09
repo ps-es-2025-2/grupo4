@@ -137,12 +137,17 @@ main() {
     print_color $CYAN "     → Verifica e baixa dependências Maven"
     print_color $CYAN "     → Ideal para primeira execução ou reset total"
     echo ""
-    print_color $YELLOW "  2) Inicialização Rápida (Apenas inicializar sem limpar dados)"
+    print_color $YELLOW "  2) Inicialização Média (Limpeza Leve + Sem Verificar Dependências)"
     print_color $CYAN "     → Mantém os dados existentes nos bancos"
     print_color $CYAN "     → Não verifica dependências"
-    print_color $CYAN "     → Ideal para desenvolvimento rápido"
+    print_color $CYAN "     → Ideal para desenvolvimento contínuo"
     echo ""
-    print_color $CYAN "Digite sua escolha [1-2]: "
+    print_color $YELLOW "  3) Inicialização Super Rápida (Apenas subir tudo sem verificações)"
+    print_color $CYAN "     → Mantém tudo como está"
+    print_color $CYAN "     → Sem limpeza, sem verificação de dependências"
+    print_color $CYAN "     → Máxima velocidade de startup"
+    echo ""
+    print_color $CYAN "Digite sua escolha [1-3]: "
     read -r OPTION
     
     case $OPTION in
@@ -150,14 +155,22 @@ main() {
             print_color $GREEN "✅ Opção 1 selecionada: Inicialização Completa do Zero"
             SKIP_DEPS=false
             DO_HARD_RESET=true
+            DO_LIGHT_CLEANUP=false
             ;;
         2)
-            print_color $GREEN "✅ Opção 2 selecionada: Inicialização Rápida"
+            print_color $GREEN "✅ Opção 2 selecionada: Inicialização Média"
             SKIP_DEPS=true
             DO_HARD_RESET=false
+            DO_LIGHT_CLEANUP=true
+            ;;
+        3)
+            print_color $GREEN "✅ Opção 3 selecionada: Inicialização Super Rápida"
+            SKIP_DEPS=true
+            DO_HARD_RESET=false
+            DO_LIGHT_CLEANUP=false
             ;;
         *)
-            print_color $RED "❌ Opção inválida. Use 1 ou 2"
+            print_color $RED "❌ Opção inválida. Use 1, 2 ou 3"
             exit 1
             ;;
     esac
@@ -170,8 +183,10 @@ main() {
     # Limpeza baseada na opção escolhida
     if [ "$DO_HARD_RESET" = true ]; then
         cleanup_hard
-    else
+    elif [ "$DO_LIGHT_CLEANUP" = true ]; then
         cleanup_light
+    else
+        print_color $YELLOW "⚡ Pulando limpeza (Super Rápido)"
     fi
     
     #==========================================================================

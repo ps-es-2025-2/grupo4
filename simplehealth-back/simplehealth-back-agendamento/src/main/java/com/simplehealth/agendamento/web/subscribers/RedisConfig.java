@@ -42,9 +42,20 @@ public class RedisConfig {
     container.setConnectionFactory(connectionFactory);
     container.addMessageListener(
         agendamentoSubscriber,
+        new PatternTopic("historico.consulta.request")
+    );
+    container.addMessageListener(
+        agendamentoSubscriber,
+        new PatternTopic("historico.exame.request")
+    );
+    container.addMessageListener(
+        agendamentoSubscriber,
+        new PatternTopic("historico.procedimento.request")
+    );
+    container.addMessageListener(
+        agendamentoSubscriber,
         new PatternTopic("historico.agendamento.request")
     );
     return container;
   }
 }
-

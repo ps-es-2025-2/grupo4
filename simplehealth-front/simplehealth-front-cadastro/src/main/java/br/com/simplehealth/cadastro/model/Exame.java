@@ -1,73 +1,67 @@
 package br.com.simplehealth.cadastro.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
-/**
- * Modelo de dados para Procedimento.
- */
-public class Procedimento {
-
-    @JsonProperty("id")
+public class Exame {
+    
     private String id;
-
+    
+    @JsonProperty("dataHoraAgendamento")
+    private LocalDateTime dataHoraAgendamento;
+    
     @JsonProperty("dataHoraInicioPrevista")
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dataHoraInicio;
-
+    private LocalDateTime dataHoraInicioPrevista;
+    
     @JsonProperty("dataHoraFimPrevista")
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dataHoraFim;
-
+    private LocalDateTime dataHoraFimPrevista;
+    
+    @JsonProperty("dataHoraInicioExecucao")
+    private LocalDateTime dataHoraInicioExecucao;
+    
+    @JsonProperty("dataHoraFimExecucao")
+    private LocalDateTime dataHoraFimExecucao;
+    
     @JsonProperty("isEncaixe")
     private Boolean isEncaixe;
-
-    @JsonProperty("modalidade")
+    
     private String modalidade;
-
+    
     @JsonProperty("motivoEncaixe")
     private String motivoEncaixe;
-
-    @JsonProperty("observacoes")
+    
     private String observacoes;
-
-    @JsonProperty("status")
     private String status;
-
+    
     @JsonProperty("motivoCancelamento")
     private String motivoCancelamento;
-
+    
     @JsonProperty("dataCancelamento")
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataCancelamento;
-
+    
     @JsonProperty("pacienteCpf")
     private String pacienteCpf;
-
+    
     @JsonProperty("medicoCrm")
     private String medicoCrm;
-
+    
     @JsonProperty("convenioNome")
     private String convenioNome;
-
+    
     @JsonProperty("usuarioCriadorLogin")
     private String usuarioCriadorLogin;
-
+    
     @JsonProperty("usuarioCanceladorLogin")
     private String usuarioCanceladorLogin;
-
-    @JsonProperty("descricaoProcedimento")
-    private String descricaoProcedimento;
-
-    @JsonProperty("salaEquipamentoNecessario")
-    private String salaEquipamentoNecessario;
-
-    @JsonProperty("nivelRisco")
-    private String nivelRisco;
-
-    public Procedimento() {
-    }
+    
+    @JsonProperty("nomeExame")
+    private String nomeExame;
+    
+    @JsonProperty("requerPreparo")
+    private Boolean requerPreparo;
+    
+    @JsonProperty("instrucoesPreparo")
+    private String instrucoesPreparo;
 
     // Getters e Setters
     public String getId() {
@@ -78,20 +72,44 @@ public class Procedimento {
         this.id = id;
     }
 
-    public LocalDateTime getDataHoraInicio() {
-        return dataHoraInicio;
+    public LocalDateTime getDataHoraAgendamento() {
+        return dataHoraAgendamento;
     }
 
-    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-        this.dataHoraInicio = dataHoraInicio;
+    public void setDataHoraAgendamento(LocalDateTime dataHoraAgendamento) {
+        this.dataHoraAgendamento = dataHoraAgendamento;
     }
 
-    public LocalDateTime getDataHoraFim() {
-        return dataHoraFim;
+    public LocalDateTime getDataHoraInicioPrevista() {
+        return dataHoraInicioPrevista;
     }
 
-    public void setDataHoraFim(LocalDateTime dataHoraFim) {
-        this.dataHoraFim = dataHoraFim;
+    public void setDataHoraInicioPrevista(LocalDateTime dataHoraInicioPrevista) {
+        this.dataHoraInicioPrevista = dataHoraInicioPrevista;
+    }
+
+    public LocalDateTime getDataHoraFimPrevista() {
+        return dataHoraFimPrevista;
+    }
+
+    public void setDataHoraFimPrevista(LocalDateTime dataHoraFimPrevista) {
+        this.dataHoraFimPrevista = dataHoraFimPrevista;
+    }
+
+    public LocalDateTime getDataHoraInicioExecucao() {
+        return dataHoraInicioExecucao;
+    }
+
+    public void setDataHoraInicioExecucao(LocalDateTime dataHoraInicioExecucao) {
+        this.dataHoraInicioExecucao = dataHoraInicioExecucao;
+    }
+
+    public LocalDateTime getDataHoraFimExecucao() {
+        return dataHoraFimExecucao;
+    }
+
+    public void setDataHoraFimExecucao(LocalDateTime dataHoraFimExecucao) {
+        this.dataHoraFimExecucao = dataHoraFimExecucao;
     }
 
     public Boolean getIsEncaixe() {
@@ -190,32 +208,32 @@ public class Procedimento {
         this.usuarioCanceladorLogin = usuarioCanceladorLogin;
     }
 
-    public String getDescricaoProcedimento() {
-        return descricaoProcedimento;
+    public String getNomeExame() {
+        return nomeExame;
     }
 
-    public void setDescricaoProcedimento(String descricaoProcedimento) {
-        this.descricaoProcedimento = descricaoProcedimento;
+    public void setNomeExame(String nomeExame) {
+        this.nomeExame = nomeExame;
     }
 
-    public String getSalaEquipamentoNecessario() {
-        return salaEquipamentoNecessario;
+    public Boolean getRequerPreparo() {
+        return requerPreparo;
     }
 
-    public void setSalaEquipamentoNecessario(String salaEquipamentoNecessario) {
-        this.salaEquipamentoNecessario = salaEquipamentoNecessario;
+    public void setRequerPreparo(Boolean requerPreparo) {
+        this.requerPreparo = requerPreparo;
     }
 
-    public String getNivelRisco() {
-        return nivelRisco;
+    public String getInstrucoesPreparo() {
+        return instrucoesPreparo;
     }
 
-    public void setNivelRisco(String nivelRisco) {
-        this.nivelRisco = nivelRisco;
+    public void setInstrucoesPreparo(String instrucoesPreparo) {
+        this.instrucoesPreparo = instrucoesPreparo;
     }
     
     // Método auxiliar para compatibilidade
-    public LocalDateTime getDataHoraAgendamento() {
-        return dataHoraInicio;
+    public LocalDateTime getDataHoraInicio() {
+        return dataHoraInicioPrevista;
     }
 }

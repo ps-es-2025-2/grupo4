@@ -16,9 +16,11 @@ public class BloqueioAgenda {
     private String id;
 
     @JsonProperty("dataInicio")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataInicio;
 
     @JsonProperty("dataFim")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataFim;
 
     private String motivo;
@@ -33,6 +35,7 @@ public class BloqueioAgenda {
     private String usuarioCriadorLogin;
 
     @JsonProperty("dataCriacao")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataCriacao;
 
     private Boolean ativo = true;

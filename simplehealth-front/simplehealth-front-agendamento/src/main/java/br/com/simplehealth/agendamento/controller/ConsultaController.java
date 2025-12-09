@@ -261,10 +261,25 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
                     mostrarSucesso("Sucesso", "Consulta agendada com sucesso!");
                 }
             } else if ("ALTERAR".equals(modoEdicao)) {
-                mostrarErro("Operação não suportada", 
-                    "A API não permite alteração de consultas.\n" +
-                    "Para modificar um agendamento, cancele a consulta atual e crie uma nova.");
-                return;
+                if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                    mostrarErro("Erro", "Nenhuma consulta selecionada para alterar.");
+                    return;
+                }
+                
+                logger.info("Alterando consulta com ID: {}", itemSelecionado.getId());
+                
+                Consulta consulta = construirConsultaDoFormulario();
+                // Preservar campos que não estão no formulário
+                consulta.setId(itemSelecionado.getId());
+                consulta.setDataHoraAgendamento(itemSelecionado.getDataHoraAgendamento());
+                consulta.setDataHoraInicioExecucao(itemSelecionado.getDataHoraInicioExecucao());
+                consulta.setDataHoraFimExecucao(itemSelecionado.getDataHoraFimExecucao());
+                consulta.setDataCancelamento(itemSelecionado.getDataCancelamento());
+                consulta.setMotivoCancelamento(itemSelecionado.getMotivoCancelamento());
+                consulta.setUsuarioCanceladorLogin(itemSelecionado.getUsuarioCanceladorLogin());
+                
+                service.atualizar(consulta.getId(), consulta);
+                mostrarSucesso("Sucesso", "Consulta atualizada com sucesso!");
             }
 
             carregarDados();
@@ -291,14 +306,14 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML
     private void handleDeletar() {
         if (itemSelecionado == null || itemSelecionado.getId() == null) {
-            mostrarErro("Erro", "Selecione uma consulta para cancelar");
+            mostrarErro("Erro", "Selecione uma consulta para deletar");
             return;
         }
 
-        // Confirmação antes de cancelar
+        // Confirmação antes de deletar
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("Confirmar Cancelamento");
-        confirmacao.setHeaderText("Deseja realmente cancelar esta consulta?");
+        confirmacao.setTitle("Confirmar Exclusão");
+        confirmacao.setHeaderText("Deseja realmente deletar esta consulta?");
         confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
                                   "Médico: " + itemSelecionado.getMedicoCrm() + "\n" +
                                   "Data: " + (itemSelecionado.getDataHoraInicioPrevista() != null ? 
@@ -306,43 +321,18 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Solicitar motivo do cancelamento
-                TextInputDialog motivoDialog = new TextInputDialog();
-                motivoDialog.setTitle("Motivo do Cancelamento");
-                motivoDialog.setHeaderText("Informe o motivo do cancelamento:");
-                motivoDialog.setContentText("Motivo:");
-                
-                motivoDialog.showAndWait().ifPresent(motivo -> {
-                    if (motivo == null || motivo.trim().isEmpty()) {
-                        mostrarErro("Erro", "O motivo do cancelamento é obrigatório");
-                        return;
-                    }
-                    
-                    // Solicitar login do usuário
-                    TextInputDialog usuarioDialog = new TextInputDialog();
-                    usuarioDialog.setTitle("Identificação do Usuário");
-                    usuarioDialog.setHeaderText("Informe seu login:");
-                    usuarioDialog.setContentText("Login:");
-                    
-                    usuarioDialog.showAndWait().ifPresent(usuarioLogin -> {
-                        if (usuarioLogin == null || usuarioLogin.trim().isEmpty()) {
-                            mostrarErro("Erro", "O login do usuário é obrigatório");
-                            return;
-                        }
-                        
-                        try {
-                            service.cancelar(itemSelecionado.getId(), motivo, usuarioLogin);
-                            mostrarSucesso("Sucesso", "Consulta cancelada com sucesso!");
-                            carregarDados();
-                            limparFormulario();
-                            resetarBotoes();
-                            RefreshManager.getInstance().notifyRefresh();
-                        } catch (Exception e) {
-                            logger.error("Erro ao cancelar consulta", e);
-                            mostrarErro("Erro ao cancelar", e.getMessage());
-                        }
-                    });
-                });
+                try {
+                    // Deletar diretamente sem solicitar motivo nem login
+                    service.deletar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Consulta deletada com sucesso!");
+                    carregarDados();
+                    limparFormulario();
+                    resetarBotoes();
+                    RefreshManager.getInstance().notifyRefresh();
+                } catch (Exception e) {
+                    logger.error("Erro ao deletar consulta", e);
+                    mostrarErro("Erro ao deletar", e.getMessage());
+                }
             }
         });
     }

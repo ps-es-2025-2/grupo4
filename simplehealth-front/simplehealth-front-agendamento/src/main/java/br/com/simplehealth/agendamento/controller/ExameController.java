@@ -238,11 +238,22 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
                 mostrarSucesso("Sucesso", "Exame criado com sucesso!");
             } else if ("ALTERAR".equals(modoEdicao)) {
                 if (itemSelecionado == null || itemSelecionado.getId() == null) {
-                    mostrarErro("Erro", "Item selecionado inválido.");
+                    mostrarErro("Erro", "Nenhum exame selecionado para alterar.");
                     return;
                 }
+                
+                logger.info("Alterando exame com ID: {}", itemSelecionado.getId());
+                
                 Exame exame = construirExameDoFormulario();
+                // Preservar campos que não estão no formulário
                 exame.setId(itemSelecionado.getId());
+                exame.setDataHoraAgendamento(itemSelecionado.getDataHoraAgendamento());
+                exame.setDataHoraInicioExecucao(itemSelecionado.getDataHoraInicioExecucao());
+                exame.setDataHoraFimExecucao(itemSelecionado.getDataHoraFimExecucao());
+                exame.setDataCancelamento(itemSelecionado.getDataCancelamento());
+                exame.setMotivoCancelamento(itemSelecionado.getMotivoCancelamento());
+                exame.setUsuarioCanceladorLogin(itemSelecionado.getUsuarioCanceladorLogin());
+                
                 service.atualizar(itemSelecionado.getId(), exame);
                 mostrarSucesso("Sucesso", "Exame atualizado com sucesso!");
             }

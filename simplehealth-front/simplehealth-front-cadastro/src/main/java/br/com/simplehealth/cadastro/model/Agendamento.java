@@ -1,5 +1,6 @@
 package br.com.simplehealth.cadastro.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
@@ -11,10 +12,12 @@ public class Agendamento {
     @JsonProperty("id")
     private String id;
 
-    @JsonProperty("dataHoraInicio")
+    @JsonProperty("dataHoraInicioPrevista")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraInicio;
 
-    @JsonProperty("dataHoraFim")
+    @JsonProperty("dataHoraFimPrevista")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataHoraFim;
 
     @JsonProperty("isEncaixe")
@@ -36,6 +39,7 @@ public class Agendamento {
     private String motivoCancelamento;
 
     @JsonProperty("dataCancelamento")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dataCancelamento;
 
     @JsonProperty("pacienteCpf")

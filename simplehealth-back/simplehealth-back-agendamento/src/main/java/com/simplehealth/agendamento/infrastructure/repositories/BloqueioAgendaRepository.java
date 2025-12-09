@@ -22,4 +22,10 @@ public interface BloqueioAgendaRepository extends MongoRepository<BloqueioAgenda
   boolean existsByMedicoCrmAndAtivoTrueAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim
   );
+  
+  // Verifica se existe bloqueio com sobreposição correta:
+  // Bloqueio sobrepõe se: bloqueio.inicio < novo.fim AND bloqueio.fim > novo.inicio
+  boolean existsByMedicoCrmAndAtivoTrueAndDataInicioLessThanAndDataFimGreaterThan(
+      String medicoCrm, LocalDateTime novoFim, LocalDateTime novoInicio
+  );
 }

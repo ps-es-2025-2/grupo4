@@ -97,7 +97,7 @@ public class ExameService {
             request.setHeader("Accept", "application/json");
 
             String json = objectMapper.writeValueAsString(exame);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -127,7 +127,7 @@ public class ExameService {
             request.setHeader("Accept", "application/json");
 
             String json = objectMapper.writeValueAsString(exame);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -183,7 +183,7 @@ public class ExameService {
                 "{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioLogin\":\"%s\"}", 
                 id, motivo, usuarioLogin
             );
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -215,7 +215,7 @@ public class ExameService {
             request.setHeader("Accept", "application/json");
 
             String json = String.format("{\"id\":\"%s\",\"usuarioLogin\":\"%s\"}", id, usuarioLogin);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -250,7 +250,7 @@ public class ExameService {
                 "{\"id\":\"%s\",\"usuarioLogin\":\"%s\",\"observacoes\":\"%s\"}", 
                 id, usuarioLogin, observacoes != null ? observacoes : ""
             );
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {

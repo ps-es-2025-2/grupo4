@@ -65,7 +65,7 @@ public class EncaixeService {
             encaixeDTO.put("modalidade", consulta.getModalidade() != null ? consulta.getModalidade().name() : null);
 
             String json = objectMapper.writeValueAsString(encaixeDTO);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {

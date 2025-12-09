@@ -1,5 +1,6 @@
 package com.simplehealth.cadastro.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +14,22 @@ import lombok.experimental.SuperBuilder;
 public class AgendamentoDTO {
 
   private String id;
+  
+  @JsonAlias({"dataHoraAgendamento"})
+  private LocalDateTime dataHoraAgendamento;
+  
+  @JsonAlias({"dataHoraInicioPrevista"})
   private LocalDateTime dataHoraInicio;
+  
+  @JsonAlias({"dataHoraFimPrevista"})
   private LocalDateTime dataHoraFim;
+  
+  @JsonAlias({"dataHoraInicioExecucao"})
+  private LocalDateTime dataHoraInicioExecucao;
+  
+  @JsonAlias({"dataHoraFimExecucao"})
+  private LocalDateTime dataHoraFimExecucao;
+  
   private Boolean isEncaixe;
   private String modalidade;
   private String motivoEncaixe;

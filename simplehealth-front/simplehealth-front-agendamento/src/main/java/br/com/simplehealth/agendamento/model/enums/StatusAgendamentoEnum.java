@@ -6,7 +6,8 @@ package br.com.simplehealth.agendamento.model.enums;
  */
 public enum StatusAgendamentoEnum {
     ATIVO("Ativo"),
-    REALIZADO("Realizado"),
+    INICIADO("Iniciado"),
+    FINALIZADO("Finalizado"),
     CANCELADO("Cancelado"),
     NAO_COMPARECEU("Não Compareceu");
 

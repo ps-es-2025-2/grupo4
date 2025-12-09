@@ -17,4 +17,6 @@ public interface ExameRepository extends MongoRepository<Exame, String> {
   List<Exame> findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, StatusAgendamentoEnum status
   );
+
+  List<Exame> findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(String cpf);
 }

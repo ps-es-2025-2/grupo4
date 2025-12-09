@@ -15,8 +15,11 @@ public class HistoricoPaciente {
     @JsonProperty("pessoa")
     private Pessoa pessoa;
 
-    @JsonProperty("agendamentos")
-    private List<Agendamento> agendamentos;
+    @JsonProperty("consultas")
+    private List<Consulta> consultas;
+
+    @JsonProperty("exames")
+    private List<Exame> exames;
 
     @JsonProperty("procedimentos")
     private List<Procedimento> procedimentos;
@@ -47,12 +50,20 @@ public class HistoricoPaciente {
         this.pessoa = pessoa;
     }
 
-    public List<Agendamento> getAgendamentos() {
-        return agendamentos;
+    public List<Consulta> getConsultas() {
+        return consultas;
     }
 
-    public void setAgendamentos(List<Agendamento> agendamentos) {
-        this.agendamentos = agendamentos;
+    public void setConsultas(List<Consulta> consultas) {
+        this.consultas = consultas;
+    }
+
+    public List<Exame> getExames() {
+        return exames;
+    }
+
+    public void setExames(List<Exame> exames) {
+        this.exames = exames;
     }
 
     public List<Procedimento> getProcedimentos() {
@@ -77,5 +88,11 @@ public class HistoricoPaciente {
 
     public void setPagamentos(List<Pagamento> pagamentos) {
         this.pagamentos = pagamentos;
+    }
+
+    // Compatibilidade com código antigo - retorna agendamentos vazios
+    @Deprecated
+    public List<Agendamento> getAgendamentos() {
+        return java.util.Collections.emptyList();
     }
 }

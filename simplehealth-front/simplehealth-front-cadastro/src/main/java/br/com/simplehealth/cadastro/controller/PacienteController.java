@@ -148,7 +148,17 @@ public class PacienteController extends AbstractCrudController<Paciente> {
         txtCpf.setText(paciente.getCpf());
         txtTelefone.setText(paciente.getTelefone());
         txtEmail.setText(paciente.getEmail());
-        cbConvenio.setValue(paciente.getConvenio());
+        
+        // Buscar o convênio na lista do ComboBox pelo ID
+        if (paciente.getConvenioId() != null) {
+            Convenio convenioSelecionado = cbConvenio.getItems().stream()
+                .filter(c -> c.getId().equals(paciente.getConvenioId()))
+                .findFirst()
+                .orElse(null);
+            cbConvenio.setValue(convenioSelecionado);
+        } else {
+            cbConvenio.setValue(null);
+        }
     }
 
     @FXML
@@ -374,16 +384,55 @@ public class PacienteController extends AbstractCrudController<Paciente> {
         conteudo.append("Email: ").append(historico.getDadosCadastrais().getEmail()).append("\n");
         conteudo.append("Telefone: ").append(historico.getDadosCadastrais().getTelefone()).append("\n\n");
         
-        // Agendamentos
-        conteudo.append("=== AGENDAMENTOS ===\n");
-        if (historico.getAgendamentos() != null && !historico.getAgendamentos().isEmpty()) {
-            for (Agendamento ag : historico.getAgendamentos()) {
-                conteudo.append("• ").append(ag.getDataHoraInicio().format(formatter))
-                        .append(" - ").append(ag.getStatus())
-                        .append(" (Dr(a). CRM: ").append(ag.getMedicoCrm()).append(")\n");
+        // Consultas
+        conteudo.append("=== CONSULTAS ===\n");
+        if (historico.getConsultas() != null && !historico.getConsultas().isEmpty()) {
+            for (Consulta cons : historico.getConsultas()) {
+                conteudo.append("• ");
+                if (cons.getDataHoraInicio() != null) {
+                    conteudo.append(cons.getDataHoraInicio().format(formatter));
+                } else if (cons.getDataHoraAgendamento() != null) {
+                    conteudo.append(cons.getDataHoraAgendamento().format(formatter));
+                } else {
+                    conteudo.append("Data não disponível");
+                }
+                conteudo.append(" - ").append(cons.getStatus() != null ? cons.getStatus() : "SEM STATUS");
+                if (cons.getEspecialidade() != null && !cons.getEspecialidade().isEmpty()) {
+                    conteudo.append(" (").append(cons.getEspecialidade()).append(")");
+                }
+                if (cons.getTipoConsulta() != null && !cons.getTipoConsulta().isEmpty()) {
+                    conteudo.append(" - ").append(cons.getTipoConsulta());
+                }
+                conteudo.append("\n");
             }
         } else {
-            conteudo.append("Nenhum agendamento encontrado.\n");
+            conteudo.append("Nenhuma consulta encontrada.\n");
+        }
+        conteudo.append("\n");
+        
+        // Exames
+        conteudo.append("=== EXAMES ===\n");
+        if (historico.getExames() != null && !historico.getExames().isEmpty()) {
+            for (Exame exame : historico.getExames()) {
+                conteudo.append("• ");
+                if (exame.getNomeExame() != null && !exame.getNomeExame().isEmpty()) {
+                    conteudo.append(exame.getNomeExame()).append(" - ");
+                }
+                if (exame.getDataHoraInicio() != null) {
+                    conteudo.append(exame.getDataHoraInicio().format(formatter));
+                } else if (exame.getDataHoraAgendamento() != null) {
+                    conteudo.append(exame.getDataHoraAgendamento().format(formatter));
+                } else {
+                    conteudo.append("Data não disponível");
+                }
+                conteudo.append(" (").append(exame.getStatus() != null ? exame.getStatus() : "SEM STATUS").append(")");
+                if (exame.getRequerPreparo() != null && exame.getRequerPreparo()) {
+                    conteudo.append(" [Requer preparo]");
+                }
+                conteudo.append("\n");
+            }
+        } else {
+            conteudo.append("Nenhum exame encontrado.\n");
         }
         conteudo.append("\n");
         
@@ -391,42 +440,30 @@ public class PacienteController extends AbstractCrudController<Paciente> {
         conteudo.append("=== PROCEDIMENTOS ===\n");
         if (historico.getProcedimentos() != null && !historico.getProcedimentos().isEmpty()) {
             for (Procedimento proc : historico.getProcedimentos()) {
-                conteudo.append("• ").append(proc.getDescricaoProcedimento())
-                        .append(" - ").append(proc.getDataHoraInicio().format(formatter))
-                        .append(" (Risco: ").append(proc.getNivelRisco()).append(")\n");
+                conteudo.append("• ");
+                if (proc.getDescricaoProcedimento() != null) {
+                    conteudo.append(proc.getDescricaoProcedimento()).append(" - ");
+                }
+                if (proc.getDataHoraInicio() != null) {
+                    conteudo.append(proc.getDataHoraInicio().format(formatter));
+                } else if (proc.getDataHoraAgendamento() != null) {
+                    conteudo.append(proc.getDataHoraAgendamento().format(formatter));
+                } else {
+                    conteudo.append("Data não disponível");
+                }
+                if (proc.getNivelRisco() != null) {
+                    conteudo.append(" (Risco: ").append(proc.getNivelRisco()).append(")");
+                }
+                conteudo.append("\n");
             }
         } else {
             conteudo.append("Nenhum procedimento encontrado.\n");
-        }
-        conteudo.append("\n");
-        
-        // Itens baixados
-        conteudo.append("=== ITENS DE ESTOQUE UTILIZADOS ===\n");
-        if (historico.getItensBaixados() != null && !historico.getItensBaixados().isEmpty()) {
-            for (ItemEstoque item : historico.getItensBaixados()) {
-                conteudo.append("• ").append(item.getNome())
-                        .append(" (Qtd: ").append(item.getQuantidade()).append(")\n");
-            }
-        } else {
-            conteudo.append("Nenhum item utilizado.\n");
-        }
-        conteudo.append("\n");
-        
-        // Pagamentos
-        conteudo.append("=== PAGAMENTOS ===\n");
-        if (historico.getPagamentos() != null && !historico.getPagamentos().isEmpty()) {
-            for (Pagamento pag : historico.getPagamentos()) {
-                conteudo.append("• ").append(pag.getDescricao())
-                        .append(" - R$ ").append(pag.getValor()).append("\n");
-            }
-        } else {
-            conteudo.append("Nenhum pagamento registrado.\n");
         }
         
         TextArea textArea = new TextArea(conteudo.toString());
         textArea.setEditable(false);
         textArea.setWrapText(true);
-        textArea.setPrefRowCount(25);
+        textArea.setPrefRowCount(20);
         textArea.setPrefColumnCount(60);
         
         alert.getDialogPane().setContent(textArea);

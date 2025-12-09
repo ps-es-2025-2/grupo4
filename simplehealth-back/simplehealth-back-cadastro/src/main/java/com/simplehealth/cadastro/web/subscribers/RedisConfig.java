@@ -42,6 +42,8 @@ public class RedisConfig {
     RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(connectionFactory);
 
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.consulta.response"));
+    container.addMessageListener(historicoResponseListener, new PatternTopic("historico.exame.response"));
     container.addMessageListener(historicoResponseListener, new PatternTopic("historico.agendamento.response"));
     container.addMessageListener(historicoResponseListener, new PatternTopic("historico.procedimento.response"));
     container.addMessageListener(historicoResponseListener, new PatternTopic("historico.estoque.response"));

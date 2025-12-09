@@ -17,4 +17,6 @@ public interface ProcedimentoRepository extends MongoRepository<Procedimento, St
   List<Procedimento> findByMedicoCrmAndDataHoraInicioPrevistaLessThanEqualAndDataHoraFimPrevistaGreaterThanEqualAndStatus(
       String medicoCrm, LocalDateTime dataHoraInicio, LocalDateTime dataHoraFim, StatusAgendamentoEnum status
   );
+
+  List<Procedimento> findByPacienteCpfOrderByDataHoraInicioPrevistaDesc(String cpf);
 }

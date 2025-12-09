@@ -69,7 +69,7 @@ public class ConvenioService {
             request.setHeader("Content-Type", "application/json");
             
             String json = objectMapper.writeValueAsString(convenio);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int statusCode = response.getCode();
@@ -94,7 +94,7 @@ public class ConvenioService {
             request.setHeader("Content-Type", "application/json");
             
             String json = objectMapper.writeValueAsString(convenio);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int statusCode = response.getCode();

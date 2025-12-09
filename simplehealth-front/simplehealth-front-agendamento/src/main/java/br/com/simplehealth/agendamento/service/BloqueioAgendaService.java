@@ -117,7 +117,7 @@ public class BloqueioAgendaService {
             request.setHeader("Accept", "application/json");
 
             String json = objectMapper.writeValueAsString(bloqueio);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
@@ -147,7 +147,7 @@ public class BloqueioAgendaService {
             request.setHeader("Accept", "application/json");
 
             String json = objectMapper.writeValueAsString(bloqueio);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             logger.debug("Request body: {}", json);
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {

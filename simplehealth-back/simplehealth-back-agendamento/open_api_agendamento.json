@@ -1114,7 +1114,8 @@
             "type": "string",
             "enum": [
               "ATIVO",
-              "REALIZADO",
+              "INICIADO",
+              "FINALIZADO",
               "CANCELADO",
               "NAO_COMPARECEU"
             ]
@@ -1236,7 +1237,8 @@
             "type": "string",
             "enum": [
               "ATIVO",
-              "REALIZADO",
+              "INICIADO",
+              "FINALIZADO",
               "CANCELADO",
               "NAO_COMPARECEU"
             ]
@@ -1640,7 +1642,8 @@
             "type": "string",
             "enum": [
               "ATIVO",
-              "REALIZADO",
+              "INICIADO",
+              "FINALIZADO",
               "CANCELADO",
               "NAO_COMPARECEU"
             ]

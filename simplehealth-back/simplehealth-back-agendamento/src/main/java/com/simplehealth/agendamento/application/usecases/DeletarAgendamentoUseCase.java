@@ -1,11 +1,9 @@
 package com.simplehealth.agendamento.application.usecases;
 
 import com.simplehealth.agendamento.application.exception.AgendamentoException;
-import com.simplehealth.agendamento.application.services.AgendamentoService;
-import com.simplehealth.agendamento.domain.entity.Agendamento;
-import com.simplehealth.agendamento.domain.enums.StatusAgendamentoEnum;
-import com.simplehealth.agendamento.infrastructure.repositories.AgendamentoRepository;
-import java.time.LocalDateTime;
+import com.simplehealth.agendamento.infrastructure.repositories.ConsultaRepository;
+import com.simplehealth.agendamento.infrastructure.repositories.ExameRepository;
+import com.simplehealth.agendamento.infrastructure.repositories.ProcedimentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +11,28 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeletarAgendamentoUseCase {
 
-  private final AgendamentoService agendamentoService;
-  private final AgendamentoRepository agendamentoRepository;
+  private final ConsultaRepository consultaRepository;
+  private final ExameRepository exameRepository;
+  private final ProcedimentoRepository procedimentoRepository;
 
   public void execute(String id) {
-    agendamentoService.buscarPorId(id)
-        .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado com ID: " + id));
-
-    agendamentoRepository.deleteById(id);
+    // Tentar deletar de cada repositório
+    boolean deleted = false;
+    
+    if (consultaRepository.existsById(id)) {
+      consultaRepository.deleteById(id);
+      deleted = true;
+    } else if (exameRepository.existsById(id)) {
+      exameRepository.deleteById(id);
+      deleted = true;
+    } else if (procedimentoRepository.existsById(id)) {
+      procedimentoRepository.deleteById(id);
+      deleted = true;
+    }
+    
+    if (!deleted) {
+      throw new AgendamentoException("Agendamento não encontrado com ID: " + id);
+    }
   }
 }
 

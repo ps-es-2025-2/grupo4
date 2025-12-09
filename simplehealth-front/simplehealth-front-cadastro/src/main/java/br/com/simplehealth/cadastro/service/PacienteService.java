@@ -70,7 +70,7 @@ public class PacienteService {
             request.setHeader("Content-Type", "application/json");
             
             String json = objectMapper.writeValueAsString(paciente);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int statusCode = response.getCode();
@@ -95,7 +95,7 @@ public class PacienteService {
             request.setHeader("Content-Type", "application/json");
             
             String json = objectMapper.writeValueAsString(paciente);
-            request.setEntity(new StringEntity(json));
+            request.setEntity(new StringEntity(json, java.nio.charset.StandardCharsets.UTF_8));
             
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 String jsonResponse = EntityUtils.toString(response.getEntity());
