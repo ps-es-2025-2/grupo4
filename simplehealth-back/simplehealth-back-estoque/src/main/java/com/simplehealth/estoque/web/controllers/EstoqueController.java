@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,6 +37,9 @@ public class EstoqueController {
 
   @PostMapping
   public ResponseEntity<Estoque> salvarEstoque(@RequestBody Estoque estoque) {
+    if (estoque.getIdEstoque() == null) {
+      estoque.setIdEstoque(UUID.randomUUID());
+    }
     Estoque saved = estoqueService.salvar(estoque);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
@@ -58,6 +62,20 @@ public class EstoqueController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deletarEstoque(@PathVariable UUID id) {
     estoqueService.deletar(id);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<Estoque> atualizarEstoque(
+      @PathVariable UUID id,
+      @RequestBody Estoque estoque) {
+    try {
+      estoqueService.buscarPorId(id);
+      estoque.setIdEstoque(id);
+      Estoque updatedEstoque = estoqueService.salvar(estoque);
+      return ResponseEntity.ok(updatedEstoque);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   //UseCases Principais

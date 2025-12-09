@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 public abstract class Item {
 
   @PrimaryKey
-  private UUID idItem;
+  private UUID idItem = UUID.randomUUID();
 
   @Column("nome")
   private String nome;

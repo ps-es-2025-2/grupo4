@@ -12,7 +12,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 public class Estoque {
 
   @PrimaryKey
-  private UUID idEstoque;
+  private UUID idEstoque = UUID.randomUUID();
 
   @Column
   private String local;
