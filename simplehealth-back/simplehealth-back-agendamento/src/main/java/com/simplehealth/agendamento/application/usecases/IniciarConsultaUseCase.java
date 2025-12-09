@@ -30,6 +30,7 @@ public class IniciarConsultaUseCase {
 
     consulta.setDataHoraInicioExecucao(LocalDateTime.now());
     consulta.setUsuarioIniciouServicoLogin(dto.getUsuarioLogin());
+    consulta.setStatus(StatusAgendamentoEnum.INICIADO);
 
     Consulta atualizada = consultaRepository.save(consulta);
 

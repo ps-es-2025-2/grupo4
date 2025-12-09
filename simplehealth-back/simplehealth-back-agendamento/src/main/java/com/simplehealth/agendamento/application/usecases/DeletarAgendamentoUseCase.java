@@ -17,22 +17,9 @@ public class DeletarAgendamentoUseCase {
   private final AgendamentoRepository agendamentoRepository;
 
   public void execute(String id) {
-    Agendamento agendamento = agendamentoService.buscarPorId(id)
+    agendamentoService.buscarPorId(id)
         .orElseThrow(() -> new AgendamentoException("Agendamento não encontrado com ID: " + id));
 
-    // Validar se o agendamento já foi cancelado
-    if (agendamento.getStatus() == StatusAgendamentoEnum.CANCELADO) {
-      // Permite deletar agendamentos cancelados
-      agendamentoRepository.deleteById(id);
-      return;
-    }
-
-     // Validar se o serviço já foi iniciado
-    if (agendamento.getDataHoraInicioExecucao() != null) {
-      throw new IllegalStateException("Não é possível deletar um agendamento que já foi iniciado");
-    }
-
-    // Deletar fisicamente
     agendamentoRepository.deleteById(id);
   }
 }

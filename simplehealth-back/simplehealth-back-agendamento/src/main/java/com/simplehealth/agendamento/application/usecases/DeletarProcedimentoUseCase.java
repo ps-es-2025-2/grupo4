@@ -15,17 +15,8 @@ public class DeletarProcedimentoUseCase {
   private final ProcedimentoRepository procedimentoRepository;
 
   public void execute(String id) {
-    Procedimento procedimento = procedimentoRepository.findById(id)
+    procedimentoRepository.findById(id)
         .orElseThrow(() -> new AgendamentoException("Procedimento não encontrado com ID: " + id));
-
-    if (procedimento.getStatus() == StatusAgendamentoEnum.CANCELADO) {
-      procedimentoRepository.deleteById(id);
-      return;
-    }
-
-    if (procedimento.getDataHoraInicioExecucao() != null) {
-      throw new IllegalStateException("Não é possível deletar um procedimento que já foi iniciado");
-    }
 
     procedimentoRepository.deleteById(id);
   }

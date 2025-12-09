@@ -34,6 +34,7 @@ public class FinalizarExameUseCase {
 
     exame.setDataHoraFimExecucao(LocalDateTime.now());
     exame.setUsuarioFinalizouServicoLogin(dto.getUsuarioLogin());
+    exame.setStatus(StatusAgendamentoEnum.FINALIZADO);
     
     if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
       String observacoesAtuais = exame.getObservacoes() != null ? exame.getObservacoes() + "\n" : "";

@@ -34,6 +34,7 @@ public class FinalizarProcedimentoUseCase {
 
     procedimento.setDataHoraFimExecucao(LocalDateTime.now());
     procedimento.setUsuarioFinalizouServicoLogin(dto.getUsuarioLogin());
+    procedimento.setStatus(StatusAgendamentoEnum.FINALIZADO);
     
     if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
       String observacoesAtuais = procedimento.getObservacoes() != null ? procedimento.getObservacoes() + "\n" : "";

@@ -2,9 +2,12 @@ package com.simplehealth.agendamento.application.usecases;
 
 import com.simplehealth.agendamento.application.dtos.AgendamentoDTO;
 import com.simplehealth.agendamento.domain.entity.Agendamento;
+import com.simplehealth.agendamento.domain.entity.Consulta;
 import com.simplehealth.agendamento.infrastructure.repositories.AgendamentoRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.simplehealth.agendamento.infrastructure.repositories.ConsultaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +16,10 @@ import org.springframework.stereotype.Service;
 public class ListarAgendamentosUseCase {
 
   private final AgendamentoRepository agendamentoRepository;
+  private final ConsultaRepository consultaRepository;
 
   public List<AgendamentoDTO> execute() {
-    List<Agendamento> agendamentos = agendamentoRepository.findAll();
+    List<Consulta> agendamentos = consultaRepository.findAll();
     return agendamentos.stream()
         .map(this::toDTO)
         .collect(Collectors.toList());

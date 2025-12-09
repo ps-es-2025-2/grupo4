@@ -30,6 +30,7 @@ public class IniciarExameUseCase {
 
     exame.setDataHoraInicioExecucao(LocalDateTime.now());
     exame.setUsuarioIniciouServicoLogin(dto.getUsuarioLogin());
+    exame.setStatus(StatusAgendamentoEnum.INICIADO);
 
     Exame atualizado = exameRepository.save(exame);
 

@@ -30,6 +30,7 @@ public class IniciarProcedimentoUseCase {
 
     procedimento.setDataHoraInicioExecucao(LocalDateTime.now());
     procedimento.setUsuarioIniciouServicoLogin(dto.getUsuarioLogin());
+    procedimento.setStatus(StatusAgendamentoEnum.INICIADO);
 
     Procedimento atualizado = procedimentoRepository.save(procedimento);
 

@@ -34,6 +34,7 @@ public class FinalizarConsultaUseCase {
 
     consulta.setDataHoraFimExecucao(LocalDateTime.now());
     consulta.setUsuarioFinalizouServicoLogin(dto.getUsuarioLogin());
+    consulta.setStatus(StatusAgendamentoEnum.FINALIZADO);
     
     if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
       String observacoesAtuais = consulta.getObservacoes() != null ? consulta.getObservacoes() + "\n" : "";

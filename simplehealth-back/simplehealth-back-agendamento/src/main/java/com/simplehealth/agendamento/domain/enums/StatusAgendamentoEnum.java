@@ -2,7 +2,8 @@ package com.simplehealth.agendamento.domain.enums;
 
 public enum StatusAgendamentoEnum {
   ATIVO,
-  REALIZADO,
+  INICIADO,
+  FINALIZADO,
   CANCELADO,
   NAO_COMPARECEU
 }
