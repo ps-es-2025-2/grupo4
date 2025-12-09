@@ -3,6 +3,7 @@ package br.com.simplehealth.agendamento.service;
 import br.com.simplehealth.agendamento.config.AppConfig;
 import br.com.simplehealth.agendamento.model.Consulta;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -30,6 +31,8 @@ public class EncaixeService {
     public EncaixeService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
         this.baseUrl = AppConfig.ENCAIXE_ENDPOINT;
     }
 
@@ -50,8 +53,8 @@ public class EncaixeService {
             Map<String, Object> encaixeDTO = new HashMap<>();
             encaixeDTO.put("pacienteCpf", consulta.getPacienteCpf());
             encaixeDTO.put("medicoCrm", consulta.getMedicoCrm());
-            encaixeDTO.put("dataHoraInicio", consulta.getDataHoraInicio());
-            encaixeDTO.put("dataHoraFim", consulta.getDataHoraFim());
+            encaixeDTO.put("dataHoraInicioPrevista", consulta.getDataHoraInicioPrevista());
+            encaixeDTO.put("dataHoraFimPrevista", consulta.getDataHoraFimPrevista());
             encaixeDTO.put("motivoEncaixe", consulta.getMotivoEncaixe());
             encaixeDTO.put("observacoes", consulta.getObservacoes());
             encaixeDTO.put("usuarioCriadorLogin", consulta.getUsuarioCriadorLogin());

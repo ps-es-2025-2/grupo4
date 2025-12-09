@@ -2,12 +2,11 @@ package br.com.simplehealth.agendamento.service;
 
 import br.com.simplehealth.agendamento.config.AppConfig;
 import br.com.simplehealth.agendamento.model.Exame;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -22,23 +21,7 @@ import java.util.List;
 
 /**
  * Serviço para gerenciar operações de Exames via API REST.
- * 
- * IMPORTANTE: Este serviço está preparado para integração com a API de agendamentos,
- * porém a API backend atual (open_api_agendamento.json) NÃO possui endpoints específicos
- * para Exames. A API atual suporta apenas:
- * - POST /agendamentos (Consultas)
- * - POST /agendamentos/cancelar
- * - POST /encaixe
- * - POST /bloqueio-agenda
- * 
- * Para que este serviço funcione completamente, o backend precisa implementar:
- * - GET /agendamentos/exames (listar exames)
- * - GET /agendamentos/exames/{id} (buscar exame por ID)
- * - POST /agendamentos/exames (criar exame)
- * - PUT /agendamentos/exames/{id} (atualizar exame)
- * - DELETE /agendamentos/exames/{id} (deletar exame)
- * 
- * Até lá, os métodos retornarão listas vazias ou lançarão exceções apropriadas.
+ * Baseado na API: /exames
  */
 public class ExameService {
 
@@ -49,20 +32,37 @@ public class ExameService {
     public ExameService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.AGENDAMENTOS_ENDPOINT;
+        this.objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+        this.baseUrl = AppConfig.AGENDAMENTOS_ENDPOINT + "/exames";
     }
 
     /**
      * Lista todos os exames
+     * GET /exames
      */
-    public List<Exame> listarTodos() throws IOException {
+    public List<Exame> listarTodos() throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Listando todos os exames");
-        // Por enquanto retorna lista vazia - depende da API ter endpoint específico
+        
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(baseUrl);
+            request.setHeader("Accept", "application/json");
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String json = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", json);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(json, new TypeReference<List<Exame>>() {});
+                }
+            }
+        }
         return new ArrayList<>();
     }
 
     /**
      * Busca um exame por ID
+     * GET /exames/{id}
      */
     public Exame buscarPorId(String id) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Buscando exame por ID: {}", id);
@@ -80,12 +80,13 @@ public class ExameService {
                 }
             }
         }
-
         return null;
     }
 
     /**
-     * Cria um novo exame
+     * Cria um novo exame (agendar)
+     * POST /exames
+     * Body: AgendarExameDTO
      */
     public Exame criar(Exame exame) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Criando novo exame: {}", exame);
@@ -106,7 +107,7 @@ public class ExameService {
                 if (response.getCode() == 200 || response.getCode() == 201) {
                     return objectMapper.readValue(responseJson, Exame.class);
                 } else {
-                    throw new IOException("Erro ao criar exame. Código: " + response.getCode());
+                    throw new IOException("Erro ao criar exame. Código: " + response.getCode() + " - " + responseJson);
                 }
             }
         }
@@ -114,6 +115,8 @@ public class ExameService {
 
     /**
      * Atualiza um exame existente
+     * PUT /exames/{id}
+     * Body: AtualizarExameDTO
      */
     public Exame atualizar(String id, Exame exame) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Atualizando exame ID: {}", id);
@@ -134,7 +137,7 @@ public class ExameService {
                 if (response.getCode() == 200) {
                     return objectMapper.readValue(responseJson, Exame.class);
                 } else {
-                    throw new IOException("Erro ao atualizar exame. Código: " + response.getCode());
+                    throw new IOException("Erro ao atualizar exame. Código: " + response.getCode() + " - " + responseJson);
                 }
             }
         }
@@ -142,6 +145,7 @@ public class ExameService {
 
     /**
      * Deleta um exame
+     * DELETE /exames/{id}
      */
     public void deletar(String id) throws IOException {
         logger.info("Deletando exame ID: {}", id);
@@ -153,16 +157,21 @@ public class ExameService {
                 logger.debug("Response code: {}", response.getCode());
 
                 if (response.getCode() != 200 && response.getCode() != 204) {
-                    throw new IOException("Erro ao deletar exame. Código: " + response.getCode());
+                    String responseJson = EntityUtils.toString(response.getEntity());
+                    throw new IOException("Erro ao deletar exame. Código: " + response.getCode() + " - " + responseJson);
                 }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
             }
         }
     }
 
     /**
      * Cancela um exame
+     * POST /exames/cancelar
+     * Body: CancelarAgendamentoDTO {id, motivo, usuarioLogin}
      */
-    public Exame cancelar(String id, String motivo, String usuarioCancelador) throws IOException, org.apache.hc.core5.http.ParseException {
+    public Exame cancelar(String id, String motivo, String usuarioLogin) throws IOException {
         logger.info("Cancelando exame ID: {}", id);
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -170,8 +179,10 @@ public class ExameService {
             request.setHeader("Content-Type", "application/json");
             request.setHeader("Accept", "application/json");
 
-            String json = String.format("{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioCancelador\":\"%s\"}", 
-                id, motivo, usuarioCancelador);
+            String json = String.format(
+                "{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioLogin\":\"%s\"}", 
+                id, motivo, usuarioLogin
+            );
             request.setEntity(new StringEntity(json));
             logger.debug("Request body: {}", json);
 
@@ -182,8 +193,77 @@ public class ExameService {
                 if (response.getCode() == 200) {
                     return objectMapper.readValue(responseJson, Exame.class);
                 } else {
-                    throw new IOException("Erro ao cancelar exame. Código: " + response.getCode());
+                    throw new IOException("Erro ao cancelar exame. Código: " + response.getCode() + " - " + responseJson);
                 }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Inicia um exame
+     * POST /exames/{id}/iniciar
+     * Body: IniciarServicoDTO {id, usuarioLogin}
+     */
+    public Exame iniciar(String id, String usuarioLogin) throws IOException {
+        logger.info("Iniciando exame ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(baseUrl + "/" + id + "/iniciar");
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Accept", "application/json");
+
+            String json = String.format("{\"id\":\"%s\",\"usuarioLogin\":\"%s\"}", id, usuarioLogin);
+            request.setEntity(new StringEntity(json));
+            logger.debug("Request body: {}", json);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String responseJson = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", responseJson);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(responseJson, Exame.class);
+                } else {
+                    throw new IOException("Erro ao iniciar exame. Código: " + response.getCode() + " - " + responseJson);
+                }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Finaliza um exame
+     * POST /exames/{id}/finalizar
+     * Body: FinalizarServicoDTO {id, usuarioLogin, observacoes}
+     */
+    public Exame finalizar(String id, String usuarioLogin, String observacoes) throws IOException {
+        logger.info("Finalizando exame ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(baseUrl + "/" + id + "/finalizar");
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Accept", "application/json");
+
+            String json = String.format(
+                "{\"id\":\"%s\",\"usuarioLogin\":\"%s\",\"observacoes\":\"%s\"}", 
+                id, usuarioLogin, observacoes != null ? observacoes : ""
+            );
+            request.setEntity(new StringEntity(json));
+            logger.debug("Request body: {}", json);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String responseJson = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", responseJson);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(responseJson, Exame.class);
+                } else {
+                    throw new IOException("Erro ao finalizar exame. Código: " + response.getCode() + " - " + responseJson);
+                }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
             }
         }
     }

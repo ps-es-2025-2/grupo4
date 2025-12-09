@@ -17,7 +17,7 @@ public class ValidationUtils {
     );
 
     private static final Pattern CRM_PATTERN = Pattern.compile(
-        "^\\d{4,7}$"
+        "^\\d{4,10}$" // Aceita de 4 a 10 dígitos
     );
 
     /**
@@ -34,7 +34,7 @@ public class ValidationUtils {
         // Remove caracteres não numéricos
         cpf = cpf.replaceAll("[^0-9]", "");
 
-        // Verifica se tem 11 dígitos
+        // Verifica se tem exatamente 11 dígitos
         if (cpf.length() != 11) {
             return false;
         }
@@ -72,6 +72,21 @@ public class ValidationUtils {
     }
 
     /**
+     * Valida formato do CPF (apenas numérico com 11 dígitos).
+     * Não valida dígitos verificadores.
+     * 
+     * @param cpf CPF a ser validado
+     * @return true se tem formato válido (11 dígitos numéricos), false caso contrário
+     */
+    public static boolean validarFormatoCPF(String cpf) {
+        if (cpf == null || cpf.trim().isEmpty()) {
+            return false;
+        }
+        String cpfNumeros = cpf.replaceAll("[^0-9]", "");
+        return cpfNumeros.length() == 11;
+    }
+
+    /**
      * Valida um email.
      * 
      * @param email Email a ser validado
@@ -99,6 +114,7 @@ public class ValidationUtils {
 
     /**
      * Valida um CRM.
+     * Aceita de 4 a 10 caracteres numéricos.
      * 
      * @param crm CRM a ser validado
      * @return true se o CRM é válido, false caso contrário
@@ -110,6 +126,34 @@ public class ValidationUtils {
         // Remove caracteres não numéricos
         String crmNumeros = crm.replaceAll("[^0-9]", "");
         return CRM_PATTERN.matcher(crmNumeros).matches();
+    }
+
+    /**
+     * Limita string de CPF apenas a números com no máximo 11 dígitos.
+     * 
+     * @param cpf CPF a ser limitado
+     * @return CPF contendo apenas números, com no máximo 11 dígitos
+     */
+    public static String limitarCPF(String cpf) {
+        if (cpf == null) {
+            return "";
+        }
+        String somenteNumeros = cpf.replaceAll("[^0-9]", "");
+        return somenteNumeros.length() <= 11 ? somenteNumeros : somenteNumeros.substring(0, 11);
+    }
+
+    /**
+     * Limita string de CRM apenas a números com no máximo 10 dígitos.
+     * 
+     * @param crm CRM a ser limitado
+     * @return CRM contendo apenas números, com no máximo 10 dígitos
+     */
+    public static String limitarCRM(String crm) {
+        if (crm == null) {
+            return "";
+        }
+        String somenteNumeros = crm.replaceAll("[^0-9]", "");
+        return somenteNumeros.length() <= 10 ? somenteNumeros : somenteNumeros.substring(0, 10);
     }
 
     /**

@@ -13,9 +13,10 @@ public class AppConfig {
     public static final String API_BASE_URL = "http://localhost:8082/agendamento";
 
     /**
-     * Endpoint para agendamentos (consultas, exames, procedimentos)
+     * Endpoint base para agendamentos (consultas, exames, procedimentos)
+     * Não precisa de /agendamentos pois a API usa diretamente /consultas, /exames, /procedimentos
      */
-    public static final String AGENDAMENTOS_ENDPOINT = API_BASE_URL + "/agendamentos";
+    public static final String AGENDAMENTOS_ENDPOINT = API_BASE_URL;
 
     /**
      * Endpoint para bloqueios de agenda

@@ -16,11 +16,9 @@ public class BloqueioAgenda {
     private String id;
 
     @JsonProperty("dataInicio")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataInicio;
 
     @JsonProperty("dataFim")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataFim;
 
     private String motivo;
@@ -34,12 +32,9 @@ public class BloqueioAgenda {
     @JsonProperty("usuarioCriadorLogin")
     private String usuarioCriadorLogin;
 
-    @JsonIgnore  // Campo gerado pelo backend, não deve ser enviado na criação
     @JsonProperty("dataCriacao")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataCriacao;
 
-    @JsonIgnore  // Campo gerado pelo backend, não deve ser enviado na criação
     private Boolean ativo = true;
 
     // Construtores

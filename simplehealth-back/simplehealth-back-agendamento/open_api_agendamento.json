@@ -11,6 +11,684 @@
     }
   ],
   "paths": {
+    "/procedimentos/{id}": {
+      "get": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarProcedimentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "deletar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/exames/{id}": {
+      "get": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "buscarPorId_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "atualizar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarExameDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "deletar_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/consultas/{id}": {
+      "get": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "buscarPorId_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgendamentoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "atualizar_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarAgendamentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgendamentoDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "deletar_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/bloqueio-agenda/{id}": {
+      "get": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "buscarPorId_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "atualizar_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarBloqueioAgendaDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "deletar_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/procedimentos": {
+      "get": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "listarTodos",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "agendar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendarProcedimentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedimentos/{id}/iniciar": {
+      "post": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "iniciarServico",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IniciarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedimentos/{id}/finalizar": {
+      "post": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "finalizarServico",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedimentos/cancelar": {
+      "post": {
+        "tags": [
+          "procedimento-controller"
+        ],
+        "operationId": "cancelar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarAgendamentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedimentoResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exames": {
+      "get": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "listarTodos_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExameResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "agendar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendarExameDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exames/{id}/iniciar": {
+      "post": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "iniciarServico_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IniciarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exames/{id}/finalizar": {
+      "post": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "finalizarServico_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exames/cancelar": {
+      "post": {
+        "tags": [
+          "exame-controller"
+        ],
+        "operationId": "cancelar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarAgendamentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExameResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/encaixe": {
       "post": {
         "tags": [
@@ -41,7 +719,189 @@
         }
       }
     },
+    "/consultas": {
+      "get": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "listarTodos_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgendamentoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "agendar_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgendarConsultaDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/consultas/{id}/iniciar": {
+      "post": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "iniciarServico_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IniciarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/consultas/{id}/finalizar": {
+      "post": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "finalizarServico_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizarServicoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/consultas/cancelar": {
+      "post": {
+        "tags": [
+          "consulta-controller"
+        ],
+        "operationId": "cancelar_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelarAgendamentoDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/bloqueio-agenda": {
+      "get": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "listarTodos_3",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "bloqueio-agenda-controller"
@@ -71,29 +931,29 @@
         }
       }
     },
-    "/agendamentos": {
-      "post": {
+    "/bloqueio-agenda/{id}/desativar": {
+      "patch": {
         "tags": [
-          "agendamento-controller"
+          "bloqueio-agenda-controller"
         ],
-        "operationId": "agendar",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AgendarConsultaDTO"
-              }
+        "operationId": "desativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
-          },
-          "required": true
-        },
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                  "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
                 }
               }
             }
@@ -101,29 +961,65 @@
         }
       }
     },
-    "/agendamentos/cancelar": {
-      "post": {
+    "/consultas/paciente/{cpf}": {
+      "get": {
         "tags": [
-          "agendamento-controller"
+          "consulta-controller"
         ],
-        "operationId": "cancelar",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CancelarAgendamentoDTO"
-              }
+        "operationId": "buscarPorPaciente",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
-          },
-          "required": true
-        },
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsultaResponseDTO"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgendamentoDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bloqueio-agenda/medico/{medicoCrm}": {
+      "get": {
+        "tags": [
+          "bloqueio-agenda-controller"
+        ],
+        "operationId": "buscarPorMedico",
+        "parameters": [
+          {
+            "name": "medicoCrm",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BloqueioAgendaResponseDTO"
+                  }
                 }
               }
             }
@@ -134,6 +1030,521 @@
   },
   "components": {
     "schemas": {
+      "AtualizarProcedimentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "descricaoProcedimento": {
+            "type": "string"
+          },
+          "salaEquipamentoNecessario": {
+            "type": "string"
+          },
+          "nivelRisco": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          }
+        }
+      },
+      "ProcedimentoResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraAgendamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ATIVO",
+              "REALIZADO",
+              "CANCELADO",
+              "NAO_COMPARECEU"
+            ]
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
+            "type": "string"
+          },
+          "descricaoProcedimento": {
+            "type": "string"
+          },
+          "salaEquipamentoNecessario": {
+            "type": "string"
+          },
+          "nivelRisco": {
+            "type": "string"
+          }
+        }
+      },
+      "AtualizarExameDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nomeExame": {
+            "type": "string"
+          },
+          "requerPreparo": {
+            "type": "boolean"
+          },
+          "instrucoesPreparo": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          }
+        }
+      },
+      "ExameResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraAgendamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ATIVO",
+              "REALIZADO",
+              "CANCELADO",
+              "NAO_COMPARECEU"
+            ]
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
+            "type": "string"
+          },
+          "nomeExame": {
+            "type": "string"
+          },
+          "requerPreparo": {
+            "type": "boolean"
+          },
+          "instrucoesPreparo": {
+            "type": "string"
+          }
+        }
+      },
+      "AtualizarAgendamentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioAlteradorLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "AgendamentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string"
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "AtualizarBloqueioAgendaDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "antecedenciaMinima": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BloqueioAgendaResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "antecedenciaMinima": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AgendarProcedimentoDTO": {
+        "type": "object",
+        "properties": {
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "descricaoProcedimento": {
+            "type": "string"
+          },
+          "salaEquipamentoNecessario": {
+            "type": "string"
+          },
+          "nivelRisco": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "IniciarServicoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "usuarioLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "FinalizarServicoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "usuarioLogin": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          }
+        }
+      },
+      "CancelarAgendamentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "motivo": {
+            "type": "string"
+          },
+          "usuarioLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "AgendarExameDTO": {
+        "type": "object",
+        "properties": {
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nomeExame": {
+            "type": "string"
+          },
+          "requerPreparo": {
+            "type": "boolean"
+          },
+          "instrucoesPreparo": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          }
+        }
+      },
       "EncaixeDTO": {
         "type": "object",
         "properties": {
@@ -189,11 +1600,23 @@
           "id": {
             "type": "string"
           },
-          "dataHoraInicio": {
+          "dataHoraAgendamento": {
             "type": "string",
             "format": "date-time"
           },
-          "dataHoraFim": {
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
             "type": "string",
             "format": "date-time"
           },
@@ -257,6 +1680,52 @@
           }
         }
       },
+      "AgendarConsultaDTO": {
+        "type": "object",
+        "properties": {
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "modalidade": {
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          }
+        }
+      },
       "BloqueioAgendaDTO": {
         "type": "object",
         "properties": {
@@ -280,106 +1749,6 @@
           },
           "usuarioCriadorLogin": {
             "type": "string"
-          }
-        }
-      },
-      "BloqueioAgendaResponseDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "dataInicio": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataFim": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "motivo": {
-            "type": "string"
-          },
-          "antecedenciaMinima": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "medicoCrm": {
-            "type": "string"
-          },
-          "usuarioCriadorLogin": {
-            "type": "string"
-          },
-          "dataCriacao": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "ativo": {
-            "type": "boolean"
-          }
-        }
-      },
-      "AgendarConsultaDTO": {
-        "type": "object",
-        "properties": {
-          "dataHoraInicio": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataHoraFim": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "modalidade": {
-            "type": "string",
-            "enum": [
-              "PRESENCIAL",
-              "REMOTA"
-            ]
-          },
-          "especialidade": {
-            "type": "string"
-          },
-          "tipoConsulta": {
-            "type": "string",
-            "enum": [
-              "PRIMEIRA",
-              "RETORNO",
-              "ROTINA"
-            ]
-          },
-          "pacienteCpf": {
-            "type": "string"
-          },
-          "medicoCrm": {
-            "type": "string"
-          },
-          "convenioNome": {
-            "type": "string"
-          },
-          "usuarioCriadorLogin": {
-            "type": "string"
-          },
-          "observacoes": {
-            "type": "string"
-          }
-        }
-      },
-      "CancelarAgendamentoDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "motivo": {
-            "type": "string"
-          },
-          "usuarioLogin": {
-            "type": "string"
-          },
-          "dataHoraCancelamento": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       }

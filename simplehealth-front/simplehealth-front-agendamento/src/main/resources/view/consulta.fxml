@@ -84,14 +84,14 @@
                         <Label text="Modalidade:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
                         <ComboBox fx:id="cbModalidade" GridPane.columnIndex="3" GridPane.rowIndex="2" maxWidth="Infinity"/>
 
-                        <!-- Row 3 -->
-                        <Label text="Data Início:*" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <!-- Row 3 - Datas Previstas para o Agendamento -->
+                        <Label text="Início Previsto:*" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                         <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="3">
                             <DatePicker fx:id="dtDataInicio" promptText="Selecione a data" HBox.hgrow="ALWAYS"/>
                             <TextField fx:id="txtHoraInicio" promptText="HH:mm" prefWidth="60" maxWidth="60"/>
                         </HBox>
                         
-                        <Label text="Data Fim:*" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+                        <Label text="Fim Previsto:" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
                         <HBox spacing="5" GridPane.columnIndex="3" GridPane.rowIndex="3">
                             <DatePicker fx:id="dtDataFim" promptText="Selecione a data" HBox.hgrow="ALWAYS"/>
                             <TextField fx:id="txtHoraFim" promptText="HH:mm" prefWidth="60" maxWidth="60"/>
@@ -104,15 +104,19 @@
                         <Label text="Usuário Criador:" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
                         <TextField fx:id="txtUsuarioCriador" GridPane.columnIndex="3" GridPane.rowIndex="4"/>
 
+                        <!-- Row 4.5 - Ação (visível apenas quando item selecionado) -->
+                        <Label text="Ação:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                        <ComboBox fx:id="cbAcao" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="3" maxWidth="Infinity" promptText="Selecione uma ação..."/>
+
                         <!-- Row 5 -->
-                        <CheckBox fx:id="chkEncaixe" text="É Encaixe?" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"/>
+                        <CheckBox fx:id="chkEncaixe" text="É Encaixe?" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2"/>
                         
-                        <Label text="Motivo Encaixe:" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
-                        <TextField fx:id="txtMotivoEncaixe" GridPane.columnIndex="3" GridPane.rowIndex="5"/>
+                        <Label text="Motivo Encaixe:" GridPane.columnIndex="2" GridPane.rowIndex="6"/>
+                        <TextField fx:id="txtMotivoEncaixe" GridPane.columnIndex="3" GridPane.rowIndex="6"/>
 
                         <!-- Row 6 -->
-                        <Label text="Observações:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-                        <TextArea fx:id="txtObservacoes" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3"/>
+                        <Label text="Observações:" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+                        <TextArea fx:id="txtObservacoes" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3"/>
                     </GridPane>
 
                     <!-- Buttons -->

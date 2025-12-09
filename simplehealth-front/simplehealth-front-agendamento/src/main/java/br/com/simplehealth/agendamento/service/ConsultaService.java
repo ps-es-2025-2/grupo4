@@ -2,9 +2,11 @@ package br.com.simplehealth.agendamento.service;
 
 import br.com.simplehealth.agendamento.config.AppConfig;
 import br.com.simplehealth.agendamento.model.Consulta;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -19,6 +21,7 @@ import java.util.List;
 
 /**
  * Serviço para gerenciar operações de Consultas via API REST.
+ * Baseado na API: /consultas
  */
 public class ConsultaService {
 
@@ -29,33 +32,84 @@ public class ConsultaService {
     public ConsultaService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        this.baseUrl = AppConfig.AGENDAMENTOS_ENDPOINT;
+        this.objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        this.objectMapper.configure(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE, false);
+        this.baseUrl = AppConfig.AGENDAMENTOS_ENDPOINT + "/consultas";
     }
 
     /**
      * Lista todas as consultas
-     * NOTA: A API atual não possui endpoint GET para listar consultas.
-     * Este método retorna lista vazia até que o backend implemente o endpoint.
+     * GET /consultas
      */
     public List<Consulta> listarTodos() throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Listando todas as consultas");
-        logger.warn("API não possui endpoint GET /agendamentos - retornando lista vazia");
+        
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(baseUrl);
+            request.setHeader("Accept", "application/json");
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String json = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", json);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(json, new TypeReference<List<Consulta>>() {});
+                }
+            }
+        }
         return new ArrayList<>();
     }
 
     /**
      * Busca uma consulta por ID
-     * NOTA: A API atual não possui endpoint GET /{id} para buscar consulta específica.
-     * Este método retorna null até que o backend implemente o endpoint.
+     * GET /consultas/{id}
      */
     public Consulta buscarPorId(String id) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Buscando consulta por ID: {}", id);
-        logger.warn("API não possui endpoint GET /agendamentos/{} - retornando null", id);
+        
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(baseUrl + "/" + id);
+            request.setHeader("Accept", "application/json");
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String json = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", json);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(json, Consulta.class);
+                }
+            }
+        }
         return null;
     }
 
     /**
-     * Cria uma nova consulta
+     * Busca consultas por CPF do paciente
+     * GET /consultas/paciente/{cpf}
+     */
+    public List<Consulta> buscarPorPaciente(String cpf) throws IOException, org.apache.hc.core5.http.ParseException {
+        logger.info("Buscando consultas do paciente CPF: {}", cpf);
+        
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(baseUrl + "/paciente/" + cpf);
+            request.setHeader("Accept", "application/json");
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String json = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", json);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(json, new TypeReference<List<Consulta>>() {});
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Cria uma nova consulta (agendar)
+     * POST /consultas
+     * Body: AgendarConsultaDTO
      */
     public Consulta criar(Consulta consulta) throws IOException, org.apache.hc.core5.http.ParseException {
         logger.info("Criando nova consulta: {}", consulta);
@@ -76,7 +130,7 @@ public class ConsultaService {
                 if (response.getCode() == 200 || response.getCode() == 201) {
                     return objectMapper.readValue(responseJson, Consulta.class);
                 } else {
-                    throw new IOException("Erro ao criar consulta. Código: " + response.getCode());
+                    throw new IOException("Erro ao criar consulta. Código: " + response.getCode() + " - " + responseJson);
                 }
             }
         }
@@ -84,30 +138,63 @@ public class ConsultaService {
 
     /**
      * Atualiza uma consulta existente
-     * NOTA: A API atual não possui endpoint PUT para atualizar consultas.
-     * Para modificar um agendamento, deve-se cancelar e criar um novo.
+     * PUT /consultas/{id}
+     * Body: AtualizarAgendamentoDTO
      */
     public Consulta atualizar(String id, Consulta consulta) throws IOException, org.apache.hc.core5.http.ParseException {
-        logger.warn("API não possui endpoint PUT /agendamentos/{} - operação não suportada", id);
-        throw new UnsupportedOperationException("A API não suporta atualização de consultas. Cancele e crie um novo agendamento.");
+        logger.info("Atualizando consulta ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPut request = new HttpPut(baseUrl + "/" + id);
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Accept", "application/json");
+
+            String json = objectMapper.writeValueAsString(consulta);
+            request.setEntity(new StringEntity(json));
+            logger.debug("Request body: {}", json);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String responseJson = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", responseJson);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(responseJson, Consulta.class);
+                } else {
+                    throw new IOException("Erro ao atualizar consulta. Código: " + response.getCode() + " - " + responseJson);
+                }
+            }
+        }
     }
 
     /**
      * Deleta uma consulta
-     * NOTA: A API atual não possui endpoint DELETE.
-     * Use o método cancelar() em vez de deletar.
+     * DELETE /consultas/{id}
      */
     public void deletar(String id) throws IOException {
-        logger.warn("API não possui endpoint DELETE /agendamentos/{} - use cancelar() ao invés", id);
-        throw new UnsupportedOperationException("A API não suporta deleção de consultas. Use o método cancelar().");
+        logger.info("Deletando consulta ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpDelete request = new HttpDelete(baseUrl + "/" + id);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                logger.debug("Response code: {}", response.getCode());
+
+                if (response.getCode() != 200 && response.getCode() != 204) {
+                    String responseJson = EntityUtils.toString(response.getEntity());
+                    throw new IOException("Erro ao deletar consulta. Código: " + response.getCode() + " - " + responseJson);
+                }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
+            }
+        }
     }
 
     /**
-     * Cancela uma consulta conforme especificação da API
-     * Endpoint: POST /agendamentos/cancelar
-     * Body: CancelarAgendamentoDTO {id, motivo, usuarioLogin, dataHoraCancelamento}
+     * Cancela uma consulta
+     * POST /consultas/cancelar
+     * Body: CancelarAgendamentoDTO {id, motivo, usuarioLogin}
      */
-    public Consulta cancelar(String id, String motivo, String usuarioLogin) throws IOException, org.apache.hc.core5.http.ParseException {
+    public Consulta cancelar(String id, String motivo, String usuarioLogin) throws IOException {
         logger.info("Cancelando consulta ID: {}", id);
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -115,13 +202,9 @@ public class ConsultaService {
             request.setHeader("Content-Type", "application/json");
             request.setHeader("Accept", "application/json");
 
-            // Criar JSON conforme CancelarAgendamentoDTO da API
             String json = String.format(
-                "{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioLogin\":\"%s\",\"dataHoraCancelamento\":\"%s\"}", 
-                id, 
-                motivo, 
-                usuarioLogin,
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                "{\"id\":\"%s\",\"motivo\":\"%s\",\"usuarioLogin\":\"%s\"}", 
+                id, motivo, usuarioLogin
             );
             request.setEntity(new StringEntity(json));
             logger.debug("Request body: {}", json);
@@ -133,8 +216,77 @@ public class ConsultaService {
                 if (response.getCode() == 200) {
                     return objectMapper.readValue(responseJson, Consulta.class);
                 } else {
-                    throw new IOException("Erro ao cancelar consulta. Código: " + response.getCode());
+                    throw new IOException("Erro ao cancelar consulta. Código: " + response.getCode() + " - " + responseJson);
                 }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Inicia uma consulta
+     * POST /consultas/{id}/iniciar
+     * Body: IniciarServicoDTO {id, usuarioLogin}
+     */
+    public Consulta iniciar(String id, String usuarioLogin) throws IOException {
+        logger.info("Iniciando consulta ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(baseUrl + "/" + id + "/iniciar");
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Accept", "application/json");
+
+            String json = String.format("{\"id\":\"%s\",\"usuarioLogin\":\"%s\"}", id, usuarioLogin);
+            request.setEntity(new StringEntity(json));
+            logger.debug("Request body: {}", json);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String responseJson = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", responseJson);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(responseJson, Consulta.class);
+                } else {
+                    throw new IOException("Erro ao iniciar consulta. Código: " + response.getCode() + " - " + responseJson);
+                }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Finaliza uma consulta
+     * POST /consultas/{id}/finalizar
+     * Body: FinalizarServicoDTO {id, usuarioLogin, observacoes}
+     */
+    public Consulta finalizar(String id, String usuarioLogin, String observacoes) throws IOException {
+        logger.info("Finalizando consulta ID: {}", id);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(baseUrl + "/" + id + "/finalizar");
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Accept", "application/json");
+
+            String json = String.format(
+                "{\"id\":\"%s\",\"usuarioLogin\":\"%s\",\"observacoes\":\"%s\"}", 
+                id, usuarioLogin, observacoes != null ? observacoes : ""
+            );
+            request.setEntity(new StringEntity(json));
+            logger.debug("Request body: {}", json);
+
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                String responseJson = EntityUtils.toString(response.getEntity());
+                logger.debug("Response: {}", responseJson);
+
+                if (response.getCode() == 200) {
+                    return objectMapper.readValue(responseJson, Consulta.class);
+                } else {
+                    throw new IOException("Erro ao finalizar consulta. Código: " + response.getCode() + " - " + responseJson);
+                }
+            } catch (org.apache.hc.core5.http.ParseException e) {
+                throw new IOException("Erro ao processar resposta: " + e.getMessage(), e);
             }
         }
     }

@@ -1,6 +1,7 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.Procedimento;
+import br.com.simplehealth.agendamento.model.enums.AcaoAgendamentoEnum;
 import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
 import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
 import br.com.simplehealth.agendamento.service.ProcedimentoService;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 /**
  * Controller para gerenciar a interface de Procedimentos.
@@ -52,6 +54,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
     @FXML private TextField txtBusca;
+    @FXML private ComboBox<AcaoAgendamentoEnum> cbAcao;
     
     @FXML
     private Button btnCriar;
@@ -89,7 +92,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         colPacienteCpf.setCellValueFactory(new PropertyValueFactory<>("pacienteCpf"));
         colDescricao.setCellValueFactory(new PropertyValueFactory<>("descricaoProcedimento"));
         colDataHora.setCellValueFactory(cellData -> {
-            LocalDateTime dataHora = cellData.getValue().getDataHoraInicio();
+            LocalDateTime dataHora = cellData.getValue().getDataHoraInicioPrevista();
             return new javafx.beans.property.SimpleStringProperty(
                 dataHora != null ? dataHora.format(DATE_TIME_FORMATTER) : ""
             );
@@ -102,6 +105,10 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
                 itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
                 habilitarBotoesSelecao();
+                cbAcao.setVisible(true);
+                cbAcao.setValue(null);
+            } else {
+                cbAcao.setVisible(false);
             }
         });
 
@@ -109,6 +116,8 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         // Configurar ComboBoxes com enums
         cbModalidade.setItems(FXCollections.observableArrayList(ModalidadeEnum.values()));
         cbStatus.setItems(FXCollections.observableArrayList(StatusAgendamentoEnum.values()));
+        cbAcao.setItems(FXCollections.observableArrayList(AcaoAgendamentoEnum.values()));
+        cbAcao.setVisible(false); // Inicialmente oculto
 
         // Configurar estado inicial dos botões
         configurarEstadoInicialBotoes();
@@ -140,14 +149,14 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         txtSalaEquipamento.setText(procedimento.getSalaEquipamentoNecessario());
         txtConvenioNome.setText(procedimento.getConvenioNome());
         
-        if (procedimento.getDataHoraInicio() != null) {
-            dtDataInicio.setValue(procedimento.getDataHoraInicio().toLocalDate());
-            txtHoraInicio.setText(procedimento.getDataHoraInicio().format(TIME_FORMATTER));
+        if (procedimento.getDataHoraInicioPrevista() != null) {
+            dtDataInicio.setValue(procedimento.getDataHoraInicioPrevista().toLocalDate());
+            txtHoraInicio.setText(procedimento.getDataHoraInicioPrevista().format(TIME_FORMATTER));
         }
         
-        if (procedimento.getDataHoraFim() != null) {
-            dtDataFim.setValue(procedimento.getDataHoraFim().toLocalDate());
-            txtHoraFim.setText(procedimento.getDataHoraFim().format(TIME_FORMATTER));
+        if (procedimento.getDataHoraFimPrevista() != null) {
+            dtDataFim.setValue(procedimento.getDataHoraFimPrevista().toLocalDate());
+            txtHoraFim.setText(procedimento.getDataHoraFimPrevista().format(TIME_FORMATTER));
         }
         
         cbNivelRisco.setValue(procedimento.getNivelRisco());
@@ -188,12 +197,33 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
     @FXML
     private void handleAlterar() {
         if (itemSelecionado == null) {
-            mostrarErro("Erro", "Selecione um procedimento para alterar.");
+            mostrarErro("Erro", "Selecione um procedimento para realizar uma ação.");
             return;
         }
-        habilitarCampos(true);
-        ativarModoEdicao();
-        modoEdicao = "ALTERAR";
+        
+        if (cbAcao.getValue() == null) {
+            mostrarErro("Erro", "Selecione uma ação a ser realizada.");
+            return;
+        }
+        
+        AcaoAgendamentoEnum acao = cbAcao.getValue();
+        
+        switch (acao) {
+            case ALTERAR_DADOS:
+                habilitarCampos(true);
+                ativarModoEdicao();
+                modoEdicao = "ALTERAR";
+                break;
+            case INICIAR:
+                handleIniciar();
+                break;
+            case FINALIZAR:
+                handleFinalizar();
+                break;
+            case CANCELAR:
+                handleCancelarProcedimento();
+                break;
+        }
     }
 
     @FXML
@@ -252,8 +282,8 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
         confirmacao.setHeaderText("Deseja realmente excluir este procedimento?");
         confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
                                   "Procedimento: " + itemSelecionado.getDescricaoProcedimento() + "\n" +
-                                  "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
-                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
+                                  "Data: " + (itemSelecionado.getDataHoraInicioPrevista() != null ? 
+                                             itemSelecionado.getDataHoraInicioPrevista().format(DATE_TIME_FORMATTER) : "") + "\n\n" +
                                   "Esta ação não pode ser desfeita.");
 
         confirmacao.showAndWait().ifPresent(response -> {
@@ -390,22 +420,32 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
 
     private Procedimento construirProcedimentoDoFormulario() {
         Procedimento procedimento = new Procedimento();
-        procedimento.setPacienteCpf(txtPacienteCpf.getText());
-        procedimento.setMedicoCrm(txtMedicoCrm.getText());
+        
+        // Aplicar validações e limitações
+        String cpf = ValidationUtils.limitarCPF(txtPacienteCpf.getText());
+        procedimento.setPacienteCpf(cpf);
+        
+        String crm = ValidationUtils.limitarCRM(txtMedicoCrm.getText());
+        procedimento.setMedicoCrm(crm);
+        
         procedimento.setDescricaoProcedimento(txtDescricaoProcedimento.getText());
         procedimento.setSalaEquipamentoNecessario(txtSalaEquipamento.getText());
         procedimento.setConvenioNome(txtConvenioNome.getText());
+        
         LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
-        procedimento.setDataHoraInicio(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        procedimento.setDataHoraInicioPrevista(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        
         if (dtDataFim.getValue() != null && ValidationUtils.validarCampoObrigatorio(txtHoraFim.getText())) {
             LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
-            procedimento.setDataHoraFim(LocalDateTime.of(dtDataFim.getValue(), horaFim));
+            procedimento.setDataHoraFimPrevista(LocalDateTime.of(dtDataFim.getValue(), horaFim));
         }
+        
         procedimento.setNivelRisco(cbNivelRisco.getValue());
         procedimento.setModalidade(cbModalidade.getValue());
         procedimento.setStatus(cbStatus.getValue());
         procedimento.setObservacoes(txtObservacoes.getText());
         procedimento.setUsuarioCriadorLogin(txtUsuarioCriador.getText());
+        
         return procedimento;
     }
 
@@ -494,6 +534,133 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
     @Override
     public void onRefresh() {
         carregarDados();
+    }
+    
+    /**
+     * Inicia um procedimento através da API
+     */
+    private void handleIniciar() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione um procedimento para iniciar.");
+                return;
+            }
+            
+            // Solicitar login do usuário
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Iniciar Procedimento");
+            dialog.setHeaderText("Digite seu login de usuário:");
+            dialog.setContentText("Login:");
+            
+            Optional<String> resultado = dialog.showAndWait();
+            if (resultado.isPresent() && !resultado.get().trim().isEmpty()) {
+                String usuarioLogin = resultado.get().trim();
+                service.iniciar(itemSelecionado.getId(), usuarioLogin);
+                mostrarSucesso("Sucesso", "Procedimento iniciado com sucesso!");
+                carregarDados();
+                limparFormulario();
+                cbAcao.setValue(null);
+                RefreshManager.getInstance().notifyRefresh();
+            }
+        } catch (Exception e) {
+            logger.error("Erro ao iniciar procedimento", e);
+            mostrarErro("Erro ao iniciar", e.getMessage());
+        }
+    }
+    
+    /**
+     * Finaliza um procedimento através da API
+     */
+    private void handleFinalizar() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione um procedimento para finalizar.");
+                return;
+            }
+            
+            // Solicitar login do usuário
+            TextInputDialog dialogLogin = new TextInputDialog();
+            dialogLogin.setTitle("Finalizar Procedimento");
+            dialogLogin.setHeaderText("Digite seu login de usuário:");
+            dialogLogin.setContentText("Login:");
+            
+            Optional<String> resultadoLogin = dialogLogin.showAndWait();
+            if (!resultadoLogin.isPresent() || resultadoLogin.get().trim().isEmpty()) {
+                return;
+            }
+            
+            String usuarioLogin = resultadoLogin.get().trim();
+            
+            // Solicitar observações
+            TextInputDialog dialogObs = new TextInputDialog();
+            dialogObs.setTitle("Finalizar Procedimento");
+            dialogObs.setHeaderText("Digite observações sobre o atendimento (opcional):");
+            dialogObs.setContentText("Observações:");
+            
+            Optional<String> resultadoObs = dialogObs.showAndWait();
+            String observacoes = resultadoObs.orElse("");
+            
+            service.finalizar(itemSelecionado.getId(), usuarioLogin, observacoes);
+            mostrarSucesso("Sucesso", "Procedimento finalizado com sucesso!");
+            carregarDados();
+            limparFormulario();
+            cbAcao.setValue(null);
+            RefreshManager.getInstance().notifyRefresh();
+            
+        } catch (Exception e) {
+            logger.error("Erro ao finalizar procedimento", e);
+            mostrarErro("Erro ao finalizar", e.getMessage());
+        }
+    }
+    
+    /**
+     * Cancela um procedimento através da API
+     */
+    private void handleCancelarProcedimento() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione um procedimento para cancelar.");
+                return;
+            }
+            
+            // Solicitar motivo do cancelamento
+            TextInputDialog dialogMotivo = new TextInputDialog();
+            dialogMotivo.setTitle("Cancelar Procedimento");
+            dialogMotivo.setHeaderText("Digite o motivo do cancelamento:");
+            dialogMotivo.setContentText("Motivo:");
+            
+            Optional<String> resultadoMotivo = dialogMotivo.showAndWait();
+            if (!resultadoMotivo.isPresent() || resultadoMotivo.get().trim().isEmpty()) {
+                mostrarErro("Erro", "O motivo do cancelamento é obrigatório.");
+                return;
+            }
+            
+            String motivo = resultadoMotivo.get().trim();
+            
+            // Solicitar login do usuário
+            TextInputDialog dialogLogin = new TextInputDialog();
+            dialogLogin.setTitle("Cancelar Procedimento");
+            dialogLogin.setHeaderText("Digite seu login de usuário:");
+            dialogLogin.setContentText("Login:");
+            
+            Optional<String> resultadoLogin = dialogLogin.showAndWait();
+            if (!resultadoLogin.isPresent() || resultadoLogin.get().trim().isEmpty()) {
+                return;
+            }
+            
+            String usuarioLogin = resultadoLogin.get().trim();
+            
+            service.cancelar(itemSelecionado.getId(), motivo, usuarioLogin);
+            mostrarSucesso("Sucesso", "Procedimento cancelado com sucesso!");
+            carregarDados();
+            limparFormulario();
+            cbAcao.setValue(null);
+            RefreshManager.getInstance().notifyRefresh();
+            
+        } catch (Exception e) {
+            logger.error("Erro ao cancelar procedimento", e);
+            mostrarErro("Erro ao cancelar", e.getMessage());
+        }
     }
 
     private void mostrarAviso(String mensagem) {

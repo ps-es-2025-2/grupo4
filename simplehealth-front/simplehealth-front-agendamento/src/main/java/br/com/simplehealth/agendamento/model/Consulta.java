@@ -48,7 +48,8 @@ public class Consulta extends Agendamento {
                 ", tipoConsulta='" + tipoConsulta + '\'' +
                 ", pacienteCpf='" + getPacienteCpf() + '\'' +
                 ", medicoCrm='" + getMedicoCrm() + '\'' +
-                ", dataHoraInicio=" + getDataHoraInicio() +
+                ", dataHoraInicioPrevista=" + getDataHoraInicioPrevista() +
+                ", status=" + getStatus() +
                 '}';
     }
 }

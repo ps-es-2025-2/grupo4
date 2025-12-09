@@ -9,19 +9,31 @@ import java.time.LocalDateTime;
 /**
  * Classe base abstrata para todos os tipos de agendamento.
  * Contém os atributos comuns compartilhados por Consulta, Exame e Procedimento.
- * Alinhado com a especificação da API (ConsultaResponseDTO).
+ * Alinhado com a especificação da API (ConsultaResponseDTO, ExameResponseDTO, ProcedimentoResponseDTO).
  */
 public abstract class Agendamento {
 
     private String id;
 
-    @JsonProperty("dataHoraInicio")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataHoraInicio;
+    // Data/hora em que o agendamento foi criado no sistema
+    @JsonProperty("dataHoraAgendamento")
+    private LocalDateTime dataHoraAgendamento;
 
-    @JsonProperty("dataHoraFim")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataHoraFim;
+    // Data/hora prevista para início do atendimento (planejamento)
+    @JsonProperty("dataHoraInicioPrevista")
+    private LocalDateTime dataHoraInicioPrevista;
+
+    // Data/hora prevista para fim do atendimento (planejamento)
+    @JsonProperty("dataHoraFimPrevista")
+    private LocalDateTime dataHoraFimPrevista;
+
+    // Data/hora real de início do atendimento (execução)
+    @JsonProperty("dataHoraInicioExecucao")
+    private LocalDateTime dataHoraInicioExecucao;
+
+    // Data/hora real de fim do atendimento (execução)
+    @JsonProperty("dataHoraFimExecucao")
+    private LocalDateTime dataHoraFimExecucao;
 
     @JsonProperty("isEncaixe")
     private Boolean isEncaixe = false;
@@ -66,20 +78,44 @@ public abstract class Agendamento {
         this.id = id;
     }
 
-    public LocalDateTime getDataHoraInicio() {
-        return dataHoraInicio;
+    public LocalDateTime getDataHoraAgendamento() {
+        return dataHoraAgendamento;
     }
 
-    public void setDataHoraInicio(LocalDateTime dataHoraInicio) {
-        this.dataHoraInicio = dataHoraInicio;
+    public void setDataHoraAgendamento(LocalDateTime dataHoraAgendamento) {
+        this.dataHoraAgendamento = dataHoraAgendamento;
     }
 
-    public LocalDateTime getDataHoraFim() {
-        return dataHoraFim;
+    public LocalDateTime getDataHoraInicioPrevista() {
+        return dataHoraInicioPrevista;
     }
 
-    public void setDataHoraFim(LocalDateTime dataHoraFim) {
-        this.dataHoraFim = dataHoraFim;
+    public void setDataHoraInicioPrevista(LocalDateTime dataHoraInicioPrevista) {
+        this.dataHoraInicioPrevista = dataHoraInicioPrevista;
+    }
+
+    public LocalDateTime getDataHoraFimPrevista() {
+        return dataHoraFimPrevista;
+    }
+
+    public void setDataHoraFimPrevista(LocalDateTime dataHoraFimPrevista) {
+        this.dataHoraFimPrevista = dataHoraFimPrevista;
+    }
+
+    public LocalDateTime getDataHoraInicioExecucao() {
+        return dataHoraInicioExecucao;
+    }
+
+    public void setDataHoraInicioExecucao(LocalDateTime dataHoraInicioExecucao) {
+        this.dataHoraInicioExecucao = dataHoraInicioExecucao;
+    }
+
+    public LocalDateTime getDataHoraFimExecucao() {
+        return dataHoraFimExecucao;
+    }
+
+    public void setDataHoraFimExecucao(LocalDateTime dataHoraFimExecucao) {
+        this.dataHoraFimExecucao = dataHoraFimExecucao;
     }
 
     public Boolean getIsEncaixe() {

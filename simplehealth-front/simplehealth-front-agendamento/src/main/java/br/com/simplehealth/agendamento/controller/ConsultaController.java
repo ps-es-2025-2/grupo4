@@ -1,6 +1,7 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.Consulta;
+import br.com.simplehealth.agendamento.model.enums.AcaoAgendamentoEnum;
 import br.com.simplehealth.agendamento.model.enums.ModalidadeEnum;
 import br.com.simplehealth.agendamento.model.enums.StatusAgendamentoEnum;
 import br.com.simplehealth.agendamento.model.enums.TipoConsultaEnum;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 /**
  * Controller para gerenciar a interface de Consultas.
@@ -55,6 +57,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML private TextArea txtObservacoes;
     @FXML private TextField txtUsuarioCriador;
     @FXML private TextField txtMotivoEncaixe;
+    @FXML private ComboBox<AcaoAgendamentoEnum> cbAcao;
 
     @FXML
     private Button btnCriar;
@@ -98,7 +101,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         colMedicoCrm.setCellValueFactory(new PropertyValueFactory<>("medicoCrm"));
         colEspecialidade.setCellValueFactory(new PropertyValueFactory<>("especialidade"));
         colDataHora.setCellValueFactory(cellData -> {
-            LocalDateTime dataHora = cellData.getValue().getDataHoraInicio();
+            LocalDateTime dataHora = cellData.getValue().getDataHoraInicioPrevista();
             return new javafx.beans.property.SimpleStringProperty(
                 dataHora != null ? dataHora.format(DATE_TIME_FORMATTER) : ""
             );
@@ -113,6 +116,10 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
                 itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
                 habilitarBotoesSelecao();
+                cbAcao.setVisible(true);
+                cbAcao.setValue(null);
+            } else {
+                cbAcao.setVisible(false);
             }
         });
 
@@ -120,6 +127,8 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         cbTipoConsulta.setItems(FXCollections.observableArrayList(TipoConsultaEnum.values()));
         cbModalidade.setItems(FXCollections.observableArrayList(ModalidadeEnum.values()));
         cbStatus.setItems(FXCollections.observableArrayList(StatusAgendamentoEnum.values()));
+        cbAcao.setItems(FXCollections.observableArrayList(AcaoAgendamentoEnum.values()));
+        cbAcao.setVisible(false); // Inicialmente oculto
 
         // Configurar estado inicial dos botões
         configurarEstadoInicialBotoes();
@@ -153,14 +162,14 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         txtEspecialidade.setText(consulta.getEspecialidade());
         txtConvenioNome.setText(consulta.getConvenioNome());
         
-        if (consulta.getDataHoraInicio() != null) {
-            dtDataInicio.setValue(consulta.getDataHoraInicio().toLocalDate());
-            txtHoraInicio.setText(consulta.getDataHoraInicio().format(TIME_FORMATTER));
+        if (consulta.getDataHoraInicioPrevista() != null) {
+            dtDataInicio.setValue(consulta.getDataHoraInicioPrevista().toLocalDate());
+            txtHoraInicio.setText(consulta.getDataHoraInicioPrevista().format(TIME_FORMATTER));
         }
         
-        if (consulta.getDataHoraFim() != null) {
-            dtDataFim.setValue(consulta.getDataHoraFim().toLocalDate());
-            txtHoraFim.setText(consulta.getDataHoraFim().format(TIME_FORMATTER));
+        if (consulta.getDataHoraFimPrevista() != null) {
+            dtDataFim.setValue(consulta.getDataHoraFimPrevista().toLocalDate());
+            txtHoraFim.setText(consulta.getDataHoraFimPrevista().format(TIME_FORMATTER));
         }
         
         cbTipoConsulta.setValue(consulta.getTipoConsulta());
@@ -204,12 +213,33 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
     @FXML
     private void handleAlterar() {
         if (itemSelecionado == null) {
-            mostrarErro("Erro", "Selecione uma consulta para alterar.");
+            mostrarErro("Erro", "Selecione uma consulta para realizar uma ação.");
             return;
         }
-        habilitarCampos(true);
-        ativarModoEdicao();
-        modoEdicao = "ALTERAR";
+        
+        if (cbAcao.getValue() == null) {
+            mostrarErro("Erro", "Selecione uma ação a ser realizada.");
+            return;
+        }
+        
+        AcaoAgendamentoEnum acao = cbAcao.getValue();
+        
+        switch (acao) {
+            case ALTERAR_DADOS:
+                habilitarCampos(true);
+                ativarModoEdicao();
+                modoEdicao = "ALTERAR";
+                break;
+            case INICIAR:
+                handleIniciar();
+                break;
+            case FINALIZAR:
+                handleFinalizar();
+                break;
+            case CANCELAR:
+                handleCancelarConsulta();
+                break;
+        }
     }
 
     @FXML
@@ -271,8 +301,8 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         confirmacao.setHeaderText("Deseja realmente cancelar esta consulta?");
         confirmacao.setContentText("Paciente: " + itemSelecionado.getPacienteCpf() + "\n" +
                                   "Médico: " + itemSelecionado.getMedicoCrm() + "\n" +
-                                  "Data: " + (itemSelecionado.getDataHoraInicio() != null ? 
-                                             itemSelecionado.getDataHoraInicio().format(DATE_TIME_FORMATTER) : ""));
+                                  "Data: " + (itemSelecionado.getDataHoraInicioPrevista() != null ? 
+                                             itemSelecionado.getDataHoraInicioPrevista().format(DATE_TIME_FORMATTER) : ""));
 
         confirmacao.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
@@ -451,15 +481,21 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
 
     private Consulta construirConsultaDoFormulario() {
         Consulta consulta = new Consulta();
-        consulta.setPacienteCpf(txtPacienteCpf.getText());
-        consulta.setMedicoCrm(txtMedicoCrm.getText());
+        
+        // Aplicar validações e limitações
+        String cpf = ValidationUtils.limitarCPF(txtPacienteCpf.getText());
+        consulta.setPacienteCpf(cpf);
+        
+        String crm = ValidationUtils.limitarCRM(txtMedicoCrm.getText());
+        consulta.setMedicoCrm(crm);
+        
         consulta.setEspecialidade(txtEspecialidade.getText());
         consulta.setConvenioNome(txtConvenioNome.getText());
         
         LocalTime horaInicio = LocalTime.parse(txtHoraInicio.getText(), TIME_FORMATTER);
         LocalTime horaFim = LocalTime.parse(txtHoraFim.getText(), TIME_FORMATTER);
-        consulta.setDataHoraInicio(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
-        consulta.setDataHoraFim(LocalDateTime.of(dtDataFim.getValue(), horaFim));
+        consulta.setDataHoraInicioPrevista(LocalDateTime.of(dtDataInicio.getValue(), horaInicio));
+        consulta.setDataHoraFimPrevista(LocalDateTime.of(dtDataFim.getValue(), horaFim));
         
         consulta.setTipoConsulta(cbTipoConsulta.getValue());
         consulta.setModalidade(cbModalidade.getValue());
@@ -558,6 +594,133 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
         
         if (consultas.isEmpty()) {
             mostrarAviso("Nenhuma consulta encontrada com o termo: " + termoBusca);
+        }
+    }
+    
+    /**
+     * Inicia uma consulta através da API
+     */
+    private void handleIniciar() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione uma consulta para iniciar.");
+                return;
+            }
+            
+            // Solicitar login do usuário
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Iniciar Consulta");
+            dialog.setHeaderText("Digite seu login de usuário:");
+            dialog.setContentText("Login:");
+            
+            Optional<String> resultado = dialog.showAndWait();
+            if (resultado.isPresent() && !resultado.get().trim().isEmpty()) {
+                String usuarioLogin = resultado.get().trim();
+                service.iniciar(itemSelecionado.getId(), usuarioLogin);
+                mostrarSucesso("Sucesso", "Consulta iniciada com sucesso!");
+                carregarDados();
+                limparFormulario();
+                cbAcao.setValue(null);
+                RefreshManager.getInstance().notifyRefresh();
+            }
+        } catch (Exception e) {
+            logger.error("Erro ao iniciar consulta", e);
+            mostrarErro("Erro ao iniciar", e.getMessage());
+        }
+    }
+    
+    /**
+     * Finaliza uma consulta através da API
+     */
+    private void handleFinalizar() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione uma consulta para finalizar.");
+                return;
+            }
+            
+            // Solicitar login do usuário
+            TextInputDialog dialogLogin = new TextInputDialog();
+            dialogLogin.setTitle("Finalizar Consulta");
+            dialogLogin.setHeaderText("Digite seu login de usuário:");
+            dialogLogin.setContentText("Login:");
+            
+            Optional<String> resultadoLogin = dialogLogin.showAndWait();
+            if (!resultadoLogin.isPresent() || resultadoLogin.get().trim().isEmpty()) {
+                return;
+            }
+            
+            String usuarioLogin = resultadoLogin.get().trim();
+            
+            // Solicitar observações
+            TextInputDialog dialogObs = new TextInputDialog();
+            dialogObs.setTitle("Finalizar Consulta");
+            dialogObs.setHeaderText("Digite observações sobre o atendimento (opcional):");
+            dialogObs.setContentText("Observações:");
+            
+            Optional<String> resultadoObs = dialogObs.showAndWait();
+            String observacoes = resultadoObs.orElse("");
+            
+            service.finalizar(itemSelecionado.getId(), usuarioLogin, observacoes);
+            mostrarSucesso("Sucesso", "Consulta finalizada com sucesso!");
+            carregarDados();
+            limparFormulario();
+            cbAcao.setValue(null);
+            RefreshManager.getInstance().notifyRefresh();
+            
+        } catch (Exception e) {
+            logger.error("Erro ao finalizar consulta", e);
+            mostrarErro("Erro ao finalizar", e.getMessage());
+        }
+    }
+    
+    /**
+     * Cancela uma consulta através da API
+     */
+    private void handleCancelarConsulta() {
+        try {
+            if (itemSelecionado == null || itemSelecionado.getId() == null) {
+                mostrarErro("Erro", "Selecione uma consulta para cancelar.");
+                return;
+            }
+            
+            // Solicitar motivo do cancelamento
+            TextInputDialog dialogMotivo = new TextInputDialog();
+            dialogMotivo.setTitle("Cancelar Consulta");
+            dialogMotivo.setHeaderText("Digite o motivo do cancelamento:");
+            dialogMotivo.setContentText("Motivo:");
+            
+            Optional<String> resultadoMotivo = dialogMotivo.showAndWait();
+            if (!resultadoMotivo.isPresent() || resultadoMotivo.get().trim().isEmpty()) {
+                mostrarErro("Erro", "O motivo do cancelamento é obrigatório.");
+                return;
+            }
+            
+            String motivo = resultadoMotivo.get().trim();
+            
+            // Solicitar login do usuário
+            TextInputDialog dialogLogin = new TextInputDialog();
+            dialogLogin.setTitle("Cancelar Consulta");
+            dialogLogin.setHeaderText("Digite seu login de usuário:");
+            dialogLogin.setContentText("Login:");
+            
+            Optional<String> resultadoLogin = dialogLogin.showAndWait();
+            if (!resultadoLogin.isPresent() || resultadoLogin.get().trim().isEmpty()) {
+                return;
+            }
+            
+            String usuarioLogin = resultadoLogin.get().trim();
+            
+            service.cancelar(itemSelecionado.getId(), motivo, usuarioLogin);
+            mostrarSucesso("Sucesso", "Consulta cancelada com sucesso!");
+            carregarDados();
+            limparFormulario();
+            cbAcao.setValue(null);
+            RefreshManager.getInstance().notifyRefresh();
+            
+        } catch (Exception e) {
+            logger.error("Erro ao cancelar consulta", e);
+            mostrarErro("Erro ao cancelar", e.getMessage());
         }
     }
 

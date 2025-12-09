@@ -81,7 +81,8 @@ public class Procedimento extends Agendamento {
                 ", nivelRisco='" + nivelRisco + '\'' +
                 ", pacienteCpf='" + getPacienteCpf() + '\'' +
                 ", medicoCrm='" + getMedicoCrm() + '\'' +
-                ", dataHoraInicio=" + getDataHoraInicio() +
+                ", dataHoraInicioPrevista=" + getDataHoraInicioPrevista() +
+                ", status=" + getStatus() +
                 '}';
     }
 }

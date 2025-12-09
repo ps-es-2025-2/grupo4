@@ -1,6 +1,7 @@
 package br.com.simplehealth.agendamento.controller;
 
 import br.com.simplehealth.agendamento.model.BloqueioAgenda;
+import br.com.simplehealth.agendamento.model.enums.AcaoBloqueioEnum;
 import br.com.simplehealth.agendamento.service.BloqueioAgendaService;
 import br.com.simplehealth.agendamento.util.RefreshManager;
 import br.com.simplehealth.agendamento.util.ValidationUtils;
@@ -45,6 +46,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
     @FXML private TextArea txtMotivo;
     @FXML private TextField txtUsuarioCriador;
     @FXML private CheckBox chkAtivo;
+    @FXML private ComboBox<AcaoBloqueioEnum> cbAcao;
     @FXML private TextField txtBusca;
 
     @FXML
@@ -79,6 +81,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
 
         logger.info("Inicializando BloqueioAgendaController");
 
+        // Configurar ComboBox de Ação
+        cbAcao.setItems(FXCollections.observableArrayList(AcaoBloqueioEnum.values()));
+        cbAcao.setVisible(false);
+
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colMedicoCrm.setCellValueFactory(new PropertyValueFactory<>("medicoCrm"));
         colMotivo.setCellValueFactory(new PropertyValueFactory<>("motivo"));
@@ -102,6 +108,10 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                 itemSelecionado = newSelection;
                 preencherFormulario(newSelection);
                 habilitarBotoesSelecao();
+                cbAcao.setVisible(true);
+                cbAcao.setValue(null);
+            } else {
+                cbAcao.setVisible(false);
             }
         });
 
@@ -177,9 +187,26 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
             mostrarErro("Erro", "Selecione um bloqueio para alterar.");
             return;
         }
-        habilitarCampos(true);
-        ativarModoEdicao();
-        modoEdicao = "ALTERAR";
+        
+        if (cbAcao.getValue() == null) {
+            mostrarErro("Erro", "Selecione uma ação no ComboBox.");
+            return;
+        }
+        
+        switch (cbAcao.getValue()) {
+            case ALTERAR_DADOS:
+                habilitarCampos(true);
+                ativarModoEdicao();
+                modoEdicao = "ALTERAR";
+                break;
+                
+            case DESATIVAR:
+                handleDesativar();
+                break;
+                
+            default:
+                mostrarErro("Erro", "Ação não reconhecida.");
+        }
     }
 
     @FXML
@@ -227,7 +254,58 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
             return;
         }
 
-        mostrarErro("Erro", "Exclusão de bloqueios ainda não implementada no serviço.");
+        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacao.setTitle("Confirmar Exclusão");
+        confirmacao.setHeaderText("Excluir Bloqueio de Agenda");
+        confirmacao.setContentText("Deseja realmente excluir este bloqueio?\n\n" +
+            "Médico CRM: " + itemSelecionado.getMedicoCrm() + "\n" +
+            "Motivo: " + itemSelecionado.getMotivo() + "\n\n" +
+            "Esta ação não pode ser desfeita!");
+        
+        confirmacao.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    service.deletar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Bloqueio excluído com sucesso!");
+                    carregarDados();
+                    limparFormulario();
+                } catch (Exception e) {
+                    logger.error("Erro ao excluir bloqueio", e);
+                    mostrarErro("Erro ao excluir", e.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * Desativa um bloqueio de agenda usando o endpoint PATCH /bloqueio-agenda/{id}/desativar
+     */
+    private void handleDesativar() {
+        if (itemSelecionado == null || itemSelecionado.getId() == null) {
+            mostrarErro("Erro", "Selecione um bloqueio para desativar");
+            return;
+        }
+
+        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacao.setTitle("Confirmar Desativação");
+        confirmacao.setHeaderText("Desativar Bloqueio de Agenda");
+        confirmacao.setContentText("Deseja realmente desativar este bloqueio?\n\n" +
+            "Médico CRM: " + itemSelecionado.getMedicoCrm() + "\n" +
+            "Motivo: " + itemSelecionado.getMotivo());
+        
+        confirmacao.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    BloqueioAgenda bloqueioDesativado = service.desativar(itemSelecionado.getId());
+                    mostrarSucesso("Sucesso", "Bloqueio desativado com sucesso!");
+                    carregarDados();
+                    limparFormulario();
+                } catch (Exception e) {
+                    logger.error("Erro ao desativar bloqueio", e);
+                    mostrarErro("Erro ao desativar", e.getMessage());
+                }
+            }
+        });
     }
 
     protected boolean validarFormulario() {

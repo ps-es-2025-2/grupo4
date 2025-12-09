@@ -78,8 +78,12 @@
                         
                         <CheckBox fx:id="chkAtivo" text="Bloqueio Ativo?" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
 
-                        <Label text="Motivo do Bloqueio:*" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-                        <TextArea fx:id="txtMotivo" prefRowCount="4" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3"/>
+                        <!-- Row 2.5 - Ação (visível apenas quando item selecionado) -->
+                        <Label text="Ação:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <ComboBox fx:id="cbAcao" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" maxWidth="Infinity" promptText="Selecione uma ação..."/>
+
+                        <Label text="Motivo do Bloqueio:*" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <TextArea fx:id="txtMotivo" prefRowCount="4" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3"/>
                     </GridPane>
 
                     <HBox spacing="10" alignment="CENTER_LEFT">

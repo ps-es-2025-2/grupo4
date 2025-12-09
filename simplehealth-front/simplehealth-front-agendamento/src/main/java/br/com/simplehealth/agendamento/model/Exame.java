@@ -83,7 +83,8 @@ public class Exame extends Agendamento {
                 ", requerPreparo=" + requerPreparo +
                 ", pacienteCpf='" + getPacienteCpf() + '\'' +
                 ", medicoCrm='" + getMedicoCrm() + '\'' +
-                ", dataHoraInicio=" + getDataHoraInicio() +
+                ", dataHoraInicioPrevista=" + getDataHoraInicioPrevista() +
+                ", status=" + getStatus() +
                 '}';
     }
 }
