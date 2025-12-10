@@ -12,6 +12,10 @@ public class AppConfig {
     public static final String ENDPOINT_CONTROLE = "/controle";
     public static final String ENDPOINT_FORNECEDORES = "/fornecedores";
     public static final String ENDPOINT_PEDIDOS = "/pedidos";
+    public static final String ENDPOINT_ALIMENTOS = "/alimentos";
+    public static final String ENDPOINT_MEDICAMENTOS = "/medicamentos";
+    public static final String ENDPOINT_HOSPITALARES = "/hospitalares";
+    public static final String ENDPOINT_ITENS = "/itens";
     
     // Endpoints dos casos de uso
     public static final String ENDPOINT_CONTROLE_VALIDADE = "/controle/validade";

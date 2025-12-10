@@ -15,11 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * @deprecated Este controller usa AlimentoService que está deprecado.
- * Considere refatorar para usar EntradaItensService com tipo=ALIMENTO.
- */
-@Deprecated
 public class AlimentoController extends AbstractCrudController<Alimento> {
     
     private static final Logger logger = LoggerFactory.getLogger(AlimentoController.class);
@@ -27,19 +22,12 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     @FXML private TableView<Alimento> tableAlimentos;
     @FXML private TableColumn<Alimento, UUID> colId;
     @FXML private TableColumn<Alimento, String> colNome;
-    @FXML private TableColumn<Alimento, String> colTipo;
     @FXML private TableColumn<Alimento, Integer> colQuantidade;
-    @FXML private TableColumn<Alimento, String> colArmazenamento;
+    @FXML private TableColumn<Alimento, String> colAlergenicos;
     
     @FXML private TextField txtNome;
-    @FXML private TextArea txtDescricao;
-    @FXML private TextField txtTipo;
-    @FXML private TextField txtUnidadeMedida;
     @FXML private TextField txtQuantidade;
-    @FXML private TextField txtLote;
-    @FXML private TextField txtNf;
     @FXML private TextArea txtAlergenicos;
-    @FXML private ComboBox<String> cbTipoArmazenamento;
     
     @FXML
     private Button btnCriar;
@@ -69,7 +57,6 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
         super.btnCancelar = this.btnCancelar;
 
         setupTableColumns();
-        setupComboBox();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
@@ -80,21 +67,10 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idItem"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidadeTotal"));
-        colArmazenamento.setCellValueFactory(new PropertyValueFactory<>("tipoArmazenamento"));
+        colAlergenicos.setCellValueFactory(new PropertyValueFactory<>("alergenicos"));
         
         tableAlimentos.setItems(alimentos);
-    }
-    
-    private void setupComboBox() {
-        cbTipoArmazenamento.setItems(FXCollections.observableArrayList(
-            "Ambiente",
-            "Refrigerado",
-            "Congelado",
-            "Seco",
-            "Climatizado"
-        ));
     }
     
     private void setupTableSelection() {
@@ -132,9 +108,7 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     private void preencherFormulario(Alimento alimento) {
         txtNome.setText(alimento.getNome());
         txtQuantidade.setText(String.valueOf(alimento.getQuantidadeTotal()));
-        // txtLote e txtNf removidos - não existem mais no modelo
         txtAlergenicos.setText(alimento.getAlergenicos());
-        cbTipoArmazenamento.setValue(alimento.getTipoArmazenamento());
     }
     
     @FXML
@@ -233,26 +207,6 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
             return false;
         }
         
-        // Validar tipo de armazenamento obrigatório
-        if (cbTipoArmazenamento.getValue() == null) {
-            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Tipo de Armazenamento"));
-            return false;
-        }
-        
-        // Validar lote (se preenchido)
-        if (!txtLote.getText().trim().isEmpty() && 
-            !ValidationUtils.validarLote(txtLote.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("Lote", "3-20 caracteres alfanuméricos"));
-            return false;
-        }
-        
-        // Validar nota fiscal (se preenchida)
-        if (!txtNf.getText().trim().isEmpty() && 
-            !ValidationUtils.validarNotaFiscal(txtNf.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("Nota Fiscal", "6-44 caracteres"));
-            return false;
-        }
-        
         return true;
     }
     
@@ -260,28 +214,16 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
     protected void limparFormulario() {
         itemSelecionado = null;
         txtNome.clear();
-        txtDescricao.clear();
-        txtTipo.clear();
-        txtUnidadeMedida.clear();
         txtQuantidade.clear();
-        txtLote.clear();
-        txtNf.clear();
         txtAlergenicos.clear();
-        cbTipoArmazenamento.setValue(null);
         tableAlimentos.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         txtNome.setDisable(!habilitar);
-        txtDescricao.setDisable(!habilitar);
-        txtTipo.setDisable(!habilitar);
-        txtUnidadeMedida.setDisable(!habilitar);
         txtQuantidade.setDisable(!habilitar);
-        txtLote.setDisable(!habilitar);
-        txtNf.setDisable(!habilitar);
         txtAlergenicos.setDisable(!habilitar);
-        cbTipoArmazenamento.setDisable(!habilitar);
     }
     
     private Alimento construirAlimentoDoFormulario() {
@@ -289,9 +231,7 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
         alimento.setNome(txtNome.getText());
         alimento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
         alimento.setValidade(new java.util.Date()); // Data atual
-        // txtLote e txtNf removidos - não existem mais no modelo
         alimento.setAlergenicos(txtAlergenicos.getText());
-        alimento.setTipoArmazenamento(cbTipoArmazenamento.getValue());
         return alimento;
     }
 }

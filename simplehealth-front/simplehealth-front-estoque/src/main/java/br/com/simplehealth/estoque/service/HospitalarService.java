@@ -4,6 +4,7 @@ import br.com.simplehealth.estoque.config.AppConfig;
 import br.com.simplehealth.estoque.model.Hospitalar;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -19,13 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * @deprecated O backend não possui endpoint específico para Hospitalares.
- * Os itens do tipo Hospitalar são gerenciados através do endpoint /controle/entrada
- * usando EntradaItensDTO com tipo=HOSPITALAR.
- * Este service permanece apenas para compatibilidade com controllers legados.
- */
-@Deprecated
 public class HospitalarService {
     
     private static final Logger logger = LoggerFactory.getLogger(HospitalarService.class);
@@ -35,9 +29,8 @@ public class HospitalarService {
     public HospitalarService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        // NOTA: Backend não possui endpoint específico para Hospitalares
-        // Os itens são gerenciados através do endpoint /controle
-        this.baseUrl = AppConfig.API_BASE_URL + "/hospitalares"; // Endpoint não implementado
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_HOSPITALARES;
     }
     
     public List<Hospitalar> listar() throws IOException {
@@ -118,7 +111,7 @@ public class HospitalarService {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             
             return httpClient.execute(request, response -> {
-                return response.getCode() == 200;
+                return response.getCode() == 204;
             });
         }
     }

@@ -2,8 +2,11 @@ package br.com.simplehealth.estoque.service;
 
 import br.com.simplehealth.estoque.config.AppConfig;
 import br.com.simplehealth.estoque.model.Item;
+import br.com.simplehealth.estoque.util.ItemDeserializer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -18,13 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * @deprecated O backend não possui endpoint específico para Itens.
- * Os itens são gerenciados através do endpoint /controle/entrada (EntradaItensDTO)
- * e /controle/baixa (BaixaInsumoDTO).
- * Este service permanece apenas para compatibilidade com controllers legados.
- */
-@Deprecated
 public class ItemService {
     
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
@@ -34,9 +30,14 @@ public class ItemService {
     public ItemService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        // NOTA: Backend não possui endpoint específico para Itens
-        // Os itens são gerenciados através do endpoint /controle/entrada
-        this.baseUrl = AppConfig.API_BASE_URL + "/itens"; // Endpoint não implementado
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        // Registra o deserializador customizado apenas para este service
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Item.class, new ItemDeserializer());
+        this.objectMapper.registerModule(module);
+        
+        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_ITENS;
     }
     
     public List<Item> listar() throws IOException {
@@ -77,7 +78,7 @@ public class ItemService {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             
             return httpClient.execute(request, response -> {
-                return response.getCode() == 200;
+                return response.getCode() == 204;
             });
         }
     }

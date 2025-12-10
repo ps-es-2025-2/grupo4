@@ -11,6 +11,558 @@
     }
   ],
   "paths": {
+    "/pedidos/{id}": {
+      "get": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "atualizarPedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pedido"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "pedido-controller"
+        ],
+        "operationId": "deletarPedido",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/medicamentos/{id}": {
+      "get": {
+        "tags": [
+          "medicamento-controller"
+        ],
+        "operationId": "buscarPorId_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicamento"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "medicamento-controller"
+        ],
+        "operationId": "atualizarMedicamento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Medicamento"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicamento"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "medicamento-controller"
+        ],
+        "operationId": "deletarMedicamento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/hospitalares/{id}": {
+      "get": {
+        "tags": [
+          "hospitalar-controller"
+        ],
+        "operationId": "buscarPorId_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hospitalar"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "hospitalar-controller"
+        ],
+        "operationId": "atualizarHospitalar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Hospitalar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hospitalar"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "hospitalar-controller"
+        ],
+        "operationId": "deletarHospitalar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fornecedores/{id}": {
+      "get": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "buscarPorId_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fornecedor"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "atualizarFornecedor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fornecedor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fornecedor"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "deletarFornecedor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/controle/{id}": {
+      "get": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "buscarEstoquePorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estoque"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "atualizarEstoque",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estoque"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estoque"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "estoque-controller"
+        ],
+        "operationId": "deletarEstoque",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/alimentos/{id}": {
+      "get": {
+        "tags": [
+          "alimento-controller"
+        ],
+        "operationId": "buscarPorId_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alimento"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "alimento-controller"
+        ],
+        "operationId": "atualizarAlimento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Alimento"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alimento"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "alimento-controller"
+        ],
+        "operationId": "deletarAlimento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/pedidos": {
       "get": {
         "tags": [
@@ -62,12 +614,114 @@
         }
       }
     },
+    "/medicamentos": {
+      "get": {
+        "tags": [
+          "medicamento-controller"
+        ],
+        "operationId": "listarTodos_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Medicamento"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "medicamento-controller"
+        ],
+        "operationId": "salvarMedicamento",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Medicamento"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Medicamento"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hospitalares": {
+      "get": {
+        "tags": [
+          "hospitalar-controller"
+        ],
+        "operationId": "listarTodos_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Hospitalar"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "hospitalar-controller"
+        ],
+        "operationId": "salvarHospitalar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Hospitalar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hospitalar"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/fornecedores": {
       "get": {
         "tags": [
           "fornecedor-controller"
         ],
-        "operationId": "listarTodos_1",
+        "operationId": "listarTodos_3",
         "responses": {
           "200": {
             "description": "OK",
@@ -260,118 +914,86 @@
         }
       }
     },
-    "/pedidos/{id}": {
+    "/alimentos": {
       "get": {
         "tags": [
-          "pedido-controller"
+          "alimento-controller"
         ],
-        "operationId": "buscarPorId",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
+        "operationId": "listarTodos_4",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/Pedido"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Alimento"
+                  }
                 }
               }
             }
           }
         }
       },
-      "delete": {
+      "post": {
         "tags": [
-          "pedido-controller"
+          "alimento-controller"
         ],
-        "operationId": "deletarPedido",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
+        "operationId": "salvarAlimento",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Alimento"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alimento"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/fornecedores/{id}": {
+    "/itens": {
       "get": {
         "tags": [
-          "fornecedor-controller"
+          "item-controller"
         ],
-        "operationId": "buscarPorId_1",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
+        "operationId": "listarTodos_5",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/Fornecedor"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  }
                 }
               }
             }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "fornecedor-controller"
-        ],
-        "operationId": "deletarFornecedor",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
           }
         }
       }
     },
-    "/controle/{id}": {
+    "/itens/{id}": {
       "get": {
         "tags": [
-          "estoque-controller"
+          "item-controller"
         ],
-        "operationId": "buscarEstoquePorId",
+        "operationId": "buscarPorId_5",
         "parameters": [
           {
             "name": "id",
@@ -389,7 +1011,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/Estoque"
+                  "$ref": "#/components/schemas/Item"
                 }
               }
             }
@@ -398,9 +1020,9 @@
       },
       "delete": {
         "tags": [
-          "estoque-controller"
+          "item-controller"
         ],
-        "operationId": "deletarEstoque",
+        "operationId": "deletarItem",
         "parameters": [
           {
             "name": "id",
@@ -449,6 +1071,55 @@
           }
         }
       },
+      "Medicamento": {
+        "type": "object",
+        "properties": {
+          "idItem": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidadeTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validade": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "prescricao": {
+            "type": "string"
+          },
+          "targa": {
+            "type": "string"
+          }
+        }
+      },
+      "Hospitalar": {
+        "type": "object",
+        "properties": {
+          "idItem": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidadeTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validade": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "descartabilidade": {
+            "type": "boolean"
+          }
+        }
+      },
       "Fornecedor": {
         "type": "object",
         "properties": {
@@ -469,6 +1140,29 @@
             "format": "uuid"
           },
           "local": {
+            "type": "string"
+          }
+        }
+      },
+      "Alimento": {
+        "type": "object",
+        "properties": {
+          "idItem": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "quantidadeTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validade": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "alergenicos": {
             "type": "string"
           }
         }

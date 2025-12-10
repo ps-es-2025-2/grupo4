@@ -22,17 +22,15 @@
             <!-- Tabela -->
             <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #388E3C; -fx-text-fill: white;"/>
                     <Label text="Total de alimentos: " style="-fx-font-weight: bold;"/>
                 </HBox>
                 
                 <TableView fx:id="tableAlimentos" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
-                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="120"/>
-                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
-                        <TableColumn fx:id="colArmazenamento" text="Armazenamento" prefWidth="120"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="250"/>
+                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="120"/>
+                        <TableColumn fx:id="colAlergenicos" text="Alérgênicos" prefWidth="250"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -51,29 +49,11 @@
                         <Label text="Nome:*" GridPane.rowIndex="0"/>
                         <TextField fx:id="txtNome" promptText="Nome do alimento" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         
-                        <Label text="Tipo:" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtTipo" promptText="Ex: Perecível, Não Perecível" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="Quantidade:*" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                         
-                        <Label text="Unidade Medida:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtUnidadeMedida" promptText="Ex: kg, litro, unidade" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                        
-                        <Label text="Quantidade:*" GridPane.rowIndex="3"/>
-                        <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                        
-                        <Label text="Lote:" GridPane.rowIndex="4"/>
-                        <TextField fx:id="txtLote" promptText="Número do lote" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-                        
-                        <Label text="NF:" GridPane.rowIndex="5"/>
-                        <TextField fx:id="txtNf" promptText="Nota fiscal" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-                        
-                        <Label text="Tipo Armazenamento:" GridPane.rowIndex="6"/>
-                        <ComboBox fx:id="cbTipoArmazenamento" promptText="Selecione o tipo" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-                        
-                        <Label text="Descrição:" GridPane.rowIndex="7"/>
-                        <TextArea fx:id="txtDescricao" promptText="Descrição detalhada" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-                        
-                        <Label text="Alérgênicos:" GridPane.rowIndex="8"/>
-                        <TextArea fx:id="txtAlergenicos" promptText="Lista de alérgênicos" prefRowCount="2" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                        <Label text="Alérgênicos:" GridPane.rowIndex="2"/>
+                        <TextArea fx:id="txtAlergenicos" promptText="Lista de alérgênicos" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

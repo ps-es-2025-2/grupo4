@@ -4,6 +4,7 @@ import br.com.simplehealth.estoque.config.AppConfig;
 import br.com.simplehealth.estoque.model.Estoque;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -28,8 +29,7 @@ public class EstoqueService {
     public EstoqueService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        // Nota: Backend não tem endpoint separado para estoques (locais)
-        // Estoque representa apenas um local e é gerenciado no /controle
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_CONTROLE;
     }
     
@@ -111,7 +111,7 @@ public class EstoqueService {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             
             return httpClient.execute(request, response -> {
-                return response.getCode() == 200;
+                return response.getCode() == 204;
             });
         }
     }

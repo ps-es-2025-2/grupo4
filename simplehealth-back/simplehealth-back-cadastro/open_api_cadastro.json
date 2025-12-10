@@ -751,17 +751,29 @@
           "nome"
         ]
       },
-      "AgendamentoDTO": {
+      "ConsultaDTO": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
+          },
+          "dataHoraAgendamento": {
+            "type": "string",
+            "format": "date-time"
           },
           "dataHoraInicio": {
             "type": "string",
             "format": "date-time"
           },
           "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
             "type": "string",
             "format": "date-time"
           },
@@ -801,6 +813,86 @@
           },
           "usuarioCanceladorLogin": {
             "type": "string"
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string"
+          }
+        }
+      },
+      "ExameDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraAgendamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string"
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
+            "type": "string"
+          },
+          "nomeExame": {
+            "type": "string"
+          },
+          "requerPreparo": {
+            "type": "boolean"
+          },
+          "instrucoesPreparo": {
+            "type": "string"
           }
         }
       },
@@ -813,10 +905,16 @@
           "pessoa": {
             "$ref": "#/components/schemas/PessoaDTO"
           },
-          "agendamentos": {
+          "consultas": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AgendamentoDTO"
+              "$ref": "#/components/schemas/ConsultaDTO"
+            }
+          },
+          "exames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExameDTO"
             }
           },
           "procedimentos": {
@@ -894,11 +992,23 @@
           "id": {
             "type": "string"
           },
+          "dataHoraAgendamento": {
+            "type": "string",
+            "format": "date-time"
+          },
           "dataHoraInicio": {
             "type": "string",
             "format": "date-time"
           },
           "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
             "type": "string",
             "format": "date-time"
           },

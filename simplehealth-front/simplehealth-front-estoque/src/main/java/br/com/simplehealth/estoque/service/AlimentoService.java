@@ -4,6 +4,7 @@ import br.com.simplehealth.estoque.config.AppConfig;
 import br.com.simplehealth.estoque.model.Alimento;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -20,13 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @deprecated O backend não possui endpoint específico para Alimentos.
- * Os itens do tipo Alimento são gerenciados através do endpoint /controle/entrada
- * usando EntradaItensDTO com tipo=ALIMENTO.
- * Este service permanece apenas para compatibilidade com controllers legados.
- */
-@Deprecated
 public class AlimentoService {
     
     private static final Logger logger = LoggerFactory.getLogger(AlimentoService.class);
@@ -36,9 +30,8 @@ public class AlimentoService {
     public AlimentoService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        // NOTA: Backend não possui endpoint específico para Alimentos
-        // Os itens são gerenciados através do endpoint /controle
-        this.baseUrl = AppConfig.API_BASE_URL + "/alimentos"; // Endpoint não implementado
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_ALIMENTOS;
     }
     
     public List<Alimento> listar() throws IOException {
@@ -119,7 +112,7 @@ public class AlimentoService {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             
             return httpClient.execute(request, response -> {
-                return response.getCode() == 200;
+                return response.getCode() == 204;
             });
         }
     }

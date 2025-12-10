@@ -22,7 +22,6 @@
             <!-- Tabela -->
             <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #7B1FA2; -fx-text-fill: white;"/>
                     <Label text="Total de estoques: " style="-fx-font-weight: bold;"/>
                 </HBox>
                 

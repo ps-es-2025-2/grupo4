@@ -14,11 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * @deprecated Este controller usa MedicamentoService que está deprecado.
- * Considere refatorar para usar EntradaItensService com tipo=MEDICAMENTO.
- */
-@Deprecated
 public class MedicamentoController extends AbstractCrudController<Medicamento> {
     
     private static final Logger logger = LoggerFactory.getLogger(MedicamentoController.class);
@@ -26,22 +21,14 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     @FXML private TableView<Medicamento> tableMedicamentos;
     @FXML private TableColumn<Medicamento, UUID> colId;
     @FXML private TableColumn<Medicamento, String> colNome;
-    @FXML private TableColumn<Medicamento, String> colTipo;
     @FXML private TableColumn<Medicamento, Integer> colQuantidade;
     @FXML private TableColumn<Medicamento, String> colPrescricao;
+    @FXML private TableColumn<Medicamento, String> colTarga;
     
     @FXML private TextField txtNome;
-    @FXML private TextArea txtDescricao;
-    @FXML private TextField txtTipo;
-    @FXML private TextField txtUnidadeMedida;
     @FXML private TextField txtQuantidade;
-    @FXML private TextField txtLote;
-    @FXML private TextField txtNf;
     @FXML private TextField txtPrescricao;
-    @FXML private TextArea txtComposicao;
-    @FXML private TextArea txtBula;
     @FXML private TextField txtTarga;
-    @FXML private TextArea txtModoConsumo;
     
     @FXML
     private Button btnCriar;
@@ -96,9 +83,9 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     private void configurarTabela() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idItem"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidadeTotal"));
         colPrescricao.setCellValueFactory(new PropertyValueFactory<>("prescricao"));
+        colTarga.setCellValueFactory(new PropertyValueFactory<>("targa"));
         
         tableMedicamentos.setItems(medicamentos);
     }
@@ -118,12 +105,8 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     private void preencherFormulario(Medicamento medicamento) {
         txtNome.setText(medicamento.getNome());
         txtQuantidade.setText(String.valueOf(medicamento.getQuantidadeTotal()));
-        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         txtPrescricao.setText(medicamento.getPrescricao());
-        txtComposicao.setText(medicamento.getComposicao());
-        txtBula.setText(medicamento.getBula());
         txtTarga.setText(medicamento.getTarga());
-        txtModoConsumo.setText(medicamento.getModoConsumo());
     }
     
     @FXML
@@ -222,20 +205,6 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
             return false;
         }
         
-        // Validar lote (se preenchido)
-        if (!txtLote.getText().trim().isEmpty() && 
-            !br.com.simplehealth.estoque.util.ValidationUtils.validarLote(txtLote.getText())) {
-            mostrarErro("Validação", br.com.simplehealth.estoque.util.ValidationUtils.mensagemFormatoInvalido("Lote", "3-20 caracteres alfanuméricos"));
-            return false;
-        }
-        
-        // Validar nota fiscal (se preenchida)
-        if (!txtNf.getText().trim().isEmpty() && 
-            !br.com.simplehealth.estoque.util.ValidationUtils.validarNotaFiscal(txtNf.getText())) {
-            mostrarErro("Validação", br.com.simplehealth.estoque.util.ValidationUtils.mensagemFormatoInvalido("Nota Fiscal", "6-44 caracteres"));
-            return false;
-        }
-        
         return true;
     }
     
@@ -243,34 +212,18 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
     protected void limparFormulario() {
         itemSelecionado = null;
         txtNome.clear();
-        txtDescricao.clear();
-        txtTipo.clear();
-        txtUnidadeMedida.clear();
         txtQuantidade.clear();
-        txtLote.clear();
-        txtNf.clear();
         txtPrescricao.clear();
-        txtComposicao.clear();
-        txtBula.clear();
         txtTarga.clear();
-        txtModoConsumo.clear();
         tableMedicamentos.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         txtNome.setDisable(!habilitar);
-        txtDescricao.setDisable(!habilitar);
-        txtTipo.setDisable(!habilitar);
-        txtUnidadeMedida.setDisable(!habilitar);
         txtQuantidade.setDisable(!habilitar);
-        txtLote.setDisable(!habilitar);
-        txtNf.setDisable(!habilitar);
         txtPrescricao.setDisable(!habilitar);
-        txtComposicao.setDisable(!habilitar);
-        txtBula.setDisable(!habilitar);
         txtTarga.setDisable(!habilitar);
-        txtModoConsumo.setDisable(!habilitar);
     }
     
     private Medicamento construirMedicamentoDoFormulario() {
@@ -278,12 +231,8 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
         medicamento.setNome(txtNome.getText());
         medicamento.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
         medicamento.setValidade(new java.util.Date()); // Data atual
-        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         medicamento.setPrescricao(txtPrescricao.getText());
-        medicamento.setComposicao(txtComposicao.getText());
-        medicamento.setBula(txtBula.getText());
         medicamento.setTarga(txtTarga.getText());
-        medicamento.setModoConsumo(txtModoConsumo.getText());
         return medicamento;
     }
 }

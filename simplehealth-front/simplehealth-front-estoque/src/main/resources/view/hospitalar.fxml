@@ -22,17 +22,15 @@
             <!-- Tabela -->
             <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #0288D1; -fx-text-fill: white;"/>
                     <Label text="Total de hospitalares: " style="-fx-font-weight: bold;"/>
                 </HBox>
                 
                 <TableView fx:id="tableHospitalares" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
-                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="120"/>
-                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
-                        <TableColumn fx:id="colDescartavel" text="Descartável" prefWidth="120"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="300"/>
+                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="150"/>
+                        <TableColumn fx:id="colDescartavel" text="Descartável" prefWidth="150"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -51,29 +49,11 @@
                         <Label text="Nome:*" GridPane.rowIndex="0"/>
                         <TextField fx:id="txtNome" promptText="Nome do material hospitalar" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         
-                        <Label text="Tipo:" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtTipo" promptText="Ex: Descartável, Reutilizável" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="Quantidade:*" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                         
-                        <Label text="Unidade Medida:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtUnidadeMedida" promptText="Ex: unidade, caixa" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                        
-                        <Label text="Quantidade:*" GridPane.rowIndex="3"/>
-                        <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                        
-                        <Label text="Lote:" GridPane.rowIndex="4"/>
-                        <TextField fx:id="txtLote" promptText="Número do lote" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-                        
-                        <Label text="NF:" GridPane.rowIndex="5"/>
-                        <TextField fx:id="txtNf" promptText="Nota fiscal" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-                        
-                        <Label text="Uso:" GridPane.rowIndex="6"/>
-                        <TextField fx:id="txtUso" promptText="Uso do material" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-                        
-                        <Label text="Descartável:" GridPane.rowIndex="7"/>
-                        <CheckBox fx:id="chkDescartabilidade" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-                        
-                        <Label text="Descrição:" GridPane.rowIndex="8"/>
-                        <TextArea fx:id="txtDescricao" promptText="Descrição detalhada" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                        <Label text="Descartável:" GridPane.rowIndex="2"/>
+                        <CheckBox fx:id="chkDescartabilidade" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

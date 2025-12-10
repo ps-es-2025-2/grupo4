@@ -14,11 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * @deprecated Este controller usa HospitalarService que está deprecado.
- * Considere refatorar para usar EntradaItensService com tipo=HOSPITALAR.
- */
-@Deprecated
 public class HospitalarController extends AbstractCrudController<Hospitalar> {
     
     private static final Logger logger = LoggerFactory.getLogger(HospitalarController.class);
@@ -26,19 +21,12 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     @FXML private TableView<Hospitalar> tableHospitalares;
     @FXML private TableColumn<Hospitalar, UUID> colId;
     @FXML private TableColumn<Hospitalar, String> colNome;
-    @FXML private TableColumn<Hospitalar, String> colTipo;
     @FXML private TableColumn<Hospitalar, Integer> colQuantidade;
     @FXML private TableColumn<Hospitalar, Boolean> colDescartavel;
     
     @FXML private TextField txtNome;
-    @FXML private TextArea txtDescricao;
-    @FXML private TextField txtTipo;
-    @FXML private TextField txtUnidadeMedida;
     @FXML private TextField txtQuantidade;
-    @FXML private TextField txtLote;
-    @FXML private TextField txtNf;
     @FXML private CheckBox chkDescartabilidade;
-    @FXML private TextField txtUso;
     
     @FXML
     private Button btnCriar;
@@ -78,7 +66,6 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idItem"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidadeTotal"));
         colDescartavel.setCellValueFactory(new PropertyValueFactory<>("descartabilidade"));
         tableHospitalares.setItems(hospitalares);
@@ -119,9 +106,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     private void preencherFormulario(Hospitalar hospitalar) {
         txtNome.setText(hospitalar.getNome());
         txtQuantidade.setText(String.valueOf(hospitalar.getQuantidadeTotal()));
-        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         chkDescartabilidade.setSelected(hospitalar.getDescartabilidade() != null && hospitalar.getDescartabilidade());
-        txtUso.setText(hospitalar.getUso());
     }
     
     @FXML
@@ -218,16 +203,6 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             return false;
         }
         
-        if (!txtLote.getText().trim().isEmpty() && !ValidationUtils.validarLote(txtLote.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("Lote", "3-20 caracteres alfanuméricos"));
-            return false;
-        }
-        
-        if (!txtNf.getText().trim().isEmpty() && !ValidationUtils.validarNotaFiscal(txtNf.getText())) {
-            mostrarErro("Validação", ValidationUtils.mensagemFormatoInvalido("Nota Fiscal", "6-44 caracteres"));
-            return false;
-        }
-        
         return true;
     }
     
@@ -235,28 +210,16 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     protected void limparFormulario() {
         itemSelecionado = null;
         txtNome.clear();
-        txtDescricao.clear();
-        txtTipo.clear();
-        txtUnidadeMedida.clear();
         txtQuantidade.clear();
-        txtLote.clear();
-        txtNf.clear();
         chkDescartabilidade.setSelected(false);
-        txtUso.clear();
         tableHospitalares.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         txtNome.setDisable(!habilitar);
-        txtDescricao.setDisable(!habilitar);
-        txtTipo.setDisable(!habilitar);
-        txtUnidadeMedida.setDisable(!habilitar);
         txtQuantidade.setDisable(!habilitar);
-        txtLote.setDisable(!habilitar);
-        txtNf.setDisable(!habilitar);
         chkDescartabilidade.setDisable(!habilitar);
-        txtUso.setDisable(!habilitar);
     }
     
     private Hospitalar construirHospitalarDoFormulario() {
@@ -264,9 +227,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
         hospitalar.setNome(txtNome.getText());
         hospitalar.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
         hospitalar.setValidade(new java.util.Date()); // Data atual
-        // txtDescricao, txtTipo, txtUnidadeMedida, txtLote, txtNf removidos - não existem mais no modelo
         hospitalar.setDescartabilidade(chkDescartabilidade.isSelected());
-        hospitalar.setUso(txtUso.getText());
         return hospitalar;
     }
 }

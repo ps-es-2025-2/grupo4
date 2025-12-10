@@ -1,5 +1,8 @@
 package br.com.simplehealth.estoque.model;
 
+import br.com.simplehealth.estoque.util.DateDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.UUID;
@@ -8,6 +11,7 @@ import java.util.UUID;
  * Classe base abstrata para todos os tipos de itens do estoque
  * Backend: apenas 4 campos (idItem, nome, quantidadeTotal, validade)
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class Item {
     
     @JsonProperty("idItem")
@@ -20,6 +24,7 @@ public abstract class Item {
     private Integer quantidadeTotal;
     
     @JsonProperty("validade")
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date validade;
     
     // Construtores

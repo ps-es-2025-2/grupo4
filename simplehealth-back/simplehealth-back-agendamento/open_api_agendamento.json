@@ -211,7 +211,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgendamentoDTO"
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
                 }
               }
             }
@@ -249,7 +249,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgendamentoDTO"
+                  "$ref": "#/components/schemas/ConsultaResponseDTO"
                 }
               }
             }
@@ -733,7 +733,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AgendamentoDTO"
+                    "$ref": "#/components/schemas/ConsultaResponseDTO"
                   }
                 }
               }
@@ -1305,20 +1305,49 @@
           },
           "usuarioAlteradorLogin": {
             "type": "string"
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "motivoEncaixe": {
+            "type": "string"
           }
         }
       },
-      "AgendamentoDTO": {
+      "ConsultaResponseDTO": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "dataHoraInicio": {
+          "dataHoraAgendamento": {
             "type": "string",
             "format": "date-time"
           },
-          "dataHoraFim": {
+          "dataHoraInicioPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimPrevista": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraInicioExecucao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFimExecucao": {
             "type": "string",
             "format": "date-time"
           },
@@ -1326,7 +1355,11 @@
             "type": "boolean"
           },
           "modalidade": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "PRESENCIAL",
+              "REMOTA"
+            ]
           },
           "motivoEncaixe": {
             "type": "string"
@@ -1335,7 +1368,14 @@
             "type": "string"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "ATIVO",
+              "INICIADO",
+              "FINALIZADO",
+              "CANCELADO",
+              "NAO_COMPARECEU"
+            ]
           },
           "motivoCancelamento": {
             "type": "string"
@@ -1358,6 +1398,17 @@
           },
           "usuarioCanceladorLogin": {
             "type": "string"
+          },
+          "especialidade": {
+            "type": "string"
+          },
+          "tipoConsulta": {
+            "type": "string",
+            "enum": [
+              "PRIMEIRA",
+              "RETORNO",
+              "ROTINA"
+            ]
           }
         }
       },
@@ -1596,93 +1647,6 @@
           }
         }
       },
-      "ConsultaResponseDTO": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "dataHoraAgendamento": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataHoraInicioPrevista": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataHoraFimPrevista": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataHoraInicioExecucao": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "dataHoraFimExecucao": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "isEncaixe": {
-            "type": "boolean"
-          },
-          "modalidade": {
-            "type": "string",
-            "enum": [
-              "PRESENCIAL",
-              "REMOTA"
-            ]
-          },
-          "motivoEncaixe": {
-            "type": "string"
-          },
-          "observacoes": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ATIVO",
-              "INICIADO",
-              "FINALIZADO",
-              "CANCELADO",
-              "NAO_COMPARECEU"
-            ]
-          },
-          "motivoCancelamento": {
-            "type": "string"
-          },
-          "dataCancelamento": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "pacienteCpf": {
-            "type": "string"
-          },
-          "medicoCrm": {
-            "type": "string"
-          },
-          "convenioNome": {
-            "type": "string"
-          },
-          "usuarioCriadorLogin": {
-            "type": "string"
-          },
-          "usuarioCanceladorLogin": {
-            "type": "string"
-          },
-          "especialidade": {
-            "type": "string"
-          },
-          "tipoConsulta": {
-            "type": "string",
-            "enum": [
-              "PRIMEIRA",
-              "RETORNO",
-              "ROTINA"
-            ]
-          }
-        }
-      },
       "AgendarConsultaDTO": {
         "type": "object",
         "properties": {
@@ -1721,6 +1685,12 @@
               "REMOTA"
             ]
           },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
           "observacoes": {
             "type": "string"
           },
@@ -1751,6 +1721,59 @@
             "type": "string"
           },
           "usuarioCriadorLogin": {
+            "type": "string"
+          }
+        }
+      },
+      "AgendamentoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dataHoraInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataHoraFim": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isEncaixe": {
+            "type": "boolean"
+          },
+          "modalidade": {
+            "type": "string"
+          },
+          "motivoEncaixe": {
+            "type": "string"
+          },
+          "observacoes": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "motivoCancelamento": {
+            "type": "string"
+          },
+          "dataCancelamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pacienteCpf": {
+            "type": "string"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "convenioNome": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "usuarioCanceladorLogin": {
             "type": "string"
           }
         }

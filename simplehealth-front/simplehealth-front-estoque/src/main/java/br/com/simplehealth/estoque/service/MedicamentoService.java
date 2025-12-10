@@ -4,6 +4,7 @@ import br.com.simplehealth.estoque.config.AppConfig;
 import br.com.simplehealth.estoque.model.Medicamento;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -19,13 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * @deprecated O backend não possui endpoint específico para Medicamentos.
- * Os itens do tipo Medicamento são gerenciados através do endpoint /controle/entrada
- * usando EntradaItensDTO com tipo=MEDICAMENTO.
- * Este service permanece apenas para compatibilidade com controllers legados.
- */
-@Deprecated
 public class MedicamentoService {
     
     private static final Logger logger = LoggerFactory.getLogger(MedicamentoService.class);
@@ -35,9 +29,8 @@ public class MedicamentoService {
     public MedicamentoService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
-        // NOTA: Backend não possui endpoint específico para Medicamentos
-        // Os itens são gerenciados através do endpoint /controle
-        this.baseUrl = AppConfig.API_BASE_URL + "/medicamentos"; // Endpoint não implementado
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.baseUrl = AppConfig.API_BASE_URL + AppConfig.ENDPOINT_MEDICAMENTOS;
     }
     
     public List<Medicamento> listar() throws IOException {
@@ -138,7 +131,7 @@ public class MedicamentoService {
             return httpClient.execute(request, response -> {
                 int status = response.getCode();
                 logger.debug("Status da deleção: {}", status);
-                return status == 200;
+                return status == 204;
             });
         }
     }

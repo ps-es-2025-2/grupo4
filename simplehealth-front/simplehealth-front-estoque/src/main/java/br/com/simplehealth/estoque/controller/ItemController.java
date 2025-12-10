@@ -13,11 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * @deprecated Este controller usa ItemService que está deprecado.
- * Considere refatorar para usar EntradaItensService.
- */
-@Deprecated
 public class ItemController extends AbstractCrudController<Item> {
     
     private static final Logger logger = LoggerFactory.getLogger(ItemController.class);

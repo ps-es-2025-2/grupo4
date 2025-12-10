@@ -109,7 +109,7 @@ public class PedidoService {
             HttpDelete request = new HttpDelete(baseUrl + "/" + id);
             
             return httpClient.execute(request, response -> {
-                return response.getCode() == 200;
+                return response.getCode() == 204;
             });
         }
     }

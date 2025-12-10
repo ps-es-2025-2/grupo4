@@ -20,7 +20,6 @@
         <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
             <!-- Barra de busca -->
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button text="Atualizar" onAction="#handleAtualizar" style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
                 <TextField fx:id="txtBusca" promptText="Buscar item..." prefWidth="300" HBox.hgrow="ALWAYS"/>
                 <Button text="Buscar" onAction="#handleBuscar" style="-fx-background-color: #1976D2; -fx-text-fill: white;"/>
                 <Label text="Total de itens: " style="-fx-font-weight: bold;"/>
