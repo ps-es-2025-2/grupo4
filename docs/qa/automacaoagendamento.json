@@ -1,0 +1,623 @@
+{
+	"info": {
+		"_postman_id": "sh-agendamento-final-v3",
+		"name": "Simple Health - Automação agendamento",
+		"description": "Cobertura completa dos endpoints com bateria de testes automatizados (Happy Path e Negative Scenarios).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Fluxo Consultas",
+			"item": [
+				{
+					"name": "Agendar Consulta (Sucesso)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 2000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Retornou ID válido\", function () {",
+									"    pm.expect(jsonData.id).to.not.be.null;",
+									"});",
+									"",
+									"pm.test(\"Status inicial é ATIVO ou AGENDADO\", function () {",
+									"    // Ajuste conforme o enum exato do seu sistema (ATIVO vs AGENDADO)",
+									"    pm.expect(jsonData.status).to.be.oneOf([\"ATIVO\", \"AGENDADO\"]);",
+									"});",
+									"",
+									"pm.collectionVariables.set(\"idConsulta\", jsonData.id);",
+									"console.log(\"Consulta criada: \" + jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pacienteCpf\": \"{{pacienteCpf}}\",\n  \"medicoCrm\": \"{{medicoCrm}}\",\n  \"dataHoraInicioPrevista\": \"2025-10-25T10:00:00\",\n  \"dataHoraFimPrevista\": \"2025-10-25T10:30:00\",\n  \"tipoConsulta\": \"ROTINA\",\n  \"especialidade\": \"CLINICO_GERAL\",\n  \"convenioNome\": \"Unimed\",\n  \"modalidade\": \"PRESENCIAL\",\n  \"isEncaixe\": false,\n  \"observacoes\": \"Paciente teste automatizado\",\n  \"usuarioCriadorLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/consultas"
+					}
+				},
+				{
+					"name": "Agendar Consulta (Erro - Campos Obrigatórios)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pacienteCpf\": \"\",\n  \"medicoCrm\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/consultas"
+					}
+				},
+				{
+					"name": "Buscar Consulta por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"ID corresponde ao solicitado\", function () {",
+									"    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"idConsulta\"));",
+									"});",
+									"",
+									"pm.test(\"CPF do Paciente está correto\", function () {",
+									"    pm.expect(jsonData.pacienteCpf).to.eql(pm.collectionVariables.get(\"pacienteCpf\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}"
+					}
+				},
+				{
+					"name": "Atualizar Consulta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Modalidade atualizada para REMOTA\", function () {",
+									"    pm.expect(jsonData.modalidade).to.eql(\"REMOTA\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{idConsulta}}\",\n  \"observacoes\": \"Atualizado via Postman\",\n  \"modalidade\": \"REMOTA\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}"
+					}
+				},
+				{
+					"name": "Iniciar Consulta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Status mudou para INICIADO\", function () {",
+									"    pm.expect(jsonData.status).to.eql(\"INICIADO\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{idConsulta}}\",\n  \"usuarioLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}/iniciar"
+					}
+				},
+				{
+					"name": "Finalizar Consulta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Status mudou para FINALIZADO\", function () {",
+									"    pm.expect(jsonData.status).to.eql(\"FINALIZADO\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{idConsulta}}\",\n  \"usuarioLogin\": \"admin\",\n  \"observacoes\": \"Alta médica.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}/finalizar"
+					}
+				},
+				{
+					"name": "Listar Consultas por Paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Retornou uma lista (Array)\", function () {",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"});",
+									"pm.test(\"Lista contém pelo menos 1 item\", function () {",
+									"    pm.expect(jsonData.length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/consultas/paciente/{{pacienteCpf}}"
+					}
+				},
+				{
+					"name": "Deletar Consulta",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}"
+					}
+				},
+				{
+					"name": "Buscar Consulta Deletada (Validação Erro)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/consultas/{{idConsulta}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Fluxo Exames",
+			"item": [
+				{
+					"name": "Agendar Exame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Exame agendado com sucesso (200/201)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Nome do exame está correto\", function () {",
+									"    pm.expect(json.nomeExame).to.eql(\"Raio-X Torax\");",
+									"});",
+									"pm.collectionVariables.set(\"idExame\", json.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pacienteCpf\": \"{{pacienteCpf}}\",\n  \"medicoCrm\": \"{{medicoCrm}}\",\n  \"dataHoraInicioPrevista\": \"2025-11-05T08:00:00\",\n  \"dataHoraFimPrevista\": \"2025-11-05T08:15:00\",\n  \"nomeExame\": \"Raio-X Torax\",\n  \"requerPreparo\": false,\n  \"instrucoesPreparo\": \"N/A\",\n  \"convenioNome\": \"Particular\",\n  \"modalidade\": \"PRESENCIAL\",\n  \"usuarioCriadorLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/exames"
+					}
+				},
+				{
+					"name": "Cancelar Exame",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Status é CANCELADO\", function () {",
+									"    pm.expect(json.status).to.eql(\"CANCELADO\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{idExame}}\",\n  \"motivo\": \"Equipamento quebrou\",\n  \"usuarioLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/exames/cancelar"
+					}
+				},
+				{
+					"name": "Listar Todos Exames",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorna Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/exames"
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Fluxo Procedimentos",
+			"item": [
+				{
+					"name": "Agendar Procedimento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Procedimento criado (200/201)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"idProcedimento\", json.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pacienteCpf\": \"{{pacienteCpf}}\",\n  \"medicoCrm\": \"{{medicoCrm}}\",\n  \"dataHoraInicioPrevista\": \"2025-12-10T14:00:00\",\n  \"dataHoraFimPrevista\": \"2025-12-10T15:00:00\",\n  \"descricaoProcedimento\": \"Sutura\",\n  \"salaEquipamentoNecessario\": \"Sala 1\",\n  \"nivelRisco\": \"BAIXO\",\n  \"convenioNome\": \"SUS\",\n  \"modalidade\": \"PRESENCIAL\",\n  \"usuarioCriadorLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/procedimentos"
+					}
+				},
+				{
+					"name": "Atualizar Procedimento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Atualização com sucesso\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Nível de Risco atualizado\", function () {",
+									"    pm.expect(json.nivelRisco).to.eql(\"MEDIO\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{idProcedimento}}\",\n  \"nivelRisco\": \"MEDIO\",\n  \"observacoes\": \"Paciente relatou alergia\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/procedimentos/{{idProcedimento}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Fluxo Bloqueios",
+			"item": [
+				{
+					"name": "Criar Bloqueio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bloqueio criado com sucesso\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Bloqueio está Ativo\", function () {",
+									"    pm.expect(json.ativo).to.be.true;",
+									"});",
+									"pm.collectionVariables.set(\"idBloqueio\", json.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dataInicio\": \"2025-12-24T00:00:00\",\n  \"dataFim\": \"2025-12-25T23:59:59\",\n  \"motivo\": \"Natal\",\n  \"antecedenciaMinima\": 24,\n  \"medicoCrm\": \"{{medicoCrm}}\",\n  \"usuarioCriadorLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/bloqueio-agenda"
+					}
+				},
+				{
+					"name": "Listar Bloqueios por Médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retorna lista de bloqueios\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/bloqueio-agenda/medico/{{medicoCrm}}"
+					}
+				},
+				{
+					"name": "Desativar Bloqueio (PATCH)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Bloqueio desativado\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Campo ativo é false\", function () {",
+									"    pm.expect(json.ativo).to.be.false;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": "{{baseUrl}}/bloqueio-agenda/{{idBloqueio}}/desativar"
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Fluxo Encaixe (Especial)",
+			"item": [
+				{
+					"name": "Solicitar Encaixe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Encaixe realizado com sucesso\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Flag isEncaixe é verdadeira\", function () {",
+									"    pm.expect(json.isEncaixe).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pacienteCpf\": \"{{pacienteCpf}}\",\n  \"medicoCrm\": \"{{medicoCrm}}\",\n  \"dataHoraInicio\": \"2025-10-25T11:00:00\",\n  \"dataHoraFim\": \"2025-10-25T11:15:00\",\n  \"motivoEncaixe\": \"Prioridade médica\",\n  \"tipoConsulta\": \"RETORNO\",\n  \"especialidade\": \"CARDIOLOGIA\",\n  \"convenioNome\": \"Particular\",\n  \"modalidade\": \"PRESENCIAL\",\n  \"usuarioCriadorLogin\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/encaixe"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8082/agendamento",
+			"type": "string"
+		},
+		{
+			"key": "pacienteCpf",
+			"value": "12345678900",
+			"type": "string"
+		},
+		{
+			"key": "medicoCrm",
+			"value": "CRM/SP 123456",
+			"type": "string"
+		},
+		{
+			"key": "idConsulta",
+			"value": ""
+		},
+		{
+			"key": "idExame",
+			"value": ""
+		},
+		{
+			"key": "idProcedimento",
+			"value": ""
+		},
+		{
+			"key": "idBloqueio",
+			"value": ""
+		}
+	]
+}

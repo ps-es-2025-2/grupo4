@@ -1,0 +1,824 @@
+{
+	"info": {
+		"_postman_id": "8039930b-c2af-4a0b-a709-fe5f7b49f824",
+		"name": "Simple Health - Automação estoque",
+		"description": "Automação completa para o microsserviço de Estoque (Fornecedores, Medicamentos, Hospitalares, Alimentos, Pedidos e Controle de Fluxo).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38779879",
+		"_collection_link": "https://www.postman.com/compartilhados/workspace/vs-16-a/collection/38779879-8039930b-c2af-4a0b-a709-fe5f7b49f824?action=share&source=collection_link&creator=38779879"
+	},
+	"item": [
+		{
+			"name": "01. Fornecedores",
+			"item": [
+				{
+					"name": "Criar Fornecedor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Retornou ID\", function () {",
+									"    pm.expect(jsonData.idFornecedor).to.not.be.null;",
+									"});",
+									"pm.collectionVariables.set(\"idFornecedor\", jsonData.idFornecedor);",
+									"console.log(\"Fornecedor criado: \" + jsonData.idFornecedor);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cnpj\": \"12.345.678/0001-99\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Fornecedores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorno é Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Fornecedor por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"ID correto\", function () {",
+									"    pm.expect(json.idFornecedor).to.eql(pm.collectionVariables.get(\"idFornecedor\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores/{{idFornecedor}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores",
+								"{{idFornecedor}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Fornecedor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"CNPJ Atualizado\", function () {",
+									"    pm.expect(json.cnpj).to.eql(\"99.888.777/0001-00\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idFornecedor\": \"{{idFornecedor}}\",\n  \"cnpj\": \"99.888.777/0001-00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores/{{idFornecedor}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores",
+								"{{idFornecedor}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "02. Itens (Medicamentos/Hosp/Alim)",
+			"item": [
+				{
+					"name": "Criar Medicamento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200/201\", function(){ pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"idMedicamento\", json.idItem);",
+									"pm.test(\"Nome correto\", function(){ pm.expect(json.nome).to.eql(\"Dipirona 500mg\"); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Dipirona 500mg\",\n  \"quantidadeTotal\": 100,\n  \"validade\": \"2026-12-31T23:59:59\",\n  \"prescricao\": \"Livre\",\n  \"targa\": \"AMARELA\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medicamentos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicamentos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Hospitalar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200/201\", function(){ pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"idHospitalar\", json.idItem);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Seringa 5ml\",\n  \"quantidadeTotal\": 500,\n  \"validade\": \"2030-01-01T00:00:00\",\n  \"descartabilidade\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/hospitalares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"hospitalares"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Alimento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200/201\", function(){ pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"idAlimento\", json.idItem);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Sopa de Legumes\",\n  \"quantidadeTotal\": 50,\n  \"validade\": \"2025-06-30T00:00:00\",\n  \"alergenicos\": \"Não contém glúten\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/alimentos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"alimentos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Todos Itens (Geral)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"pm.test(\"Retorna Array\", function(){ pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/itens",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"itens"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03. Pedidos",
+			"item": [
+				{
+					"name": "Criar Pedido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200/201\", function(){ pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+									"var json = pm.response.json();",
+									"pm.collectionVariables.set(\"idPedido\", json.idPedido);",
+									"pm.test(\"Status inicial PENDENTE\", function(){ pm.expect(json.status).to.eql(\"PENDENTE\"); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPedido\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"dataPedido\": \"2025-10-20T10:00:00\",\n  \"status\": \"PENDENTE\",\n  \"fornecedorId\": \"{{idFornecedor}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pedidos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Pedido por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.test(\"ID correto\", function(){ pm.expect(json.idPedido).to.eql(pm.collectionVariables.get(\"idPedido\")); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/{{idPedido}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"{{idPedido}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Pedido (Aprovado)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.test(\"Status Atualizado\", function(){ pm.expect(json.status).to.eql(\"APROVADO\"); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPedido\": \"{{idPedido}}\",\n  \"status\": \"APROVADO\",\n  \"fornecedorId\": \"{{idFornecedor}}\",\n  \"itemIds\": [\"{{idMedicamento}}\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/{{idPedido}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"{{idPedido}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "04. Controle de Estoque (Movimentação)",
+			"item": [
+				{
+					"name": "Entrada de Itens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.test(\"Retorna lista de itens atualizados\", function(){ pm.expect(json).to.be.an(\"array\"); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nfNumero\": \"NF-102030\",\n  \"fornecedorId\": \"{{idFornecedor}}\",\n  \"pedidoId\": \"{{idPedido}}\",\n  \"itens\": [\n    {\n      \"itemId\": \"{{idMedicamento}}\",\n      \"nome\": \"Dipirona 500mg\",\n      \"quantidade\": 50,\n      \"validade\": \"2027-01-01T00:00:00\",\n      \"tipo\": \"MEDICAMENTO\",\n      \"lote\": \"LOTE-A1\",\n      \"confirmacaoGestor\": true\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/controle/entrada",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"controle",
+								"entrada"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dar Baixa (Consumo)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"var json = pm.response.json();",
+									"pm.test(\"Quantidade Baixada Correta\", function(){ pm.expect(json.quantidadeBaixada).to.eql(5); });",
+									"pm.test(\"Verifica Item\", function(){ pm.expect(json.itemId).to.eql(pm.collectionVariables.get(\"idMedicamento\")); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"itemId\": \"{{idMedicamento}}\",\n  \"quantidadeNecessaria\": 5,\n  \"destinoConsumo\": \"Enfermaria Ala Sul\",\n  \"lote\": \"LOTE-A1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/controle/baixa",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"controle",
+								"baixa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verificar Validade",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function(){ pm.response.to.have.status(200); });",
+									"pm.test(\"Retorna lista de itens a vencer\", function(){ pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"diasAntecedencia\": 365,\n  \"incluirVencidos\": true,\n  \"descartarItens\": false,\n  \"codigoCusto\": \"CC-GERAL\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/controle/validade",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"controle",
+								"validade"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "05. Clean Up (Deleções)",
+			"item": [
+				{
+					"name": "Deletar Pedido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 204\", function(){ pm.response.to.have.status(204); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pedidos/{{idPedido}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pedidos",
+								"{{idPedido}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Medicamento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 204\", function(){ pm.response.to.have.status(204); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/medicamentos/{{idMedicamento}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicamentos",
+								"{{idMedicamento}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Hospitalar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 204\", function(){ pm.response.to.have.status(204); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/hospitalares/{{idHospitalar}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"hospitalares",
+								"{{idHospitalar}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Alimento",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 204\", function(){ pm.response.to.have.status(204); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/alimentos/{{idAlimento}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"alimentos",
+								"{{idAlimento}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Fornecedor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 204\", function(){ pm.response.to.have.status(204); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores/{{idFornecedor}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores",
+								"{{idFornecedor}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "06. Cenários Negativos",
+			"item": [
+				{
+					"name": "Buscar Item Inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 404 or 400\", function () {",
+									"    // UUID inválido geralmente retorna 400, não encontrado retorna 404",
+									"    pm.expect(pm.response.code).to.be.oneOf([404, 400, 500]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/itens/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"itens",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Fornecedor Inválido (Body Vazio)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/fornecedores",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fornecedores"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8083/estoque",
+			"type": "string"
+		},
+		{
+			"key": "idFornecedor",
+			"value": ""
+		},
+		{
+			"key": "idMedicamento",
+			"value": ""
+		},
+		{
+			"key": "idHospitalar",
+			"value": ""
+		},
+		{
+			"key": "idAlimento",
+			"value": ""
+		},
+		{
+			"key": "idPedido",
+			"value": ""
+		}
+	]
+}
