@@ -1,0 +1,713 @@
+{
+	"info": {
+		"_postman_id": "sh-cadastro-automation-v2",
+		"name": "Simple Health - Automação cadastro",
+		"description": "Automação completa para o microsserviço de Cadastro com testes em TODAS as requisições.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Convênios",
+			"item": [
+				{
+					"name": "Criar Convênio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Retornou ID do convênio\", function () {",
+									"    pm.expect(jsonData.id).to.not.be.null;",
+									"});",
+									"",
+									"pm.test(\"Nome do convênio correto\", function () {",
+									"    pm.expect(jsonData.nome).to.eql(\"Unimed Nacional\");",
+									"});",
+									"",
+									"pm.collectionVariables.set(\"idConvenio\", jsonData.id);",
+									"console.log(\"Convênio criado ID: \" + jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Unimed Nacional\",\n  \"plano\": \"Apartamento Completo\",\n  \"ativo\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/cadastro/convenios"
+					}
+				},
+				{
+					"name": "Listar Convênios",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorno é um Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});",
+									"pm.test(\"Array não está vazio\", function () {",
+									"    pm.expect(pm.response.json().length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/convenios"
+					}
+				},
+				{
+					"name": "Buscar Convênio por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"ID corresponde ao solicitado\", function () {",
+									"    pm.expect(json.id).to.eql(pm.collectionVariables.get(\"idConvenio\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/convenios/{{idConvenio}}"
+					}
+				},
+				{
+					"name": "Atualizar Convênio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Nome atualizado com sucesso\", function () {",
+									"    pm.expect(json.nome).to.eql(\"Unimed Premium\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{idConvenio}},\n  \"nome\": \"Unimed Premium\",\n  \"plano\": \"Enfermaria\",\n  \"ativo\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/cadastro/convenios/{{idConvenio}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Médicos",
+			"item": [
+				{
+					"name": "Criar Médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Médico criado (200/201)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"CRM foi registrado\", function () {",
+									"    pm.expect(json.crm).to.eql(\"CRM/SP 555000\");",
+									"});",
+									"pm.collectionVariables.set(\"idMedico\", json.id);",
+									"pm.collectionVariables.set(\"crmMedico\", json.crm);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nomeCompleto\": \"Dr. Gregory House\",\n  \"crm\": \"CRM/SP 555000\",\n  \"especialidade\": \"Infectologia\",\n  \"telefone\": \"11999887766\",\n  \"email\": \"house@hospital.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/cadastro/medicos"
+					}
+				},
+				{
+					"name": "Listar Médicos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorno é um Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/medicos"
+					}
+				},
+				{
+					"name": "Buscar Médico por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"ID corresponde ao solicitado\", function () {",
+									"    pm.expect(json.id).to.eql(pm.collectionVariables.get(\"idMedico\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/medicos/{{idMedico}}"
+					}
+				},
+				{
+					"name": "Atualizar Médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Especialidade foi atualizada\", function () {",
+									"    pm.expect(json.especialidade).to.eql(\"Diagnóstico\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{idMedico}},\n  \"nomeCompleto\": \"Dr. Gregory House\",\n  \"crm\": \"{{crmMedico}}\",\n  \"especialidade\": \"Diagnóstico\",\n  \"telefone\": \"11999999999\",\n  \"email\": \"house.md@hospital.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/cadastro/medicos/{{idMedico}}"
+					}
+				},
+				{
+					"name": "Deletar Médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/medicos/{{idMedico}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Pacientes",
+			"item": [
+				{
+					"name": "Criar Paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Paciente criado (200/201)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"CPF salvo corretamente\", function () {",
+									"    pm.expect(json.cpf).to.eql(\"12345678900\");",
+									"});",
+									"pm.collectionVariables.set(\"idPaciente\", json.id);",
+									"pm.collectionVariables.set(\"cpfPaciente\", json.cpf);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nomeCompleto\": \"João da Silva\",\n  \"dataNascimento\": \"1990-05-15\",\n  \"cpf\": \"12345678900\",\n  \"telefone\": \"11988887777\",\n  \"email\": \"joao.silva@teste.com\",\n  \"convenioId\": {{idConvenio}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/pacientes"
+					}
+				},
+				{
+					"name": "Listar Pacientes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorno é um Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/pacientes"
+					}
+				},
+				{
+					"name": "Buscar Paciente por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"CPF corresponde\", function () {",
+									"    pm.expect(json.cpf).to.eql(pm.collectionVariables.get(\"cpfPaciente\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/pacientes/{{idPaciente}}"
+					}
+				},
+				{
+					"name": "Consultar Histórico (Integração)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Objeto contém campo 'consultas'\", function () {",
+									"    pm.expect(json).to.have.property(\"consultas\");",
+									"});",
+									"pm.test(\"Objeto contém campo 'exames'\", function () {",
+									"    pm.expect(json).to.have.property(\"exames\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/pacientes/historico/{{cpfPaciente}}"
+					}
+				},
+				{
+					"name": "Atualizar Paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Nome atualizado com sucesso\", function () {",
+									"    pm.expect(json.nomeCompleto).to.eql(\"João da Silva Editado\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{idPaciente}},\n  \"nomeCompleto\": \"João da Silva Editado\",\n  \"dataNascimento\": \"1990-05-15\",\n  \"cpf\": \"{{cpfPaciente}}\",\n  \"telefone\": \"11900000000\",\n  \"email\": \"joao.novo@teste.com\",\n  \"convenioId\": {{idConvenio}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/pacientes/{{idPaciente}}"
+					}
+				},
+				{
+					"name": "Deletar Paciente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/pacientes/{{idPaciente}}"
+					}
+				},
+				{
+					"name": "Deletar Convênio (Cleanup)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/api/cadastro/convenios/{{idConvenio}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Usuários",
+			"item": [
+				{
+					"name": "Criar Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Usuário criado (200/201)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Perfil está correto\", function () {",
+									"    pm.expect(json.perfil).to.eql(\"GESTOR\");",
+									"});",
+									"pm.collectionVariables.set(\"idUsuario\", json.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nomeCompleto\": \"Admin do Sistema\",\n  \"login\": \"admin_sys\",\n  \"senha\": \"123456\",\n  \"perfil\": \"GESTOR\",\n  \"telefone\": \"11911223344\",\n  \"email\": \"admin@simplehealth.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/usuarios"
+					}
+				},
+				{
+					"name": "Listar Usuários",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Retorno é um Array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/usuarios"
+					}
+				},
+				{
+					"name": "Buscar Usuário por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"ID corresponde ao solicitado\", function () {",
+									"    pm.expect(json.id).to.eql(pm.collectionVariables.get(\"idUsuario\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/usuarios/{{idUsuario}}"
+					}
+				},
+				{
+					"name": "Atualizar Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var json = pm.response.json();",
+									"pm.test(\"Senha/Nome atualizado\", function () {",
+									"    pm.expect(json.nomeCompleto).to.eql(\"Admin Alterado\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": {{idUsuario}},\n  \"nomeCompleto\": \"Admin Alterado\",\n  \"login\": \"admin_sys\",\n  \"senha\": \"654321\",\n  \"perfil\": \"GESTOR\",\n  \"telefone\": \"11911223344\",\n  \"email\": \"admin.novo@simplehealth.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/usuarios/{{idUsuario}}"
+					}
+				},
+				{
+					"name": "Deletar Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/usuarios/{{idUsuario}}"
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Cenários Negativos",
+			"item": [
+				{
+					"name": "Criar Paciente sem CPF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nomeCompleto\": \"Sem CPF\",\n  \"dataNascimento\": \"2000-01-01\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/pacientes"
+					}
+				},
+				{
+					"name": "Buscar Usuário Inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/usuarios/99999999"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8081/cadastro",
+			"type": "string"
+		},
+		{
+			"key": "idConvenio",
+			"value": ""
+		},
+		{
+			"key": "idMedico",
+			"value": ""
+		},
+		{
+			"key": "crmMedico",
+			"value": ""
+		},
+		{
+			"key": "idPaciente",
+			"value": ""
+		},
+		{
+			"key": "cpfPaciente",
+			"value": ""
+		},
+		{
+			"key": "idUsuario",
+			"value": ""
+		}
+	]
+}
