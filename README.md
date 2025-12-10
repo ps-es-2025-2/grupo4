@@ -1,5 +1,41 @@
 # 📘 SimpleHealth – Documento Consolidado (v1.0.0)
 
+## Sumário
+
+- [📘 SimpleHealth – Documento Consolidado (v1.0.0)](#-simplehealth--documento-consolidado-v100)
+  - [Sumário](#sumário)
+  - [1. Visão Geral](#1-visão-geral)
+    - [📚 Documentação Completa](#-documentação-completa)
+  - [2. Arquitetura](#2-arquitetura)
+    - [2.1 Arquitetura Lógica](#21-arquitetura-lógica)
+    - [2.2 Arquitetura Física (execução local via Docker)](#22-arquitetura-física-execução-local-via-docker)
+  - [3. Módulos](#3-módulos)
+    - [3.1 Cadastro (8081)](#31-cadastro-8081)
+    - [3.2 Agendamento (8082)](#32-agendamento-8082)
+    - [3.3 Estoque (8083)](#33-estoque-8083)
+- [⚙️ 5. Execução Individual dos Módulos](#️-5-execução-individual-dos-módulos)
+  - [5.1 Backends](#51-backends)
+    - [**Backend Cadastro – Porta 8081**](#backend-cadastro--porta-8081)
+    - [**Backend Agendamento – Porta 8082**](#backend-agendamento--porta-8082)
+    - [**Backend Estoque – Porta 8083**](#backend-estoque--porta-8083)
+  - [5.2 Frontends](#52-frontends)
+    - [**Frontend Cadastro**](#frontend-cadastro)
+    - [**Frontend Agendamento**](#frontend-agendamento)
+    - [**Frontend Estoque**](#frontend-estoque)
+  - [5.3 Observações Importantes](#53-observações-importantes)
+  - [6. Endpoints](#6-endpoints)
+    - [Cadastro – `http://localhost:8081/cadastro`](#cadastro--httplocalhost8081cadastro)
+    - [Agendamento – `http://localhost:8082/agendamento`](#agendamento--httplocalhost8082agendamento)
+    - [Estoque – `http://localhost:8083/estoque`](#estoque--httplocalhost8083estoque)
+  - [7. Validações e Testes](#7-validações-e-testes)
+    - [Validações](#validações)
+    - [Testes REST](#testes-rest)
+  - [8. Estrutura do Projeto (versão definitiva, sem repetições)](#8-estrutura-do-projeto-versão-definitiva-sem-repetições)
+  - [9. Métricas](#9-métricas)
+  - [10. Logs](#10-logs)
+
+---
+
 ## 1. Visão Geral
 
 O SimpleHealth é um sistema hospitalar modular baseado em microsserviços, composto por:
@@ -14,6 +50,19 @@ Java 17, Spring Boot 3.5.6, JavaFX 17, PostgreSQL, MongoDB, Cassandra, Redis, Do
 
 **Casos de Uso:** 16 (completos).
 **Status:** Finalizado – v1.0.0.
+
+### 📚 Documentação Completa
+
+Para informações detalhadas sobre arquitetura, modelagens, casos de uso, diagramas e boas práticas, consulte a **[Documentação Final Consolidada](docs/DOCUMENTACAO_FINAL.md)**.
+
+A documentação inclui:
+
+* Documento de Visão do Projeto
+* Casos de Uso detalhados
+* Diagramas de Classes, BPM, Arquitetura, Interações e Estados
+* Especificações técnicas de implementação
+* Design Patterns aplicados
+* Boas práticas de desenvolvimento
 
 ---
 
@@ -58,21 +107,6 @@ Comunicação exclusivamente via **HTTP/REST**.
 **Endpoint base:** `/estoque`.
 
 ---
-
-## 4. Padrões de Projeto
-
-Aplicados de forma consistente:
-
-* MVC (Frontend JavaFX)
-* Service Layer (front e back)
-* Repository Pattern (Spring Data)
-* DTOs
-* Template Method (`AbstractCrudController`)
-* Singleton (`RefreshManager`, `AppConfig`)
-* Observer (`RefreshManager`)
-* Facade (camada de serviços HTTP)
-* Dependency Injection (Spring)
-* REST API (Spring Web)
 
 ---
 
