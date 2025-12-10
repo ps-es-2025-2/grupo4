@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Estoque_Fix" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collab_Estoque">
+    <bpmn:participant id="Part_UC05" name="UC05: Dar Baixa em Insumos" processRef="Process_UC05" />
+    <bpmn:participant id="Part_UC06" name="UC06: Processar Entrada de NF" processRef="Process_UC06" />
+    <bpmn:participant id="Part_UC07" name="UC07: Gerar Alerta Crítico" processRef="Process_UC07" />
+    <bpmn:participant id="Part_UC10" name="UC10: Controlar Validade" processRef="Process_UC10" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_UC05" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_05">
+      <bpmn:lane id="Lane_Prof_05" name="Profissional"><bpmn:flowNodeRef>Start_05</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_SelectItems</bpmn:flowNodeRef><bpmn:flowNodeRef>End_05_Success</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="Lane_Sys_05" name="Sistema"><bpmn:flowNodeRef>Service_CheckStock</bpmn:flowNodeRef><bpmn:flowNodeRef>Gate_StockOK</bpmn:flowNodeRef><bpmn:flowNodeRef>Service_UpdateQty</bpmn:flowNodeRef><bpmn:flowNodeRef>End_05_Fail</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_05" name="Baixa" /><bpmn:sequenceFlow id="Flow_05_1" sourceRef="Start_05" targetRef="Task_SelectItems" />
+    <bpmn:userTask id="Task_SelectItems" name="Selecionar Item" /><bpmn:sequenceFlow id="Flow_05_2" sourceRef="Task_SelectItems" targetRef="Service_CheckStock" />
+    <bpmn:serviceTask id="Service_CheckStock" name="Verificar Estoque" /><bpmn:sequenceFlow id="Flow_05_3" sourceRef="Service_CheckStock" targetRef="Gate_StockOK" />
+    <bpmn:exclusiveGateway id="Gate_StockOK" name="Ok?" /><bpmn:sequenceFlow id="Flow_05_Yes" name="Sim" sourceRef="Gate_StockOK" targetRef="Service_UpdateQty" /><bpmn:sequenceFlow id="Flow_05_No" name="Não" sourceRef="Gate_StockOK" targetRef="End_05_Fail" />
+    <bpmn:serviceTask id="Service_UpdateQty" name="Atualizar Saldo" /><bpmn:sequenceFlow id="Flow_05_4" sourceRef="Service_UpdateQty" targetRef="End_05_Success" />
+    <bpmn:endEvent id="End_05_Fail" name="Erro" /><bpmn:endEvent id="End_05_Success" name="Fim" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_UC06" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_06">
+      <bpmn:lane id="Lane_Gestor_06" name="Gestor"><bpmn:flowNodeRef>Start_06</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_NF</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="Lane_Sys_06" name="Sistema"><bpmn:flowNodeRef>Service_ValNF</bpmn:flowNodeRef><bpmn:flowNodeRef>Gate_NF</bpmn:flowNodeRef><bpmn:flowNodeRef>Service_Add</bpmn:flowNodeRef><bpmn:flowNodeRef>End_06</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_06" name="Chegada NF" /><bpmn:sequenceFlow id="Flow_06_1" sourceRef="Start_06" targetRef="Task_NF" />
+    <bpmn:userTask id="Task_NF" name="Registrar NF" /><bpmn:sequenceFlow id="Flow_06_2" sourceRef="Task_NF" targetRef="Service_ValNF" />
+    <bpmn:serviceTask id="Service_ValNF" name="Validar NF" /><bpmn:sequenceFlow id="Flow_06_3" sourceRef="Service_ValNF" targetRef="Gate_NF" />
+    <bpmn:exclusiveGateway id="Gate_NF" name="Única?" /><bpmn:sequenceFlow id="Flow_06_Yes" sourceRef="Gate_NF" targetRef="Service_Add" />
+    <bpmn:serviceTask id="Service_Add" name="Incrementar Estoque" /><bpmn:sequenceFlow id="Flow_06_4" sourceRef="Service_Add" targetRef="End_06" />
+    <bpmn:endEvent id="End_06" name="Fim" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_UC07" isExecutable="false">
+    <bpmn:startEvent id="Start_07" name="Timer" /><bpmn:sequenceFlow id="Flow_07_1" sourceRef="Start_07" targetRef="Service_Check" />
+    <bpmn:serviceTask id="Service_Check" name="Verificar Níveis" /><bpmn:sequenceFlow id="Flow_07_2" sourceRef="Service_Check" targetRef="Gate_Crit" />
+    <bpmn:exclusiveGateway id="Gate_Crit" name="Crítico?" /><bpmn:sequenceFlow id="Flow_07_Yes" sourceRef="Gate_Crit" targetRef="Service_Alert" />
+    <bpmn:serviceTask id="Service_Alert" name="Enviar Alerta" /><bpmn:sequenceFlow id="Flow_07_3" sourceRef="Service_Alert" targetRef="End_07" />
+    <bpmn:endEvent id="End_07" name="Fim" />
+  </bpmn:process>
+
+  <bpmn:process id="Process_UC10" isExecutable="false">
+    <bpmn:laneSet><bpmn:lane id="L_G" name="Gestor"><bpmn:flowNodeRef>Start_10</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_Disc</bpmn:flowNodeRef></bpmn:lane><bpmn:lane id="L_S" name="Sistema"><bpmn:flowNodeRef>Service_Find</bpmn:flowNodeRef><bpmn:flowNodeRef>Service_Out</bpmn:flowNodeRef><bpmn:flowNodeRef>End_10</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet>
+    <bpmn:startEvent id="Start_10" name="Controle" /><bpmn:sequenceFlow id="Flow_10_1" sourceRef="Start_10" targetRef="Service_Find" />
+    <bpmn:serviceTask id="Service_Find" name="Buscar Vencidos" /><bpmn:sequenceFlow id="Flow_10_2" sourceRef="Service_Find" targetRef="Task_Disc" />
+    <bpmn:userTask id="Task_Disc" name="Confirmar Descarte" /><bpmn:sequenceFlow id="Flow_10_3" sourceRef="Task_Disc" targetRef="Service_Out" />
+    <bpmn:serviceTask id="Service_Out" name="Baixar Estoque" /><bpmn:sequenceFlow id="Flow_10_4" sourceRef="Service_Out" targetRef="End_10" />
+    <bpmn:endEvent id="End_10" name="Fim" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Estoque">
+    <bpmndi:BPMNPlane id="BPMNPlane_Estoque" bpmnElement="Collab_Estoque">
+      
+      <bpmndi:BPMNShape id="Part_UC05_di" bpmnElement="Part_UC05" isHorizontal="true"><dc:Bounds x="160" y="80" width="800" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Prof_05_di" bpmnElement="Lane_Prof_05" isHorizontal="true"><dc:Bounds x="190" y="80" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_05_di" bpmnElement="Lane_Sys_05" isHorizontal="true"><dc:Bounds x="190" y="205" width="770" height="125" /></bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="Start_05_di" bpmnElement="Start_05"><dc:Bounds x="230" y="120" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SelectItems_di" bpmnElement="Task_SelectItems"><dc:Bounds x="300" y="98" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_CheckStock_di" bpmnElement="Service_CheckStock"><dc:Bounds x="300" y="230" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_StockOK_di" bpmnElement="Gate_StockOK"><dc:Bounds x="450" y="245" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_UpdateQty_di" bpmnElement="Service_UpdateQty"><dc:Bounds x="550" y="230" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_05_Fail_di" bpmnElement="End_05_Fail"><dc:Bounds x="457" y="300" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_05_Success_di" bpmnElement="End_05_Success"><dc:Bounds x="700" y="120" width="36" height="36" /></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_05_1_di" bpmnElement="Flow_05_1"><di:waypoint x="266" y="138" /><di:waypoint x="300" y="138" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_2_di" bpmnElement="Flow_05_2"><di:waypoint x="350" y="178" /><di:waypoint x="350" y="230" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_3_di" bpmnElement="Flow_05_3"><di:waypoint x="400" y="270" /><di:waypoint x="450" y="270" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_Yes_di" bpmnElement="Flow_05_Yes"><di:waypoint x="500" y="270" /><di:waypoint x="550" y="270" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_4_di" bpmnElement="Flow_05_4"><di:waypoint x="650" y="270" /><di:waypoint x="675" y="270" /><di:waypoint x="675" y="138" /><di:waypoint x="700" y="138" /></bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Part_UC06_di" bpmnElement="Part_UC06" isHorizontal="true"><dc:Bounds x="160" y="350" width="800" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Gestor_06_di" bpmnElement="Lane_Gestor_06" isHorizontal="true"><dc:Bounds x="190" y="350" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_06_di" bpmnElement="Lane_Sys_06" isHorizontal="true"><dc:Bounds x="190" y="475" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_06_di" bpmnElement="Start_06"><dc:Bounds x="230" y="390" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NF_di" bpmnElement="Task_NF"><dc:Bounds x="300" y="368" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_ValNF_di" bpmnElement="Service_ValNF"><dc:Bounds x="300" y="500" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_NF_di" bpmnElement="Gate_NF"><dc:Bounds x="450" y="515" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_Add_di" bpmnElement="Service_Add"><dc:Bounds x="550" y="500" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_06_di" bpmnElement="End_06"><dc:Bounds x="700" y="522" width="36" height="36" /></bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNEdge id="Flow_06_1_di" bpmnElement="Flow_06_1"><di:waypoint x="266" y="408" /><di:waypoint x="300" y="408" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_2_di" bpmnElement="Flow_06_2"><di:waypoint x="350" y="448" /><di:waypoint x="350" y="500" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_3_di" bpmnElement="Flow_06_3"><di:waypoint x="400" y="540" /><di:waypoint x="450" y="540" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_Yes_di" bpmnElement="Flow_06_Yes"><di:waypoint x="500" y="540" /><di:waypoint x="550" y="540" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_4_di" bpmnElement="Flow_06_4"><di:waypoint x="650" y="540" /><di:waypoint x="700" y="540" /></bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Part_UC07_di" bpmnElement="Part_UC07" isHorizontal="true"><dc:Bounds x="160" y="620" width="800" height="150" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_07_di" bpmnElement="Start_07"><dc:Bounds x="230" y="680" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_Check_di" bpmnElement="Service_Check"><dc:Bounds x="300" y="658" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gate_Crit_di" bpmnElement="Gate_Crit"><dc:Bounds x="450" y="673" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_Alert_di" bpmnElement="Service_Alert"><dc:Bounds x="550" y="658" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_07_di" bpmnElement="End_07"><dc:Bounds x="700" y="680" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_07_1_di" bpmnElement="Flow_07_1"><di:waypoint x="266" y="698" /><di:waypoint x="300" y="698" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_2_di" bpmnElement="Flow_07_2"><di:waypoint x="400" y="698" /><di:waypoint x="450" y="698" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_Yes_di" bpmnElement="Flow_07_Yes"><di:waypoint x="500" y="698" /><di:waypoint x="550" y="698" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_3_di" bpmnElement="Flow_07_3"><di:waypoint x="650" y="698" /><di:waypoint x="700" y="698" /></bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Part_UC10_di" bpmnElement="Part_UC10" isHorizontal="true"><dc:Bounds x="160" y="790" width="800" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_G_di" bpmnElement="L_G" isHorizontal="true"><dc:Bounds x="190" y="790" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="L_S_di" bpmnElement="L_S" isHorizontal="true"><dc:Bounds x="190" y="915" width="770" height="125" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_10_di" bpmnElement="Start_10"><dc:Bounds x="230" y="830" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_Find_di" bpmnElement="Service_Find"><dc:Bounds x="300" y="940" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Disc_di" bpmnElement="Task_Disc"><dc:Bounds x="450" y="810" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Service_Out_di" bpmnElement="Service_Out"><dc:Bounds x="600" y="940" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_10_di" bpmnElement="End_10"><dc:Bounds x="750" y="962" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10_1_di" bpmnElement="Flow_10_1"><di:waypoint x="266" y="848" /><di:waypoint x="283" y="848" /><di:waypoint x="283" y="980" /><di:waypoint x="300" y="980" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_2_di" bpmnElement="Flow_10_2"><di:waypoint x="400" y="980" /><di:waypoint x="425" y="980" /><di:waypoint x="425" y="850" /><di:waypoint x="450" y="850" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_3_di" bpmnElement="Flow_10_3"><di:waypoint x="550" y="850" /><di:waypoint x="575" y="850" /><di:waypoint x="575" y="980" /><di:waypoint x="600" y="980" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_4_di" bpmnElement="Flow_10_4"><di:waypoint x="700" y="980" /><di:waypoint x="750" y="980" /></bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

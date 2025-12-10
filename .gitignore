@@ -3,6 +3,7 @@
 
 # Log file
 *.log
+.venv/
 
 # BlueJ files
 *.ctxt
