@@ -1,6 +1,5 @@
 package com.simplehealth.estoque.domain.entity;
 
-
 import java.util.UUID;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.Column;
@@ -15,6 +14,12 @@ public class Estoque {
   private UUID idEstoque = UUID.randomUUID();
 
   @Column
-  private String local;
+  private String localizacao;
+
+  @Column
+  private String nome;
+
+  @Column
+  private String setor;
 
 }

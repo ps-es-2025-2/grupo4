@@ -75,7 +75,7 @@ public class EstoqueService {
     List<Estoque> list = estoqueRepository.findAll();
     if (list.isEmpty()) {
       Estoque novo = new Estoque();
-      novo.setLocal("Estoque Principal");
+      novo.setLocalizacao("Estoque Principal");
       return estoqueRepository.save(novo);
     }
     return list.get(0);

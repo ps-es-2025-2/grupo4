@@ -20,4 +20,7 @@ public abstract class Item {
 
   @Column("validade")
   private Date validade;
+
+  @Column("estoque_id")
+  private UUID estoqueId;
 }
