@@ -31,6 +31,9 @@ public class FornecedorService {
   }
 
   public List<Fornecedor> buscarPorNome(String nome) {
-    return repository.findByNomeContaining("%" + nome + "%");
+    return repository.findAll().stream()
+        .filter(f -> f.getNome() != null &&
+            f.getNome().toLowerCase().contains(nome.toLowerCase()))
+        .toList();
   }
 }

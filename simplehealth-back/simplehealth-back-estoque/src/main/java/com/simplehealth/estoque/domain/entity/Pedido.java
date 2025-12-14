@@ -22,7 +22,7 @@ public class Pedido {
   @Column("status")
   private String status;
 
-  @CassandraType(type = CassandraType.Name.LIST, typeArguments = CassandraType.Name.BIGINT)
+  @CassandraType(type = CassandraType.Name.LIST, typeArguments = CassandraType.Name.UUID)
   @Column("item_ids")
   private List<UUID> itemIds;
 

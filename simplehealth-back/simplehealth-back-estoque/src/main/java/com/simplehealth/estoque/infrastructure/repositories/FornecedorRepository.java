@@ -9,8 +9,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FornecedorRepository extends CassandraRepository<Fornecedor, UUID> {
-
-    @Query("SELECT * FROM fornecedor WHERE nome LIKE ?0 ALLOW FILTERING")
-    List<Fornecedor> findByNomeContaining(String nome);
-
 }
