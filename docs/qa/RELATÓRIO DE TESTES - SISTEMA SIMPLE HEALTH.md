@@ -1,8 +1,7 @@
 # **RELATÓRIO DE TESTES \- SISTEMA SIMPLE HEALTH**
 
-![][image1]  
-![][image2]  
-![][image3]
+<img width="658" height="527" alt="image" src="https://github.com/user-attachments/assets/8dabb402-4782-456f-9cff-d95bca996e56" />
+
 
 # **RELATÓRIO DE DEFEITOS** 
 
