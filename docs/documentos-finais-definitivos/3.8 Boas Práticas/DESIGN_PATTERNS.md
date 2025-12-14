@@ -6,6 +6,38 @@ Este documento evidencia os **10 padrões de projeto** implementados no SimpleHe
 
 ---
 
+## Notas Técnicas - Correções de Discrepâncias
+
+Os padrões de projeto implementados no sistema refletem decisões arquiteturais importantes.
+
+### Discrepância 3.1: Padrão DAO vs Repository (Spring Data)
+
+**Discrepância:** Documentação original usava termo "DAO Pattern", mas o sistema implementa Spring Data Repository Pattern.
+
+**Mudança Feita:** Terminologia atualizada para "Repository Pattern" em todo o documento. JpaRepository, MongoRepository, CassandraRepository são os padrões reais.
+
+**Justificativa:** Spring Data Repository é uma abstração mais moderna que DAO tradicional, com suporte a queries derivadas de métodos, @Query, e menor boilerplate.
+
+**Documento Detalhado:** [📄 CORRECAO_DISCREPANCIA_3.1.md](../../Correções%20de%20Alinhamento/CORRECAO_DISCREPANCIA_3.1.md)
+
+### Discrepância 3.2: Camada de Serviço - Service vs UseCase
+
+**Discrepância:** Sistema implementa DOIS padrões distintos: Service Layer (13 classes) + Use Case Pattern (47 classes), mas documentação não distinguia.
+
+**Mudança Feita:** Documentado padrão Use Case separadamente, explicando diferença:
+- **Services**: Lógica de negócio básica, operações CRUD simples (ex: PacienteService, MedicoService)
+- **UseCases**: Orquestração complexa envolvendo múltiplos Services (ex: CadastrarNovoPacienteUseCase, AgendarConsultaUseCase)
+
+**Justificativa:** Separação de responsabilidades clara. Services encapsulam lógica de entidade única, UseCases coordenam processos de negócio que envolvem múltiplas entidades e validações complexas.
+
+**Documento Detalhado:** [📄 CORRECAO_DISCREPANCIA_3.2.md](../../Correções%20de%20Alinhamento/CORRECAO_DISCREPANCIA_3.2.md)
+
+---
+
+Para consultar todas as correções de discrepâncias do projeto, acesse o [📑 Sumário de Correções](../../Correções%20de%20Alinhamento/SUMARIO_CORRECAO_DISCREPANCIA.md).
+
+---
+
 ## 1.  Template Method Pattern
 
 **Onde**: Frontend - Controllers CRUD  
@@ -179,6 +211,8 @@ public interface MedicamentoRepository extends CassandraRepository<Medicamento, 
 }
 ```
 
+> **📝 Nota:** Cassandra foi removido do módulo de Cadastro (Discrepância 1.2). Permanece apenas no módulo de Estoque.
+
 ---
 
 ## 5. Facade Pattern
@@ -225,8 +259,8 @@ List<Paciente> pacientes = pacienteService.listarTodos(); // Interface simples!
 
 ## 6. Service Layer Pattern
 
-**Onde**: Backend - Lógica de negócio
-**Propósito**: Define camada de serviços entre controllers e repositories.
+**Onde**: Backend - Lógica de negócio básica
+**Propósito**: Encapsula operações CRUD e lógica de negócio relacionada a uma única entidade.
 
 ### Implementação
 
@@ -236,30 +270,143 @@ List<Paciente> pacientes = pacienteService.listarTodos(); // Interface simples!
 @Service
 public class PacienteService {
   
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
   
-    @Autowired
-    private CadastrarNovoPacienteUseCase cadastrarUseCase;
-  
-    // Lógica de negócio
-    public Paciente cadastrar(PacienteDTO dto) {
-        // Validações
-        if (pacienteRepository.findByCpf(dto.getCpf()).isPresent()) {
-            throw new BusinessException("CPF já cadastrado");
-        }
-      
-        // Regras de negócio
-        return cadastrarUseCase.execute(dto);
+    public PacienteService(PacienteRepository pacienteRepository) {
+        this.pacienteRepository = pacienteRepository;
     }
   
-    public List<Paciente> buscarPorNome(String nome) { ... }
+    // Operações CRUD básicas
+    @Transactional
+    public Paciente save(Paciente paciente) {
+        if (pacienteRepository.existsByCpf(paciente.getCpf())) {
+            throw new IllegalArgumentException("CPF já cadastrado");
+        }
+        return pacienteRepository.save(paciente);
+    }
+  
+    @Transactional(readOnly = true)
+    public Paciente findById(Long id) {
+        return pacienteRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado"));
+    }
+  
+    public List<Paciente> findAll() {
+        return pacienteRepository.findAll();
+    }
+  
+    public boolean existsByCpf(String cpf) {
+        return pacienteRepository.existsByCpf(cpf);
+    }
 }
 ```
 
+**Outros Services do Sistema**:
+- `MedicoService`, `UsuarioService`, `ConvenioService` (Cadastro)
+- `ConsultaService`, `ExameService`, `ProcedimentoService` (Agendamento)
+- `EstoqueService`, `ItemService`, `MedicamentoService` (Estoque)
+
+**Total**: 13 classes Service no backend
+
 ---
 
-## 7. DTO (Data Transfer Object) Pattern
+## 7. UseCase Pattern (Command Pattern)
+
+**Onde**: Backend - Orquestração de processos complexos
+**Propósito**: Encapsula casos de uso específicos que coordenam múltiplos Services e implementam regras de negócio complexas.
+
+### Implementação
+
+**Cadastro**: [`CadastrarNovoPacienteUseCase.java`](simplehealth-back/simplehealth-back-cadastro/src/main/java/com/simplehealth/cadastro/application/usecases/CadastrarNovoPacienteUseCase.java)
+
+```java
+@Component
+@RequiredArgsConstructor
+public class CadastrarNovoPacienteUseCase {
+
+    private final PacienteService pacienteService;
+    private final ConvenioService convenioService;
+
+    @Transactional
+    public PacienteDTO execute(PacienteDTO dto) throws Exception {
+        // Validações complexas
+        if (pacienteService.existsByCpf(dto.getCpf())) {
+            var existingPaciente = pacienteService.findAll().stream()
+                .filter(p -> p.getCpf().equals(dto.getCpf()))
+                .findFirst()
+                .orElse(null);
+            throw new Exception("CPF já cadastrado...");
+        }
+
+        // Orquestração de múltiplos services
+        Paciente paciente = convertToEntity(dto);
+        
+        if (dto.getConvenioId() != null) {
+            Convenio convenio = convenioService.findById(dto.getConvenioId());
+            paciente.setConvenio(convenio);
+        }
+
+        // Execução
+        Paciente savedPaciente = pacienteService.save(paciente);
+        return convertToDTO(savedPaciente);
+    }
+}
+```
+
+**Agendamento**: [`AgendarConsultaUseCase.java`](simplehealth-back/simplehealth-back-agendamento/src/main/java/com/simplehealth/agendamento/application/usecases/AgendarConsultaUseCase.java)
+
+```java
+@Component
+@RequiredArgsConstructor
+public class AgendarConsultaUseCase {
+
+    private final ConsultaService consultaService;
+    private final BloqueioAgendaService bloqueioService;
+    private final HistoricoPublisher historicoPublisher; // Integração Redis
+
+    @Transactional
+    public ConsultaDTO execute(ConsultaDTO dto) throws Exception {
+        // Validação de conflitos
+        if (bloqueioService.existeConflito(dto.getMedicoCrm(), dto.getDataHora())) {
+            throw new BusinessException("Horário bloqueado");
+        }
+
+        // Validação de disponibilidade
+        if (consultaService.existeConflitoAgenda(dto)) {
+            throw new BusinessException("Horário já ocupado");
+        }
+
+        // Persistência
+        Consulta consulta = consultaService.save(convertToEntity(dto));
+
+        // Publicação de evento (integração com outros módulos)
+        historicoPublisher.publicarConsulta(consulta);
+
+        return convertToDTO(consulta);
+    }
+}
+```
+
+**Outros UseCases do Sistema**:
+- Cadastro: 12 UseCases (incluindo `ConsultarHistoricoPacienteUseCase`, `GerenciarMedicoUseCase`)
+- Agendamento: 22 UseCases (incluindo `SolicitarEncaixeUseCase`, `CancelarAgendamentoUseCase`)
+- Estoque: 13 UseCases (incluindo `DarBaixaInsumosUseCase`, `ControlarValidadeUseCase`)
+
+**Total**: 47 classes UseCase no backend
+
+### Diferença: Service vs UseCase
+
+| Aspecto | Service | UseCase |
+|---------|---------|---------|
+| **Escopo** | Entidade única | Processo completo |
+| **Complexidade** | CRUD simples | Orquestração complexa |
+| **Dependências** | Repository apenas | Múltiplos Services |
+| **Transação** | Operação única | Transação coordenada |
+| **Exemplo** | `save(paciente)` | `cadastrarNovoPaciente(dto)` |
+
+---
+
+## 8. DTO (Data Transfer Object) Pattern
 
 **Onde**: Backend - Transferência entre camadas
 **Propósito**: Carregar dados entre processos, reduzindo número de chamadas.
