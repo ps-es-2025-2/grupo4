@@ -157,6 +157,47 @@ Este documento serve como guia de navegação para toda a documentação técnic
 
 ---
 
+### [QA - Qualidade e Testes](./qa/)
+
+**O que é**: Documentação completa da estratégia de qualidade e testes do sistema SimpleHealth.
+
+**Conteúdo**:
+
+- **Plano de Teste** (`PLANO DE TESTE - SISTEMA SIMPLE HEALTH.md`):
+  - Estratégia geral de testes
+  - Escopo e objetivos dos testes
+  - Tipos de teste aplicados (unitários, integração, sistema, aceitação)
+  - Recursos e cronograma
+  - Critérios de entrada e saída
+  - Ambiente de teste
+
+- **Casos de Teste** (`DOCUMENTO DE CASOS DE TESTE - SISTEMA SIMPLE HEALTH.md`):
+  - Especificação detalhada dos cenários de teste
+  - Casos de teste por módulo (Cadastro, Agendamento, Estoque)
+  - Pré-condições, dados de entrada e resultados esperados
+  - Priorização e rastreabilidade com requisitos
+
+- **Relatório de Testes** (`RELATÓRIO DE TESTES - SISTEMA SIMPLE HEALTH.md`):
+  - Resultados da execução dos testes
+  - Métricas de qualidade e cobertura
+  - Defeitos encontrados e status
+  - Análise de riscos
+  - Conclusões e recomendações
+
+- **Avaliação de Conformidade** (`Avaliação de conformidade documentos.md`):
+  - Verificação da conformidade da documentação
+  - Checklist de completude
+  - Análise de consistência entre documentos
+
+- **Testes Automatizados** (arquivos JSON):
+  - `automacaocadastro.json` - Scripts de automação do módulo de cadastro
+  - `automacaoagendamento.json` - Scripts de automação do módulo de agendamento
+  - `automacaoestoque.json` - Scripts de automação do módulo de estoque
+
+**Por que ler**: Demonstra a GARANTIA DE QUALIDADE do sistema através de processos sistemáticos de verificação e validação, evidenciando a confiabilidade e robustez do software desenvolvido.
+
+---
+
 ## 🗂️ Ordem Sugerida de Leitura
 
 Para uma compreensão progressiva e didática do projeto, recomenda-se a seguinte ordem:
@@ -168,6 +209,7 @@ Para uma compreensão progressiva e didática do projeto, recomenda-se a seguint
 5. **3.6. Arquitetura** - Entenda a estrutura técnica do sistema
 6. **3.7/3.9/3.10. Modelagens** - Aprofunde-se nos detalhes de implementação
 7. **3.8. Boas Práticas e Padrões** - Avalie a qualidade técnica e padrões aplicados
+8. **QA - Qualidade e Testes** - Compreenda a estratégia de garantia de qualidade
 
 ---
 
