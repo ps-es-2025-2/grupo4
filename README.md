@@ -72,7 +72,7 @@ A documentação inclui:
 
 Cada módulo possui frontend JavaFX + backend Spring Boot + banco dedicado:
 
-* **Cadastro (8081):** PostgreSQL + Cassandra + Redis
+* **Cadastro (8081):** PostgreSQL + Redis
 * **Agendamento (8082):** MongoDB + Redis
 * **Estoque (8083):** Cassandra + Redis
 
@@ -90,7 +90,7 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 ### 3.1 Cadastro (8081)
 
-**Backend:** Spring Boot, PostgreSQL 15, Cassandra 5, Redis.
+**Backend:** Spring Boot, PostgreSQL 15, Redis.
 **Entidades:** Paciente, Médico, Usuário, Convênio.
 **Endpoint base:** `/cadastro`.
 
@@ -116,11 +116,11 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 ### **Backend Cadastro – Porta 8081**
 
-**Requisitos:** PostgreSQL, Cassandra e Redis via Docker.
+**Requisitos:** PostgreSQL e Redis via Docker.
 
 ```bash
 cd simplehealth-back/simplehealth-back-cadastro
-docker-compose up -d        # Sobe bancos (Postgres, Cassandra, Redis)
+docker-compose up -d        # Sobe bancos (Postgres, Redis)
 mvn spring-boot:run         # Sobe o backend
 ```
 
