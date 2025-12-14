@@ -44,7 +44,23 @@ Este diretório contém todas as correções de alinhamento entre documentação
 | 1.3 | [Discrepância 1.3](./CORRECAO_DISCREPANCIA_1.3.md) | Documentação | ✅ Corrigido |
 | 1.4 | [Discrepância 1.4](./CORRECAO_DISCREPANCIA_1.4.md) | Documentação | ✅ Corrigido |
 | 1.5 | [Discrepância 1.5](./CORRECAO_DISCREPANCIA_1.5.md) | Documentação | ✅ Corrigido |
+| 1.6 | [Módulo Estoque: Entidade Estoque Subimplementada](./CORRECAO_DISCREPANCIA_1.6.md) | Documentação | ✅ Corrigido |
 | 1.7 | [Discrepância 1.7](./CORRECAO_DISCREPANCIA_1.7.md) | Documentação | ✅ Corrigido |
+| 1.8 | [Módulo Estoque: Relacionamento Pedido ↔ Fornecedor Simplificado](./CORRECAO_DISCREPANCIA_1.8.md) | Documentação | ✅ Corrigido |
+
+### 1.6. Módulo Estoque: Entidade Estoque Subimplementada
+- **Arquivo**: [CORRECAO_DISCREPANCIA_1.6.md](./CORRECAO_DISCREPANCIA_1.6.md)
+- **Resumo**: Entidade `Estoque` estava com atributos incompletos (apenas `local`). Faltavam: `nome`, `localizacao`, `setor`. Solução: Adicionados atributos faltantes mantendo separação de responsabilidades (Estoque = local físico; Item = produto com quantidade/validade). Relacionamento `Item → Estoque` (Many-to-One) implementado via FK.
+- **Tipo**: Documentação (código corrigido)
+- **Impacto**: 3 arquivos (Classes de Análise, Casos de Uso UC05, Modelagem de Dados)
+- **Status**: ✅ Corrigido
+
+### 1.8. Módulo Estoque: Relacionamento Pedido ↔ Fornecedor Simplificado
+- **Arquivo**: [CORRECAO_DISCREPANCIA_1.8.md](./CORRECAO_DISCREPANCIA_1.8.md)
+- **Resumo**: Entidade `Fornecedor` estava extremamente simplificada (apenas `cnpj`). Faltavam: `nome`, `telefone`, `email`, `endereco`. Problema: UC06 (Processar Entrada de NF) mencionava "seleciona o Fornecedor", mas UI exibiria apenas UUID. Solução: Adicionados todos os atributos essenciais. Relacionamento FK `Pedido → Fornecedor` já estava correto.
+- **Tipo**: Documentação (código corrigido)
+- **Impacto**: 4 arquivos (Classes de Análise, UC06, UC07 novo, Modelagem)
+- **Status**: ✅ Corrigido
 
 ---
 
@@ -158,9 +174,9 @@ Este diretório contém todas as correções de alinhamento entre documentação
 
 | Tipo | Quantidade | Descrição |
 |------|------------|-----------|
-| **Documentação (código correto)** | 6 | Discrepâncias 1.x, 2.x, 3.3, 4.1, 4.3 |
+| **Documentação (código correto)** | 8 | Discrepâncias 1.x (1.1-1.8), 2.x, 3.3, 4.1, 4.3 |
 | **Redução de Escopo** | 4 | Discrepâncias 3.4, 4.2, 5.1, 5.2, 5.3 |
-| **Total** | 17 | Todas as discrepâncias identificadas |
+| **Total** | 19 | Todas as discrepâncias identificadas |
 
 ### Arquivos de Documentação Modificados
 
@@ -168,11 +184,11 @@ Este diretório contém todas as correções de alinhamento entre documentação
 |---------|--------------------------|
 | **3.1. Documento de Visão do Projeto** | 4.3 (enum PerfilUsuario) |
 | **3.2. Diagrama Global de Casos de Uso** | 5.1 (UC07), 5.2 (UC08), 5.3 (UC10) |
-| **3.3. Descrição detalhada de cada Caso de Uso** | 3.3, 3.4, 5.1 (6 alterações), 5.2 (2 alterações), 5.3 (2 alterações) |
-| **3.4. Classes de Análise** | 3.3 (3 alterações), 3.4, 4.1 (2 alterações), 4.2 (2 alterações), 4.3 (2 alterações) |
+| **3.3. Descrição detalhada de cada Caso de Uso** | 1.6 (UC05), 1.8 (UC06, UC07), 3.3, 3.4, 5.1 (6 alterações), 5.2 (2 alterações), 5.3 (2 alterações) |
+| **3.4. Classes de Análise** | 1.6 (Estoque), 1.8 (Fornecedor), 3.3 (3 alterações), 3.4, 4.1 (2 alterações), 4.2 (2 alterações), 4.3 (2 alterações) |
 | **3.5. Diagramas de Processos de Negócio (BPM)** | 5.1, 5.2, 5.3 |
 | **3.6. Arquitetura do Sistema** | 5.1 (Redis Pub/Sub notes) |
-| **3.7. Modelagem de Classes de Projeto** | 4.3 (enum) |
+| **3.7. Modelagem de Classes de Projeto** | 1.6 (Estoque), 1.8 (Fornecedor), 4.3 (enum) |
 | **3.9. Modelagem de Interações** | 3.3, 3.4, 5.1, 5.2, 5.3 |
 | **3.10. Modelagem de Estados** | 5.1 (2 alterações DTE) |
 

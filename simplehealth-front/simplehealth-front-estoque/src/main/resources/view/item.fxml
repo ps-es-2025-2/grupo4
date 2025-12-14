@@ -28,12 +28,12 @@
             <!-- Tabela -->
             <TableView fx:id="tableItens" VBox.vgrow="ALWAYS" minHeight="400">
                 <columns>
-                    <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                    <TableColumn fx:id="colNome" text="Nome" prefWidth="250"/>
-                    <TableColumn fx:id="colTipo" text="Tipo" prefWidth="150"/>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
+                    <TableColumn fx:id="colNome" text="Nome" prefWidth="220"/>
+                    <TableColumn fx:id="colTipo" text="Tipo" prefWidth="120"/>
                     <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
+                    <TableColumn fx:id="colEstoque" text="Estoque" prefWidth="150"/>
                     <TableColumn fx:id="colValidade" text="Validade" prefWidth="150"/>
-                    <TableColumn fx:id="colLote" text="Lote" prefWidth="120"/>
                 </columns>
             </TableView>
         </VBox>

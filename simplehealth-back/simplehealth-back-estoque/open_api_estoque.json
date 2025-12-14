@@ -1040,6 +1040,39 @@
           }
         }
       }
+    },
+    "/fornecedores/buscar": {
+      "get": {
+        "tags": [
+          "fornecedor-controller"
+        ],
+        "operationId": "buscarPorNome",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fornecedor"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1089,6 +1122,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "estoqueId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "prescricao": {
             "type": "string"
           },
@@ -1115,6 +1152,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "estoqueId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "descartabilidade": {
             "type": "boolean"
           }
@@ -1129,6 +1170,18 @@
           },
           "cnpj": {
             "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "endereco": {
+            "type": "string"
           }
         }
       },
@@ -1139,7 +1192,13 @@
             "type": "string",
             "format": "uuid"
           },
-          "local": {
+          "localizacao": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "setor": {
             "type": "string"
           }
         }
@@ -1161,6 +1220,10 @@
           "validade": {
             "type": "string",
             "format": "date-time"
+          },
+          "estoqueId": {
+            "type": "string",
+            "format": "uuid"
           },
           "alergenicos": {
             "type": "string"
@@ -1202,6 +1265,10 @@
           "validade": {
             "type": "string",
             "format": "date-time"
+          },
+          "estoqueId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -1258,6 +1325,10 @@
           },
           "confirmacaoGestor": {
             "type": "boolean"
+          },
+          "estoqueId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },

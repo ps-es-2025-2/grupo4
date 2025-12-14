@@ -49,14 +49,24 @@
                         <Label text="Data:*" GridPane.rowIndex="0"/>
                         <DatePicker fx:id="dtDataPedido" promptText="Data do pedido" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                         
-                        <Label text="Status:" GridPane.rowIndex="1"/>
-                        <ComboBox fx:id="cbStatus" promptText="Selecione o status" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <Label text="Status:*" GridPane.rowIndex="1"/>
+                        <ComboBox fx:id="cbStatus" promptText="Selecione o status" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="9999"/>
                         
-                        <Label text="ID Fornecedor:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtIdFornecedor" promptText="ID do fornecedor" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        <Label text="Fornecedor:*" GridPane.rowIndex="2"/>
+                        <ComboBox fx:id="cbFornecedor" promptText="Selecione o fornecedor" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="9999"/>
                         
-                        <Label text="Observações:" GridPane.rowIndex="3"/>
-                        <TextArea fx:id="txtObservacoes" promptText="Observações adicionais" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label text="Itens:*" GridPane.rowIndex="3"/>
+                        <VBox GridPane.columnIndex="1" GridPane.rowIndex="3" spacing="5">
+                            <ListView fx:id="listItensDisponiveis" prefHeight="150" />
+                            <HBox spacing="5">
+                                <Button fx:id="btnAdicionarItem" text="Adicionar ►" onAction="#handleAdicionarItem" prefWidth="120"/>
+                                <Button fx:id="btnRemoverItem" text="◄ Remover" onAction="#handleRemoverItem" prefWidth="120"/>
+                            </HBox>
+                            <ListView fx:id="listItensSelecionados" prefHeight="150" />
+                        </VBox>
+                        
+                        <Label text="Observações:" GridPane.rowIndex="4"/>
+                        <TextArea fx:id="txtObservacoes" promptText="Observações adicionais" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

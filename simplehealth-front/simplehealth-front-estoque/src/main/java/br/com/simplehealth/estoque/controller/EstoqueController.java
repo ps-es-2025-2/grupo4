@@ -20,9 +20,13 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     
     @FXML private TableView<Estoque> tableEstoques;
     @FXML private TableColumn<Estoque, UUID> colId;
-    @FXML private TableColumn<Estoque, String> colLocal;
+    @FXML private TableColumn<Estoque, String> colNome;
+    @FXML private TableColumn<Estoque, String> colLocalizacao;
+    @FXML private TableColumn<Estoque, String> colSetor;
     
-    @FXML private TextField txtLocal;
+    @FXML private TextField txtNome;
+    @FXML private TextField txtLocalizacao;
+    @FXML private TextField txtSetor;
     
     @FXML
     private Button btnCriar;
@@ -61,7 +65,9 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idEstoque"));
-        colLocal.setCellValueFactory(new PropertyValueFactory<>("local"));
+        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colLocalizacao.setCellValueFactory(new PropertyValueFactory<>("localizacao"));
+        colSetor.setCellValueFactory(new PropertyValueFactory<>("setor"));
         tableEstoques.setItems(estoques);
     }
     
@@ -79,6 +85,7 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     
     private void setupRefreshListener() {
         RefreshManager.getInstance().addListener(source -> {
+            // Sempre recarrega quando houver notificação de outros módulos
             if (!"Estoque".equals(source)) {
                 carregarDados();
             }
@@ -90,6 +97,7 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
         try {
             estoques.clear();
             estoques.addAll(service.listar());
+            tableEstoques.refresh(); // Forçar atualização visual
             logger.info("Estoques carregados: {}", estoques.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar estoques", e);
@@ -98,7 +106,9 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     }
     
     private void preencherFormulario(Estoque estoque) {
-        txtLocal.setText(estoque.getLocal());
+        txtNome.setText(estoque.getNome());
+        txtLocalizacao.setText(estoque.getLocalizacao());
+        txtSetor.setText(estoque.getSetor());
     }
     
     @FXML
@@ -107,7 +117,7 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
         habilitarCampos(true);
         ativarModoEdicao();
         modoEdicao = "CRIAR";
-        txtLocal.requestFocus();
+        txtNome.requestFocus();
     }
     
     @FXML
@@ -153,11 +163,14 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
                 mostrarSucesso("Sucesso", "Estoque atualizado com sucesso!");
             }
             
+            // Atualizar tabela imediatamente
             carregarDados();
             limparFormulario();
             resetarBotoes();
             habilitarCampos(false);
             modoEdicao = null;
+            
+            // Notificar outros módulos
             RefreshManager.getInstance().notifyRefresh("Estoque");
             
         } catch (Exception e) {
@@ -185,8 +198,13 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     }
     
     protected boolean validarFormulario() {
-        if (!ValidationUtils.validarCampoObrigatorio(txtLocal.getText(), "Local")) {
-            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Local"));
+        if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
+            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
+            return false;
+        }
+        
+        if (!ValidationUtils.validarCampoObrigatorio(txtLocalizacao.getText(), "Localização")) {
+            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Localização"));
             return false;
         }
         
@@ -196,18 +214,24 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
     @Override
     protected void limparFormulario() {
         itemSelecionado = null;
-        txtLocal.clear();
+        txtNome.clear();
+        txtLocalizacao.clear();
+        txtSetor.clear();
         tableEstoques.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
-        txtLocal.setDisable(!habilitar);
+        txtNome.setDisable(!habilitar);
+        txtLocalizacao.setDisable(!habilitar);
+        txtSetor.setDisable(!habilitar);
     }
     
     private Estoque construirEstoqueDoFormulario() {
         Estoque estoque = new Estoque();
-        estoque.setLocal(txtLocal.getText());
+        estoque.setNome(txtNome.getText());
+        estoque.setLocalizacao(txtLocalizacao.getText());
+        estoque.setSetor(txtSetor.getText());
         return estoque;
     }
 }

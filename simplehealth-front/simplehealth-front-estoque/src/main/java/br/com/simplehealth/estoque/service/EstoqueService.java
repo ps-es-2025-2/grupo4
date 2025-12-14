@@ -36,17 +36,24 @@ public class EstoqueService {
     public List<Estoque> listar() throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(baseUrl);
+            logger.info("Buscando estoques em: {}", baseUrl);
             
             return httpClient.execute(request, response -> {
                 int status = response.getCode();
                 String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 
+                logger.info("Status: {}, Response: {}", status, responseBody.substring(0, Math.min(200, responseBody.length())));
+                
                 if (status == 200) {
                     return objectMapper.readValue(responseBody, 
                         new TypeReference<List<Estoque>>() {});
                 }
+                logger.error("Erro ao listar estoques. Status: {}", status);
                 return new ArrayList<>();
             });
+        } catch (Exception e) {
+            logger.error("Erro ao conectar com API de estoques", e);
+            throw new IOException("Erro ao listar estoques: " + e.getMessage(), e);
         }
     }
     

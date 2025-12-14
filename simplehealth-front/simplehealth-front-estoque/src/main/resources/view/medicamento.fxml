@@ -27,11 +27,12 @@
                 
                 <TableView fx:id="tableMedicamentos" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
-                        <TableColumn fx:id="colNome" text="Nome" prefWidth="250"/>
-                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="120"/>
-                        <TableColumn fx:id="colPrescricao" text="Prescrição" prefWidth="120"/>
-                        <TableColumn fx:id="colTarga" text="Tarja" prefWidth="120"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
+                        <TableColumn fx:id="colEstoque" text="Estoque" prefWidth="120"/>
+                        <TableColumn fx:id="colPrescricao" text="Prescrição" prefWidth="100"/>
+                        <TableColumn fx:id="colTarga" text="Tarja" prefWidth="100"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -56,12 +57,20 @@
                         <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                         
                         <!-- Row 2 -->
-                        <Label text="Prescrição:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtPrescricao" promptText="Tipo de prescrição (1 ou vazio)" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        <Label text="Validade:*" GridPane.rowIndex="2"/>
+                        <DatePicker fx:id="dpValidade" promptText="Data de validade" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                         
                         <!-- Row 3 -->
-                        <Label text="Tarja:" GridPane.rowIndex="3"/>
-                        <TextField fx:id="txtTarga" promptText="Tarja do medicamento (1 ou vazio)" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label text="Estoque:*" GridPane.rowIndex="3"/>
+                        <ComboBox fx:id="cbEstoque" promptText="Selecione o estoque" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="9999"/>
+                        
+                        <!-- Row 4 -->
+                        <Label text="Prescrição:" GridPane.rowIndex="4"/>
+                        <TextField fx:id="txtPrescricao" promptText="Tipo de prescrição" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                        
+                        <!-- Row 5 -->
+                        <Label text="Tarja:" GridPane.rowIndex="5"/>
+                        <TextField fx:id="txtTarga" promptText="Tarja do medicamento" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

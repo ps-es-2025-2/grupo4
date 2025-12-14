@@ -62,6 +62,38 @@ check_service() {
     return 1
 }
 
+# Função para aguardar healthcheck do Docker
+wait_for_healthcheck() {
+    local compose_dir=$1
+    local service_name=$2
+    local max_attempts=60
+    local attempt=1
+    
+    print_color $YELLOW "⏳ Aguardando healthcheck de $service_name..."
+    
+    cd "$compose_dir"
+    while [ $attempt -le $max_attempts ]; do
+        local health_status=$(docker-compose ps -q "$service_name" 2>/dev/null | xargs docker inspect -f '{{.State.Health.Status}}' 2>/dev/null)
+        
+        if [ "$health_status" = "healthy" ]; then
+            print_color $GREEN "✅ $service_name está saudável!"
+            cd - > /dev/null
+            return 0
+        fi
+        
+        # Mostra progresso a cada 10 tentativas
+        if [ $((attempt % 10)) -eq 0 ]; then
+            print_color $CYAN "   → Tentativa $attempt/$max_attempts (Status: $health_status)..."
+        fi
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+    
+    cd - > /dev/null
+    print_color $RED "❌ Timeout: $service_name não ficou saudável após $max_attempts tentativas"
+    return 1
+}
+
 # Função para verificar se Docker está rodando
 check_docker() {
     if ! docker info > /dev/null 2>&1; then
@@ -351,8 +383,12 @@ main() {
     
     # Inicia bancos de dados
     docker-compose up -d
-    print_color $YELLOW "   ├─ Cassandra iniciado"
-    check_service "Cassandra" 9042
+    print_color $YELLOW "   ├─ Cassandra iniciado - aguardando healthcheck..."
+    wait_for_healthcheck "$(pwd)" "cassandra" || {
+        print_color $RED "      ❌ Cassandra não ficou saudável"
+        docker-compose logs --tail=50 cassandra
+        exit 1
+    }
     print_color $YELLOW "   ├─ Redis (porta 6381) iniciado"
     check_service "Redis Estoque" 6381
     

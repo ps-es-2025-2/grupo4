@@ -3,6 +3,7 @@ package br.com.simplehealth.estoque.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Modelo para itens hospitalares (extends Item)
@@ -20,8 +21,8 @@ public class Hospitalar extends Item {
     }
     
     public Hospitalar(String nome, Integer quantidadeTotal, Date validade,
-                     Boolean descartabilidade) {
-        super(nome, quantidadeTotal, validade);
+                     UUID estoqueId, Boolean descartabilidade) {
+        super(nome, quantidadeTotal, validade, estoqueId);
         this.descartabilidade = descartabilidade;
     }
     

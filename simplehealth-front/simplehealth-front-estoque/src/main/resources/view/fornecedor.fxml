@@ -22,13 +22,19 @@
             <!-- Tabela -->
             <VBox spacing="10" style="-fx-padding: 15;" VBox.vgrow="ALWAYS">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Total de fornecedores: " style="-fx-font-weight: bold;"/>
+                    <Label text="Buscar:" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtBuscarNome" promptText="Digite o nome do fornecedor..." prefWidth="300"/>
+                    <Button fx:id="btnBuscar" text="Buscar" onAction="#handleBuscar" prefWidth="100"/>
+                    <Button fx:id="btnLimparBusca" text="Limpar" onAction="#handleLimparBusca" prefWidth="100"/>
                 </HBox>
                 
                 <TableView fx:id="tableFornecedores" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="200"/>
-                        <TableColumn fx:id="colCnpj" text="CNPJ" prefWidth="300"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="150"/>
+                        <TableColumn fx:id="colCnpj" text="CNPJ" prefWidth="150"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colTelefone" text="Telefone" prefWidth="120"/>
+                        <TableColumn fx:id="colEmail" text="E-mail" prefWidth="180"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -46,6 +52,18 @@
                         
                         <Label text="CNPJ:*" GridPane.rowIndex="0"/>
                         <TextField fx:id="txtCnpj" promptText="00.000.000/0000-00" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="Nome:*" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtNome" promptText="Nome do fornecedor" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <Label text="Telefone:" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtTelefone" promptText="(00) 00000-0000" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        
+                        <Label text="E-mail:" GridPane.rowIndex="3"/>
+                        <TextField fx:id="txtEmail" promptText="email@exemplo.com" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        
+                        <Label text="Endereço:" GridPane.rowIndex="4"/>
+                        <TextField fx:id="txtEndereco" promptText="Endereço completo" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->
