@@ -20,8 +20,8 @@ public class FinalizarProcedimentoUseCase {
     Procedimento procedimento = procedimentoRepository.findById(dto.getId())
         .orElseThrow(() -> new AgendamentoException("Procedimento não encontrado com ID: " + dto.getId()));
 
-    if (procedimento.getStatus() != StatusAgendamentoEnum.ATIVO) {
-      throw new IllegalStateException("Apenas procedimentos ativos podem ser finalizados");
+    if (procedimento.getStatus() != StatusAgendamentoEnum.ATIVO && procedimento.getStatus() != StatusAgendamentoEnum.INICIADO) {
+      throw new IllegalStateException("Apenas procedimentos ativos ou iniciados podem ser finalizados");
     }
 
     if (procedimento.getDataHoraInicioExecucao() == null) {
