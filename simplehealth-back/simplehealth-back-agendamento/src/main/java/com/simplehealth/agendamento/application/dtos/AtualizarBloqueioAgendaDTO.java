@@ -15,5 +15,9 @@ public class AtualizarBloqueioAgendaDTO {
   private LocalDateTime dataFim;
   private String motivo;
   private Integer antecedenciaMinima;
+  private String medicoCrm;
+  private String usuarioCriadorLogin;
+  private LocalDateTime dataCriacao;
+  private Boolean ativo;
 }
 
