@@ -14,10 +14,6 @@
     - [3.2 Agendamento (8082)](#32-agendamento-8082)
     - [3.3 Estoque (8083)](#33-estoque-8083)
 - [⚙️ 5. Execução Individual dos Módulos](#️-5-execução-individual-dos-módulos)
-  - [Pré-requisitos](#pré-requisitos)
-    - [Instalação do Java 17](#instalação-do-java-17)
-    - [Configuração do Java](#configuração-do-java)
-    - [Definição da variável JAVA\_HOME](#definição-da-variável-java_home)
   - [5.1 Backends](#51-backends)
     - [**Backend Cadastro – Porta 8081**](#backend-cadastro--porta-8081)
     - [**Backend Agendamento – Porta 8082**](#backend-agendamento--porta-8082)
@@ -116,7 +112,7 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 # ⚙️ 5. Execução Individual dos Módulos
 
-> **⚠️ IMPORTANTE:** Primeiramente tente executar via docker os backends(bancos e aplicações). Em caso de erros durante a instalação ou execução, consulte o **[Relatório de Instalação e Execução](docs/Teste%20de%20Instalacao/relatorio_de_instalacao_e_execucao_do_projeto%20(1).md)** para soluções detalhadas de problemas comuns.
+> **⚠️ IMPORTANTE:** Em caso de erros durante a instalação ou execução, consulte o **[Relatório de Instalação e Execução](docs/Teste%20de%20Instalacao/relatorio_de_instalacao_e_execucao_do_projeto%20(1).md)** para soluções detalhadas de problemas comuns.
 
 ## Pré-requisitos
 
@@ -154,7 +150,9 @@ Após configurar o JAVA_HOME, reinicie o terminal ou o VS Code.
 
 ```bash
 cd simplehealth-back/simplehealth-back-cadastro
-docker compose up -d        # Sobe bancos (Postgres, Cassandra, Redis) e backend
+docker compose up -d        # Sobe bancos (Postgres, Cassandra, Redis)
+# ou: docker-compose up -d  # Sintaxe alternativa
+mvn spring-boot:run         # Sobe o backend
 ```
 
 ### **Backend Agendamento – Porta 8082**
@@ -163,7 +161,9 @@ docker compose up -d        # Sobe bancos (Postgres, Cassandra, Redis) e backend
 
 ```bash
 cd simplehealth-back/simplehealth-back-agendamento
-docker compose up -d        # Sobe MongoDB + Redis e backend
+docker compose up -d        # Sobe MongoDB + Redis
+# ou: docker-compose up -d  # Sintaxe alternativa
+mvn spring-boot:run
 ```
 
 ### **Backend Estoque – Porta 8083**
@@ -172,7 +172,9 @@ docker compose up -d        # Sobe MongoDB + Redis e backend
 
 ```bash
 cd simplehealth-back/simplehealth-back-estoque
-docker compose up -d        # Sobe Cassandra + Redis e backend
+docker compose up -d        # Sobe Cassandra + Redis
+# ou: docker-compose up -d  # Sintaxe alternativa
+mvn spring-boot:run
 ```
 
 ---
