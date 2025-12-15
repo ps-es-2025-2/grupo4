@@ -34,16 +34,31 @@ public class AtualizarExameUseCase {
       throw new IllegalStateException("Não é possível atualizar um exame que já foi iniciado");
     }
 
-    if (dto.getDataHoraInicio() != null && dto.getDataHoraFim() != null) {
-      if (!dto.getDataHoraInicio().equals(exame.getDataHoraInicioPrevista())
-          || !dto.getDataHoraFim().equals(exame.getDataHoraFimPrevista())) {
-        agendamentoService.verificarDisponibilidade(
-            exame.getMedicoCrm(),
-            dto.getDataHoraInicio(),
-            dto.getDataHoraFim());
-      }
-      exame.setDataHoraInicioPrevista(dto.getDataHoraInicio());
-      exame.setDataHoraFimPrevista(dto.getDataHoraFim());
+    LocalDateTime novaDataInicio = dto.getDataHoraInicio() != null ? dto.getDataHoraInicio() 
+        : (dto.getDataHoraInicioPrevista() != null ? dto.getDataHoraInicioPrevista() : exame.getDataHoraInicioPrevista());
+    
+    LocalDateTime novaDataFim = dto.getDataHoraFim() != null ? dto.getDataHoraFim() 
+        : (dto.getDataHoraFimPrevista() != null ? dto.getDataHoraFimPrevista() : exame.getDataHoraFimPrevista());
+        
+    String novoMedicoCrm = dto.getMedicoCrm() != null ? dto.getMedicoCrm() : exame.getMedicoCrm();
+
+    if (novaDataInicio.isAfter(novaDataFim)) {
+      throw new IllegalArgumentException("A data de início deve ser anterior à data de fim.");
+    }
+
+    boolean datesChanged = !novaDataInicio.equals(exame.getDataHoraInicioPrevista()) 
+                        || !novaDataFim.equals(exame.getDataHoraFimPrevista());
+    boolean doctorChanged = !novoMedicoCrm.equals(exame.getMedicoCrm());
+
+    if (datesChanged || doctorChanged) {
+      agendamentoService.verificarDisponibilidade(
+          novoMedicoCrm,
+          novaDataInicio,
+          novaDataFim);
+      
+      exame.setDataHoraInicioPrevista(novaDataInicio);
+      exame.setDataHoraFimPrevista(novaDataFim);
+      exame.setMedicoCrm(novoMedicoCrm);
     }
 
     if (dto.getNomeExame() != null) {
@@ -63,6 +78,36 @@ public class AtualizarExameUseCase {
     }
     if (dto.getConvenioNome() != null) {
       exame.setConvenioNome(dto.getConvenioNome());
+    }
+    if (dto.getPacienteCpf() != null) {
+      exame.setPacienteCpf(dto.getPacienteCpf());
+    }
+    if (dto.getIsEncaixe() != null) {
+      exame.setIsEncaixe(dto.getIsEncaixe());
+    }
+    if (dto.getMotivoEncaixe() != null) {
+      exame.setMotivoEncaixe(dto.getMotivoEncaixe());
+    }
+    if (dto.getStatus() != null) {
+      exame.setStatus(dto.getStatus());
+    }
+    if (dto.getMotivoCancelamento() != null) {
+      exame.setMotivoCancelamento(dto.getMotivoCancelamento());
+    }
+    if (dto.getDataCancelamento() != null) {
+      exame.setDataCancelamento(dto.getDataCancelamento());
+    }
+    if (dto.getDataHoraInicioExecucao() != null) {
+      exame.setDataHoraInicioExecucao(dto.getDataHoraInicioExecucao());
+    }
+    if (dto.getDataHoraFimExecucao() != null) {
+      exame.setDataHoraFimExecucao(dto.getDataHoraFimExecucao());
+    }
+    if (dto.getUsuarioCriadorLogin() != null) {
+      exame.setUsuarioCriadorLogin(dto.getUsuarioCriadorLogin());
+    }
+    if (dto.getUsuarioCanceladorLogin() != null) {
+      exame.setUsuarioCanceladorLogin(dto.getUsuarioCanceladorLogin());
     }
 
     Exame atualizado = exameRepository.save(exame);
