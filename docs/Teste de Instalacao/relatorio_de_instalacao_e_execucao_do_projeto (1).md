@@ -1,5 +1,19 @@
 # Relatório de Instalação e Execução do Projeto
 
+## Sumário
+
+- [1. Preparação do Ambiente](#1-preparação-do-ambiente)
+- [2. Backend Cadastro](#2-backend-cadastro)
+- [3. Backend Agendamento](#3-backend-agendamento)
+- [4. Backend Estoque](#4-backend-estoque)
+- [5. Frontend Cadastro](#5-frontend-cadastro)
+- [6. Frontend Agendamento](#6-frontend-agendamento)
+- [7. Frontend Estoque](#7-frontend-estoque)
+- [8. Conclusão](#8-conclusão)
+
+---
+
+
 Este relatório descreve, de forma detalhada e passo a passo, todo o processo de instalação, configuração e execução do projeto, partindo do zero, conforme os testes realizados.
 
 Todo o procedimento foi executado em uma **máquina virtual com Ubuntu 24.04.3 LTS**, garantindo um ambiente limpo e padronizado para validação.
@@ -171,7 +185,7 @@ O **Backend de Estoque** foi inicializado com sucesso após a subida dos contain
 
 ## 5. Frontend Cadastro
 
-O **Frontend de Cadastro** foi executado com sucesso, porém **não conseguiu se conectar ao backend**, uma vez que o backend de cadastro ainda apresentava instabilidades no momento do teste.
+O **Frontend de Cadastro** foi executado com sucesso, porém **não conseguiu se conectar ao backend**, uma vez que o backend de cadastro ainda apresentava instabilidades no momento do teste. Todavia apos inicializar o backend de Agendamento e Estoque o backend de Cadastro passou a funcionar.
 
 - Comando utilizado:
   ```bash
@@ -217,4 +231,3 @@ O **Frontend de Estoque** também foi executado com sucesso absoluto.
 ## 8. Conclusão
 
 Após os ajustes necessários no ambiente, especialmente relacionados à versão do Java, configuração do Maven e uso correto do Docker Compose, foi possível executar com sucesso todos os backends e frontends do projeto, validando o processo completo de instalação e execução em um ambiente Ubuntu limpo.
-
