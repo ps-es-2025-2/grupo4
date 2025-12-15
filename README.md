@@ -13,16 +13,12 @@
     - [3.1 Cadastro (8081)](#31-cadastro-8081)
     - [3.2 Agendamento (8082)](#32-agendamento-8082)
     - [3.3 Estoque (8083)](#33-estoque-8083)
-- [4. Execução via start-all.sh](#4-execução-via-start-allsh)
-    - [Uso do Script](#uso-do-script)
-  - [4.1 Stop All](#41-stop-all)
 - [⚙️ 5. Execução Individual dos Módulos](#️-5-execução-individual-dos-módulos)
   - [Pré-requisitos](#pré-requisitos)
     - [Instalação do Java 17](#instalação-do-java-17)
     - [Configuração do Java](#configuração-do-java)
     - [Definição da variável JAVA\_HOME](#definição-da-variável-java_home)
   - [5.1 Backends](#51-backends)
-    - [**Redis de comunicação entre os módulos(esse deve sempre estar ativo antes dos backends)**](#redis-de-comunicação-entre-os-módulosesse-deve-sempre-estar-ativo-antes-dos-backends)
     - [**Backend Cadastro – Porta 8081**](#backend-cadastro--porta-8081)
     - [**Backend Agendamento – Porta 8082**](#backend-agendamento--porta-8082)
     - [**Backend Estoque – Porta 8083**](#backend-estoque--porta-8083)
@@ -116,30 +112,6 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 ---
 
-# 4. Execução via start-all.sh
-Para facilitar a execução completa do sistema, criamos o script `start-all.sh` na raiz do projeto. Ele automatiza o processo de inicialização de todos os módulos e bancos de dados necessários.
-### Uso do Script
-1. Abra um terminal na raiz do projeto.
-2. Execute o script com o comando:
-  Para sistemas Unix/Linux/Mac:
-   ```bash
-   ./start-all.sh
-   ```
-  Para Windows (PowerShell) necessário o uso do Git Bash ou WSL:
-   ```powershell
-   sh ./start-all.sh
-   ```
-
-## 4.1 Stop All
-Para parar todos os módulos, frontends e bancos de dados, utilize o script `stop-all.sh` na raiz do projeto:
-  Para sistemas Unix/Linux/Mac:
-   ```bash
-   ./stop-all.sh
-   ```
-  Para Windows (PowerShell) necessário o uso do Git Bash ou WSL:
-   ```powershell
-   sh ./stop-all.sh
-   ```
 ---
 
 # ⚙️ 5. Execução Individual dos Módulos
@@ -175,15 +147,6 @@ echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> ~/.bashrc
 Após configurar o JAVA_HOME, reinicie o terminal ou o VS Code.
 
 ## 5.1 Backends
-
-### **Redis de comunicação entre os módulos(esse deve sempre estar ativo antes dos backends)**
-
-**Requisitos:** Docker.
-Na root do projeto, execute:
-
-```bash
-docker compose up -d # Sobe Redis compartilhado
-```
 
 ### **Backend Cadastro – Porta 8081**
 
