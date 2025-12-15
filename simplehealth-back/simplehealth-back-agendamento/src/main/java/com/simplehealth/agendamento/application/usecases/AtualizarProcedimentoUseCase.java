@@ -34,16 +34,31 @@ public class AtualizarProcedimentoUseCase {
       throw new IllegalStateException("Não é possível atualizar um procedimento que já foi iniciado");
     }
 
-    if (dto.getDataHoraInicio() != null && dto.getDataHoraFim() != null) {
-      if (!dto.getDataHoraInicio().equals(procedimento.getDataHoraInicioPrevista())
-          || !dto.getDataHoraFim().equals(procedimento.getDataHoraFimPrevista())) {
-        agendamentoService.verificarDisponibilidade(
-            procedimento.getMedicoCrm(),
-            dto.getDataHoraInicio(),
-            dto.getDataHoraFim());
-      }
-      procedimento.setDataHoraInicioPrevista(dto.getDataHoraInicio());
-      procedimento.setDataHoraFimPrevista(dto.getDataHoraFim());
+    LocalDateTime novaDataInicio = dto.getDataHoraInicio() != null ? dto.getDataHoraInicio() 
+        : (dto.getDataHoraInicioPrevista() != null ? dto.getDataHoraInicioPrevista() : procedimento.getDataHoraInicioPrevista());
+    
+    LocalDateTime novaDataFim = dto.getDataHoraFim() != null ? dto.getDataHoraFim() 
+        : (dto.getDataHoraFimPrevista() != null ? dto.getDataHoraFimPrevista() : procedimento.getDataHoraFimPrevista());
+        
+    String novoMedicoCrm = dto.getMedicoCrm() != null ? dto.getMedicoCrm() : procedimento.getMedicoCrm();
+
+    if (novaDataInicio.isAfter(novaDataFim)) {
+      throw new IllegalArgumentException("A data de início deve ser anterior à data de fim.");
+    }
+
+    boolean datesChanged = !novaDataInicio.equals(procedimento.getDataHoraInicioPrevista()) 
+                        || !novaDataFim.equals(procedimento.getDataHoraFimPrevista());
+    boolean doctorChanged = !novoMedicoCrm.equals(procedimento.getMedicoCrm());
+
+    if (datesChanged || doctorChanged) {
+      agendamentoService.verificarDisponibilidade(
+          novoMedicoCrm,
+          novaDataInicio,
+          novaDataFim);
+      
+      procedimento.setDataHoraInicioPrevista(novaDataInicio);
+      procedimento.setDataHoraFimPrevista(novaDataFim);
+      procedimento.setMedicoCrm(novoMedicoCrm);
     }
 
     if (dto.getDescricaoProcedimento() != null) {
@@ -63,6 +78,36 @@ public class AtualizarProcedimentoUseCase {
     }
     if (dto.getConvenioNome() != null) {
       procedimento.setConvenioNome(dto.getConvenioNome());
+    }
+    if (dto.getPacienteCpf() != null) {
+      procedimento.setPacienteCpf(dto.getPacienteCpf());
+    }
+    if (dto.getIsEncaixe() != null) {
+      procedimento.setIsEncaixe(dto.getIsEncaixe());
+    }
+    if (dto.getMotivoEncaixe() != null) {
+      procedimento.setMotivoEncaixe(dto.getMotivoEncaixe());
+    }
+    if (dto.getStatus() != null) {
+      procedimento.setStatus(dto.getStatus());
+    }
+    if (dto.getMotivoCancelamento() != null) {
+      procedimento.setMotivoCancelamento(dto.getMotivoCancelamento());
+    }
+    if (dto.getDataCancelamento() != null) {
+      procedimento.setDataCancelamento(dto.getDataCancelamento());
+    }
+    if (dto.getDataHoraInicioExecucao() != null) {
+      procedimento.setDataHoraInicioExecucao(dto.getDataHoraInicioExecucao());
+    }
+    if (dto.getDataHoraFimExecucao() != null) {
+      procedimento.setDataHoraFimExecucao(dto.getDataHoraFimExecucao());
+    }
+    if (dto.getUsuarioCriadorLogin() != null) {
+      procedimento.setUsuarioCriadorLogin(dto.getUsuarioCriadorLogin());
+    }
+    if (dto.getUsuarioCanceladorLogin() != null) {
+      procedimento.setUsuarioCanceladorLogin(dto.getUsuarioCanceladorLogin());
     }
 
     Procedimento atualizado = procedimentoRepository.save(procedimento);
