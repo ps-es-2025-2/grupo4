@@ -117,7 +117,7 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
             logger.info("Usuários carregados: {}", usuarios.size());
         } catch (IOException | org.apache.hc.core5.http.ParseException e) {
             logger.error("Erro ao carregar usuários", e);
-            mostrarErro("Erro", "Não foi possível carregar os usuários: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível carregar os usuários: " + extrairMensagemErro(e));
         }
     }
 
@@ -164,7 +164,7 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
             habilitarCampos(false);
         } catch (IOException | org.apache.hc.core5.http.ParseException e) {
             logger.error("Erro ao deletar usuário", e);
-            mostrarErro("Erro", "Não foi possível deletar o usuário: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível deletar o usuário: " + extrairMensagemErro(e));
         }
     }
 
@@ -202,7 +202,7 @@ public class UsuarioController extends AbstractCrudController<Usuario> {
             modoEdicao = null;
         } catch (IOException | org.apache.hc.core5.http.ParseException e) {
             logger.error("Erro ao confirmar operação", e);
-            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível completar a operação: " + extrairMensagemErro(e));
         }
     }
 

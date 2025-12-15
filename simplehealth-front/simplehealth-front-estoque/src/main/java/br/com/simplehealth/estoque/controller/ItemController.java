@@ -115,7 +115,7 @@ public class ItemController extends AbstractCrudController<Item> {
             logger.info("Itens carregados: {}", itens.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar itens", e);
-            mostrarErro("Erro", "Erro ao carregar itens: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar itens: " + extrairMensagemErro(e));
         }
     }
     
@@ -141,7 +141,7 @@ public class ItemController extends AbstractCrudController<Item> {
             
         } catch (Exception e) {
             logger.error("Erro ao buscar itens", e);
-            mostrarErro("Erro", "Erro ao buscar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao buscar: " + extrairMensagemErro(e));
         }
     }
     
@@ -163,7 +163,7 @@ public class ItemController extends AbstractCrudController<Item> {
                 RefreshManager.getInstance().notifyRefresh("Item");
             } catch (Exception e) {
                 logger.error("Erro ao deletar item", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
+                mostrarErro("Erro", "Erro ao deletar: " + extrairMensagemErro(e));
             }
         }
     }

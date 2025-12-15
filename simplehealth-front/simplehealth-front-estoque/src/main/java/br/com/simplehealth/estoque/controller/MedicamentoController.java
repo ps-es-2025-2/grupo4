@@ -108,7 +108,7 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
             });
         } catch (Exception e) {
             logger.error("Erro ao carregar estoques", e);
-            mostrarErro("Erro", "Erro ao carregar estoques: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar estoques: " + extrairMensagemErro(e));
         }
     }
     
@@ -145,7 +145,7 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
             logger.info("Medicamentos carregados: {}", medicamentos.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar medicamentos", e);
-            mostrarErro("Erro", "Erro ao carregar medicamentos: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar medicamentos: " + extrairMensagemErro(e));
         }
     }
     
@@ -231,7 +231,7 @@ public class MedicamentoController extends AbstractCrudController<Medicamento> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao processar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao processar: " + extrairMensagemErro(e));
         }
     }
     

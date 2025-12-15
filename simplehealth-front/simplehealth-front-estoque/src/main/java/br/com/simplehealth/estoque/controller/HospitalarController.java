@@ -91,7 +91,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             });
         } catch (Exception e) {
             logger.error("Erro ao carregar estoques", e);
-            mostrarErro("Erro", "Erro ao carregar estoques: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar estoques: " + extrairMensagemErro(e));
         }
     }
     
@@ -146,7 +146,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             logger.info("Hospitalares carregados: {}", hospitalares.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar hospitalares", e);
-            mostrarErro("Erro", "Erro ao carregar itens hospitalares: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar itens hospitalares: " + extrairMensagemErro(e));
         }
     }
     
@@ -231,7 +231,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     

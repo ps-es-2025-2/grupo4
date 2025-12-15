@@ -54,6 +54,32 @@ public abstract class AbstractCrudController<T> {
     }
 
     /**
+     * Extrai mensagem de erro limpa (sem stack trace completo)
+     */
+    protected String extrairMensagemErro(Exception e) {
+        String msg = e.getMessage();
+        if (msg == null || msg.trim().isEmpty()) {
+            return "Erro: " + e.getClass().getSimpleName().replace("Exception", "");
+        }
+        
+        // Se a mensagem tem múltiplas linhas (stack trace), pega só a primeira
+        int index = msg.indexOf('\n');
+        if (index > 0) {
+            msg = msg.substring(0, index);
+        }
+        
+        // Remove espaços em branco extras
+        msg = msg.trim();
+        
+        // Limita tamanho máximo
+        if (msg.length() > 300) {
+            msg = msg.substring(0, 300) + "...";
+        }
+        
+        return msg;
+    }
+    
+    /**
      * Exibe uma mensagem de erro.
      */
     protected void mostrarErro(String titulo, String mensagem) {

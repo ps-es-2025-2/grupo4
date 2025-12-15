@@ -101,7 +101,7 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
             logger.info("Estoques carregados: {}", estoques.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar estoques", e);
-            mostrarErro("Erro", "Erro ao carregar estoques: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar estoques: " + extrairMensagemErro(e));
         }
     }
     
@@ -175,7 +175,7 @@ public class EstoqueController extends AbstractCrudController<Estoque> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     

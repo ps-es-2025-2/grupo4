@@ -110,7 +110,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
             logger.info("Fornecedores carregados: {}", fornecedores.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar fornecedores", e);
-            mostrarErro("Erro", "Erro ao carregar fornecedores: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar fornecedores: " + extrairMensagemErro(e));
         }
     }
     
@@ -186,7 +186,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     
@@ -303,7 +303,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
             }
         } catch (Exception e) {
             logger.error("Erro ao buscar fornecedores", e);
-            mostrarErro("Erro", "Erro ao buscar fornecedores: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao buscar fornecedores: " + extrairMensagemErro(e));
         }
     }
     

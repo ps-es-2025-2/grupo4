@@ -136,7 +136,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
                 logger.info("Dados carregados: {} exames", exames.size());
             } catch (Exception e) {
                 logger.error("Erro ao carregar exames", e);
-                mostrarErro("Erro ao carregar dados", e.getMessage());
+                mostrarErro("Erro ao carregar dados", extrairMensagemErro(e));
             }
         });
     }
@@ -267,7 +267,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
 
         } catch (Exception e) {
             logger.error("Erro ao salvar exame", e);
-            mostrarErro("Erro ao salvar", e.getMessage());
+            mostrarErro("Erro ao salvar", extrairMensagemErro(e));
         }
     }
 
@@ -307,7 +307,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir exame", e);
-                    mostrarErro("Erro ao excluir", e.getMessage());
+                    mostrarErro("Erro ao excluir", extrairMensagemErro(e));
                 }
             }
         });
@@ -559,7 +559,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
             }
         } catch (Exception e) {
             logger.error("Erro ao iniciar exame", e);
-            mostrarErro("Erro ao iniciar", e.getMessage());
+            mostrarErro("Erro ao iniciar", extrairMensagemErro(e));
         }
     }
     
@@ -604,7 +604,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
             
         } catch (Exception e) {
             logger.error("Erro ao finalizar exame", e);
-            mostrarErro("Erro ao finalizar", e.getMessage());
+            mostrarErro("Erro ao finalizar", extrairMensagemErro(e));
         }
     }
     
@@ -654,7 +654,7 @@ public class ExameController extends AbstractCrudController<Exame> implements Re
             
         } catch (Exception e) {
             logger.error("Erro ao cancelar exame", e);
-            mostrarErro("Erro ao cancelar", e.getMessage());
+            mostrarErro("Erro ao cancelar", extrairMensagemErro(e));
         }
     }
 

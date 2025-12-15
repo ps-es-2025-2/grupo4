@@ -91,7 +91,7 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
             });
         } catch (Exception e) {
             logger.error("Erro ao carregar estoques", e);
-            mostrarErro("Erro", "Erro ao carregar estoques: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar estoques: " + extrairMensagemErro(e));
         }
     }
     
@@ -147,7 +147,7 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
             logger.info("Alimentos carregados: {}", alimentos.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar alimentos", e);
-            mostrarErro("Erro", "Erro ao carregar alimentos: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar alimentos: " + extrairMensagemErro(e));
         }
     }
     
@@ -232,7 +232,7 @@ public class AlimentoController extends AbstractCrudController<Alimento> {
             
         } catch (Exception e) {
             logger.error("Erro ao salvar alimento", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     

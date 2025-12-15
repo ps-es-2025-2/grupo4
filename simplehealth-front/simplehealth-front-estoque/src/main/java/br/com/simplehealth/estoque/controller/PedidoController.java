@@ -140,7 +140,7 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             });
         } catch (Exception e) {
             logger.error("Erro ao carregar fornecedores", e);
-            mostrarErro("Erro", "Erro ao carregar fornecedores: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar fornecedores: " + extrairMensagemErro(e));
         }
     }
     
@@ -173,7 +173,7 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             itensDisponiveis.addAll(hospitalarService.listar());
         } catch (Exception e) {
             logger.error("Erro ao carregar itens", e);
-            mostrarErro("Erro", "Erro ao carregar itens: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar itens: " + extrairMensagemErro(e));
         }
     }
     
@@ -205,7 +205,7 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             logger.info("Pedidos carregados: {}", pedidos.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar pedidos", e);
-            mostrarErro("Erro", "Erro ao carregar pedidos: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar pedidos: " + extrairMensagemErro(e));
         }
     }
     
@@ -318,7 +318,7 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     
