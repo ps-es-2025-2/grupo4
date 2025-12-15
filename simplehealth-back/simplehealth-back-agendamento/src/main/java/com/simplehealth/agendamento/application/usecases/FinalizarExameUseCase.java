@@ -20,8 +20,8 @@ public class FinalizarExameUseCase {
     Exame exame = exameRepository.findById(dto.getId())
         .orElseThrow(() -> new AgendamentoException("Exame não encontrado com ID: " + dto.getId()));
 
-    if (exame.getStatus() != StatusAgendamentoEnum.ATIVO) {
-      throw new IllegalStateException("Apenas exames ativos podem ser finalizados");
+    if (exame.getStatus() != StatusAgendamentoEnum.ATIVO && exame.getStatus() != StatusAgendamentoEnum.INICIADO) {
+      throw new IllegalStateException("Apenas exames ativos OU iniciados podem ser finalizados");
     }
 
     if (exame.getDataHoraInicioExecucao() == null) {
