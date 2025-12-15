@@ -1,0 +1,27 @@
+Conversa com Stakeholder - Financeiro
+I. Receitas e Contas a Receber (Faturamento)
+1. Qual é o fluxo completo de recebimento de uma consulta/procedimento? O sistema deve registrar o valor na Conta a Receber automaticamente após o agendamento ou apenas após o atendimento ser concluído (marcado como "Realizado")?
+R1: “Idealmente o valor só deve ir pro contas a receber depois que terminar a consulta, senão pode acabar gerando confusão com consultas canceladas de última hora. Mas seria bom se o sistema indicasse um valor previsto já no agendamento e desse baixa depois que terminasse.”
+2. Como o sistema deve gerenciar as diferentes formas de pagamento e suas taxas? Quais formas de pagamento são aceitas (Dinheiro, Pix, Cartão de Crédito, Débito)? O sistema precisa calcular e deduzir automaticamente as taxas bancárias/administrativas de cada modalidade (por exemplo, taxa de 3% no crédito em 3x)?
+R2: “Nós aceitamos todas essas formas de pagamento, aí já tem que calcular todas as taxas automático pra calcular o repasse do médico e o resultado líquido.”
+3. Como é feito o acompanhamento de pagamentos via Convênios/Planos de Saúde? O sistema precisa registrar o valor total da guia de atendimento, o valor repassado pelo convênio e controlar a data de recebimento e possíveis glosas (não pagamentos)?
+R3: “No caso do convênio o sistema precisa gravar o valor total da guia, o valor que foi passado pelo convênio, as datas que foi recebido e o valor do que não foi pago. Precisa disso pra controlar o que falta para os planos pagarem e o saber o quanto entrou em caixa.”
+II. Despesas e Contas a Pagar
+4. Como a equipe gerencia as despesas (Contas a Pagar)? Quais são as principais categorias de despesas (ex: Aluguel, Salários, Insumos, Marketing)? O sistema precisa permitir o registro de despesas recorrentes (mensais) e a anexação de comprovantes/notas fiscais a cada lançamento?
+R4: “Tem essas categorias aí (Aluguel, Salários, Insumos, Marketing) e tem também Manutenção, as vezes de equipamento hospitalar, mas também de equipamento geral do hospital. Aí sobre despesa recorrente precisa ter pra contas tipo aluguel e energia. Aí anexa a nota fiscal pra caso precise consultar depois.”
+5. Qual é o processo de autorização de pagamentos? Quem (qual usuário/nível de acesso) tem permissão para aprovar uma conta a pagar e quem tem permissão para dar baixa no pagamento, indicando que o dinheiro saiu do caixa/conta bancária?
+R5: “Geralmente os coordenares da administração aprovam o pagamento e a tesouraria dá baixa. Como é um monte de gente do setor, não corre o risco de ficar dependendo de uma pessoa só.”
+III. Controle de Fluxo de Caixa e Bancos
+6. Quantas "contas" financeiras (Caixa/Bancos) o sistema deve gerenciar? O módulo precisa rastrear o saldo de cada Conta Bancária e do Caixa Físico separadamente? É essencial que o sistema permita realizar e registrar Transferências entre essas contas?
+R6: “Controla 1 caixa físico e mais duas contas bancárias, 1 institucional e a outra para os convênios. Aí o sistema teria que deixar os saldos separados e também deixar transferir de um pra outro.”
+7. O sistema deve ter a funcionalidade de Conciliação Bancária? Se sim, quais dados são utilizados para a conciliação (data, valor, descrição)? Como o usuário irá indicar que um lançamento no sistema confere com o extrato bancário (manual ou por meio de importação de arquivo)?
+R7: “Seria bom poder importar um csv gerado pelo banco, nós usamos principalmente a data, o valor e a descrição. Aí mesmo que deixe importar também tem que deixar editar e colocar manualmente caso precise mudar alguma coisa.”
+IV. Repasse e Rateio para Médicos
+8. Qual é a regra utilizada para o cálculo do Repasse (comissão) aos médicos? A porcentagem de repasse varia por Tipo de Procedimento, Convênio ou é uma porcentagem fixa sobre o valor líquido recebido? O sistema precisa gerar relatórios de repasse detalhados por médico, incluindo os valores brutos, taxas e o valor líquido a repassar?
+R8: “Depende do procedimento, alguns tem percentual fixo, outros já vária pelo convênio. Aí o sistema precisaria já passar o valor depois de tirar as taxas. Um relatório seria bom por médico, aí vinha falando os valores e taxas já sem precisar ter que ficar pesquisando várias vezes.”
+V. Relatórios e Segurança
+9. Quais relatórios financeiros são prioritários para a tomada de decisão (além de Fluxo de Caixa)? O sistema deve gerar relatórios essenciais como Demonstrativo de Resultados (DRE) por período, Relatório de Inadimplência de Pacientes e Análise de Receita por Médico/Procedimento?
+R9: “Os mais importantes vão ser o Fluxo de Caixa e o de Resultados. O de inadimplência a gente consegue calcular baseado no que o convênio passa e o médico seria mais pra produtividade do médico, mas como geralmente repassa por procedimento seria só se eles quisessem saber mesmo.”
+10. Quais são os níveis de acesso e segurança necessários para o módulo financeiro? Por exemplo: Apenas o gestor pode ver o relatório DRE, mas o atendente pode lançar uma despesa e o médico pode ver apenas o seu relatório de repasse. Descreva as principais restrições de visualização/edição por função.
+R10: “O Gestor pode fazer tudo, o financeiro lança as contas e confere os documentos, a tesouraria controla o caixa e faz pagamento. O médico só teria acesso ao relatório individual do repasse dele. Aí atendente se for a recepção só lança os atendimentos e recebe o pagamento”
+
