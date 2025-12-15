@@ -1,127 +1,93 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Script para verificar status do sistema SimpleHealth
+# Autor: Sistema SimpleHealth
+# Data: 15/12/2025
+# Compatível com Linux e macOS
 
-###############################################################################
-# SimpleHealth - Script de Status
-# 
-# Verifica o status de todos os serviços do SimpleHealth
-###############################################################################
+echo "============================================"
+echo "  SimpleHealth - Status do Sistema"
+echo "============================================"
+echo ""
 
-# Cores para output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-MAGENTA='\033[0;35m'
-NC='\033[0m' # No Color
+# 1. Status dos Backends (Docker)
+echo ">>> BACKENDS (Docker Containers) <<<"
+echo ""
 
-# Função para imprimir com cor
-print_color() {
-    color=$1
-    shift
-    echo -e "${color}$@${NC}"
-}
-
-# Função para imprimir cabeçalho
-print_header() {
+if docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "simplehealth|redis_shared|postgres|mongodb|cassandra" > /dev/null 2>&1; then
+    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "NAMES|simplehealth|redis_shared|postgres|mongodb|cassandra"
     echo ""
-    print_color $CYAN "========================================================================"
-    print_color $CYAN "$1"
-    print_color $CYAN "========================================================================"
-    echo ""
-}
-
-# Função para verificar porta
-check_port() {
-    local name=$1
-    local port=$2
     
-    if nc -z localhost $port 2>/dev/null; then
-        print_color $GREEN "✅ $name (porta $port) - RODANDO"
-        return 0
+    # Contar containers rodando
+    backendCount=$(docker ps --filter "name=simplehealth" --format "{{.Names}}" | wc -l)
+    dbCount=$(($(docker ps --filter "name=postgres_cadastro" --format "{{.Names}}" | wc -l) + \
+               $(docker ps --filter "name=mongodb_agendamento" --format "{{.Names}}" | wc -l) + \
+               $(docker ps --filter "name=cassandra_estoque" --format "{{.Names}}" | wc -l)))
+    redisCount=$(docker ps --filter "name=redis_shared" --format "{{.Names}}" | wc -l)
+    
+    echo "📊 Resumo Backends:"
+    echo "  • Aplicações Backend: $backendCount/3"
+    echo "  • Bancos de Dados:    $dbCount/3"
+    echo "  • Redis Compartilhado: $redisCount/1"
+else
+    echo "❌ Nenhum container backend está rodando!"
+    echo "   Execute: ./start_back.sh para iniciar os backends"
+fi
+
+echo ""
+echo ">>> FRONTENDS (JavaFX) <<<"
+echo ""
+
+# 2. Status dos Frontends (Processos Java)
+# Compatível com Windows (Git Bash) e Linux/Mac
+if command -v tasklist.exe &> /dev/null; then
+    # Windows
+    javaCount=$(tasklist.exe //FI "IMAGENAME eq java.exe" 2>/dev/null | grep -c "java.exe" || echo "0")
+    if [ "$javaCount" -gt 0 ]; then
+        echo "Processos Java encontrados:"
+        tasklist.exe //FI "IMAGENAME eq java.exe" //FO TABLE | grep "java.exe" | head -10
+        echo ""
+        echo "📊 Total de processos JavaFX: $javaCount"
     else
-        print_color $RED "❌ $name (porta $port) - PARADO"
-        return 1
+        echo "❌ Nenhum processo Frontend JavaFX está rodando!"
+        echo "   Execute: ./start_all.sh para iniciar todo o sistema"
     fi
-}
-
-# Função para verificar container
-check_container() {
-    local name=$1
-    
-    if docker ps --filter "name=$name" --format "{{.Names}}" | grep -q "$name"; then
-        local status=$(docker inspect --format='{{.State.Status}}' $name 2>/dev/null)
-        if [ "$status" = "running" ]; then
-            print_color $GREEN "✅ Container $name - RODANDO"
-            return 0
-        else
-            print_color $YELLOW "⚠️  Container $name - STATUS: $status"
-            return 1
-        fi
+else
+    # Linux/Mac
+    javaCount=$(pgrep -f "simplehealth-front|javafx|java" 2>/dev/null | wc -l)
+    if [ $javaCount -gt 0 ]; then
+        echo "Processos Java encontrados:"
+        ps aux | grep -E "java" | grep -v grep | head -10 | awk '{print "  • PID: " $2 " | CPU: " $3 "% | Mem: " $4 "%"}'
+        echo ""
+        echo "📊 Total de processos Java: $javaCount"
     else
-        print_color $RED "❌ Container $name - NÃO ENCONTRADO"
-        return 1
+        echo "❌ Nenhum processo Frontend JavaFX está rodando!"
+        echo "   Execute: ./start_all.sh para iniciar todo o sistema"
     fi
-}
+fi
 
-main() {
-    print_header "📊 SIMPLEHEALTH - STATUS DO SISTEMA"
-    
-    # Verificar se Docker está rodando
-    if ! docker info > /dev/null 2>&1; then
-        print_color $RED "❌ Docker não está rodando!"
-        exit 1
-    fi
-    
-    # Verificar se netcat está instalado
-    if ! command -v nc &> /dev/null; then
-        print_color $YELLOW "⚠️  netcat não está instalado. Algumas verificações podem falhar."
-    fi
-    
-    # Backends
-    print_header "🔧 BACKENDS"
-    check_port "Backend Agendamento" 8082
-    check_port "Backend Cadastro" 8081
-    check_port "Backend Estoque" 8083
-    
-    # Bancos de Dados
-    print_header "💾 BANCOS DE DADOS"
-    check_port "MongoDB" 27017
-    check_port "PostgreSQL" 5430
-    check_port "Redis" 6379
-    check_port "Cassandra" 9042
-    
-    # Containers Frontend
-    print_header "🖥️  FRONTENDS (CONTAINERS)"
-    check_container "simplehealth-front-agendamento"
-    check_container "simplehealth-front-cadastro"
-    check_container "simplehealth-front-estoque"
-    
-    # Containers Backend
-    print_header "🔧 BACKENDS (CONTAINERS)"
-    check_container "simplehealth-back-agendamento"
-    check_container "simplehealth-back-cadastro"
-    check_container "simplehealth-back-estoque"
-    
-    # Lista completa de containers
-    print_header "📦 TODOS OS CONTAINERS SIMPLEHEALTH"
-    docker ps --filter "name=simplehealth" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
-    
-    # Containers de banco de dados
-    echo ""
-    print_color $MAGENTA "💾 CONTAINERS DE BANCO DE DADOS:"
-    docker ps --filter "name=mongo" --filter "name=postgres" --filter "name=redis" --filter "name=cassandra" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
-    
-    # Resumo
-    echo ""
-    print_header "📝 COMANDOS ÚTEIS"
-    print_color $CYAN "  • Iniciar tudo:       ./start-all.sh"
-    print_color $CYAN "  • Parar tudo:         ./stop-all.sh"
-    print_color $CYAN "  • Ver logs:           docker-compose logs -f [serviço]"
-    print_color $CYAN "  • Logs backend:       cd simplehealth-back/[modulo] && docker-compose logs -f"
-    print_color $CYAN "  • Logs frontend:      cd simplehealth-front/[modulo] && docker-compose logs -f"
-    print_color $CYAN "  • Reiniciar serviço:  docker-compose restart [serviço]"
-    echo ""
-}
+echo ""
+echo ">>> CONECTIVIDADE <<<"
+echo ""
 
-main
+# 3. Testar conectividade com backends
+for endpoint in "Backend Cadastro:8081" "Backend Agendamento:8082" "Backend Estoque:8083"; do
+    name=$(echo $endpoint | cut -d: -f1)
+    port=$(echo $endpoint | cut -d: -f2)
+    
+    if curl -s --max-time 2 "http://localhost:$port" > /dev/null 2>&1; then
+        echo "  ✅ $name: ONLINE"
+    else
+        echo "  ❌ $name: OFFLINE ou sem resposta"
+    fi
+done
+
+echo ""
+echo "============================================"
+echo "  Comandos Úteis"
+echo "============================================"
+echo "  ./start_all.sh  - Iniciar sistema completo"
+echo "  ./start_back.sh - Iniciar apenas backends"
+echo "  ./stop_all.sh   - Parar sistema completo"
+echo "  ./stop_back.sh  - Parar apenas backends"
+echo "  ./status.sh     - Ver este status"
+echo ""
