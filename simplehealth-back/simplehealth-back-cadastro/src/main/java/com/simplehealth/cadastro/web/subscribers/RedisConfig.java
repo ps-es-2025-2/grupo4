@@ -1,7 +1,10 @@
 package com.simplehealth.cadastro.web.subscribers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.simplehealth.cadastro.infrastructure.redis.subscribers.HistoricoResponseSubscriber;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -12,11 +15,6 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.simplehealth.cadastro.infrastructure.redis.subscribers.HistoricoResponseSubscriber;
 
 @Configuration
 @EnableRedisRepositories
@@ -43,7 +41,6 @@ public class RedisConfig {
 
     RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(connectionFactory);
-    container.setRecoveryInterval(5000L); // Tenta reconectar a cada 5 segundos
 
     container.addMessageListener(historicoResponseListener, new PatternTopic("historico.consulta.response"));
     container.addMessageListener(historicoResponseListener, new PatternTopic("historico.exame.response"));

@@ -31,35 +31,6 @@ services:
     volumes:
       - redis_data:/data
     restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  app-estoque:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: simplehealth-estoque
-    ports:
-      - "8083:8083"
-    command: [
-      "java", "-jar", "app.jar",
-      "--spring.cassandra.contact-points=cassandra",
-      "--spring.cassandra.port=9042",
-      "--spring.cassandra.username=simplehealth",
-      "--spring.cassandra.password=simplehealth",
-      "--spring.cassandra.local-datacenter=datacenter1",
-      "--spring.redis.host=redis",
-      "--spring.redis.port=6379"
-    ]
-    depends_on:
-      cassandra:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: always
 
 volumes:
   cassandra_data:
