@@ -14,18 +14,11 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Install netcat for health checks
-RUN apk add --no-cache netcat-openbsd
-
 # Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
-
-# Copy entrypoint script
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 8081
 
 # Run application
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
