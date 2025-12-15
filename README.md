@@ -112,6 +112,36 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 # ⚙️ 5. Execução Individual dos Módulos
 
+> **⚠️ IMPORTANTE:** Em caso de erros durante a instalação ou execução, consulte o **[Relatório de Instalação e Execução](docs/Teste%20de%20Instalacao/relatorio_de_instalacao_e_execucao_do_projeto%20(1).md)** para soluções detalhadas de problemas comuns.
+
+## Pré-requisitos
+
+* **Java 17** (JDK)
+* **Maven 3.8+**
+* **Docker** (versão recente)
+
+### Instalação do Java 17
+
+```bash
+sudo apt install openjdk-17-jdk
+```
+
+### Configuração do Java
+
+```bash
+sudo update-alternatives --config java
+sudo update-alternatives --config javac
+```
+
+### Definição da variável JAVA_HOME
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> ~/.bashrc
+```
+
+Após configurar o JAVA_HOME, reinicie o terminal ou o VS Code.
+
 ## 5.1 Backends
 
 ### **Backend Cadastro – Porta 8081**
@@ -120,7 +150,8 @@ Comunicação exclusivamente via **HTTP/REST**.
 
 ```bash
 cd simplehealth-back/simplehealth-back-cadastro
-docker-compose up -d        # Sobe bancos (Postgres, Cassandra, Redis)
+docker compose up -d        # Sobe bancos (Postgres, Cassandra, Redis)
+# ou: docker-compose up -d  # Sintaxe alternativa
 mvn spring-boot:run         # Sobe o backend
 ```
 
@@ -130,7 +161,8 @@ mvn spring-boot:run         # Sobe o backend
 
 ```bash
 cd simplehealth-back/simplehealth-back-agendamento
-docker-compose up -d        # Sobe MongoDB + Redis
+docker compose up -d        # Sobe MongoDB + Redis
+# ou: docker-compose up -d  # Sintaxe alternativa
 mvn spring-boot:run
 ```
 
@@ -140,7 +172,8 @@ mvn spring-boot:run
 
 ```bash
 cd simplehealth-back/simplehealth-back-estoque
-docker-compose up -d        # Sobe Cassandra + Redis
+docker compose up -d        # Sobe Cassandra + Redis
+# ou: docker-compose up -d  # Sintaxe alternativa
 mvn spring-boot:run
 ```
 
