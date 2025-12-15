@@ -222,8 +222,11 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                 service.criar(bloqueio);
                 mostrarSucesso("Sucesso", "Bloqueio criado com sucesso!");
             } else if ("ALTERAR".equals(modoEdicao)) {
-                mostrarErro("Erro", "Alteração de bloqueios ainda não implementada no serviço.");
-                return;
+                BloqueioAgenda bloqueio = construirBloqueioAgendaDoFormulario();
+                bloqueio.setId(itemSelecionado.getId());
+                bloqueio.setDataCriacao(itemSelecionado.getDataCriacao());
+                service.atualizar(itemSelecionado.getId(), bloqueio);
+                mostrarSucesso("Sucesso", "Bloqueio atualizado com sucesso!");
             }
 
             carregarDados();
