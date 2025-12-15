@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
+
   cassandra:
     image: cassandra:4.1
-    container_name: cassandra_estoque
+    container_name: cassandra_local
     environment:
       CASSANDRA_USERNAME: simplehealth
       CASSANDRA_PASSWORD: simplehealth
@@ -20,8 +21,21 @@ services:
       timeout: 10s
       retries: 5
     restart: always
-    networks:
-      - simplehealth-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_estoque
+    ports:
+      - "6381:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app-estoque:
     build:
@@ -30,25 +44,23 @@ services:
     container_name: simplehealth-estoque
     ports:
       - "8083:8083"
-    environment:
-      SPRING_CASSANDRA_CONTACT_POINTS: cassandra
-      SPRING_CASSANDRA_PORT: 9042
-      SPRING_CASSANDRA_USERNAME: simplehealth
-      SPRING_CASSANDRA_PASSWORD: simplehealth
-      SPRING_CASSANDRA_LOCAL_DATACENTER: datacenter1
-      SPRING_DATA_REDIS_HOST: redis_shared
-      SPRING_DATA_REDIS_PORT: 6379
+    command: [
+      "java", "-jar", "app.jar",
+      "--spring.cassandra.contact-points=cassandra",
+      "--spring.cassandra.port=9042",
+      "--spring.cassandra.username=simplehealth",
+      "--spring.cassandra.password=simplehealth",
+      "--spring.cassandra.local-datacenter=datacenter1",
+      "--spring.redis.host=redis",
+      "--spring.redis.port=6379"
+    ]
     depends_on:
       cassandra:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: always
-    networks:
-      - simplehealth-network
 
 volumes:
   cassandra_data:
-
-networks:
-  simplehealth-network:
-    external: true
-    name: simplehealth-network
+  redis_data:

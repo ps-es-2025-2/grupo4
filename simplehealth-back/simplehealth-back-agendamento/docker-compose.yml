@@ -1,7 +1,7 @@
 services:
-  mongodb:
+  simplehealth_db:
     image: mongo:7
-    container_name: mongodb_agendamento
+    container_name: simplehealth_mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: simplehealth
@@ -17,8 +17,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - simplehealth-network
+
+  redis:
+    image: redis:7
+    container_name: redis_agendamento
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app-agendamento:
     build:
@@ -28,22 +41,18 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://simplehealth:simplehealth@mongodb:27017/simplehealth_db?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://simplehealth:simplehealth@simplehealth_db:27017/simplehealth_db?authSource=admin
       SPRING_DATA_MONGODB_DATABASE: simplehealth_db
-      SPRING_DATA_REDIS_HOST: redis_shared
+      SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
-      mongodb:
+      simplehealth_db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: always
-    networks:
-      - simplehealth-network
 
 volumes:
   mongo_data:
   mongo_config:
-
-networks:
-  simplehealth-network:
-    external: true
-    name: simplehealth-network
+  redis_data:
