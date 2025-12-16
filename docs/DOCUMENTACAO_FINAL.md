@@ -6,7 +6,25 @@ Este documento serve como guia de navegação para toda a documentação técnic
 
 ---
 
-## 📋 Índice da Documentação
+## � Sumário
+
+- [📂 Entrevistas com Stakeholders](#-entrevistas-com-stakeholders)
+- [3.1. Documento de Visão do Projeto](#31-documento-de-visão-do-projeto)
+- [3.2 e 3.3. Casos de Uso](#32-e-33-casos-de-uso)
+- [3.4. Classes de Análise](#34-classes-de-análise)
+- [3.5. Diagramas de Processos de Negócio (BPM)](#35-diagramas-de-processos-de-negócio-bpm)
+- [3.6. Arquitetura do Sistema - Lógica e Física](#36-arquitetura-do-sistema---lógica-e-física)
+- [3.7, 3.9 e 3.10. Modelagens Técnicas](#37-39-e-310-modelagens-técnicas)
+- [3.8. Boas Práticas e Padrões de Projeto](#38-boas-práticas-e-padrões-de-projeto)
+- [QA - Qualidade e Testes](#qa---qualidade-e-testes)
+- [📝 Correções de Alinhamento](#-correções-de-alinhamento)
+- [🧪 Testes de Requisitos nas Interfaces](#-testes-de-requisitos-nas-interfaces)
+- [💾 Teste de Instalação](#-teste-de-instalação)
+- [👥 Relatórios Individuais](#-relatórios-individuais)
+- [🗂️ Ordem Sugerida de Leitura](#️-ordem-sugerida-de-leitura)
+- [🚀 Executando o Sistema](#-executando-o-sistema)
+
+---
 
 ## 📂 Entrevistas com Stakeholders
 
@@ -202,6 +220,117 @@ As entrevistas realizadas com stakeholders, contendo informações valiosas sobr
 
 ---
 
+## 📝 Correções de Alinhamento
+
+**O que é**: Documentação das correções de discrepâncias e alinhamentos realizados entre diferentes artefatos do projeto.
+
+**Conteúdo**:
+
+A pasta [`Correções de Alinhamento`](./Correções%20de%20Alinhamento/) contém documentos detalhados de correções aplicadas para garantir consistência entre os diversos artefatos do projeto:
+
+- **Correções da Entrega 1** (Discrepâncias 1.1 a 1.8):
+  - Alinhamento entre Documento de Visão e Casos de Uso
+  - Ajustes em requisitos funcionais e não-funcionais
+  - Correção de inconsistências em atores e funcionalidades
+  - Padronização de nomenclaturas
+
+- **Correção da Entrega 2** (Discrepância 2.1):
+  - Alinhamento entre Classes de Análise e Casos de Uso
+
+- **Correções da Entrega 3** (Discrepâncias 3.1 a 3.4):
+  - Alinhamento entre Diagramas BPM e Casos de Uso
+  - Correção de fluxos de processo
+  - Ajustes em decisões e responsabilidades
+
+- **Correções da Entrega 4** (Discrepâncias 4.1 a 4.3):
+  - Alinhamento entre Arquitetura e demais artefatos
+  - Correção de componentes e tecnologias
+
+- **Correções da Entrega 5** (Discrepâncias 5.1 a 5.3):
+  - Alinhamento entre Modelagens Detalhadas e Implementação
+  - Correção de diagramas de sequência e estados
+
+**Sumário**: O arquivo [`SUMARIO_CORRECAO_DISCREPANCIA.md`](./Correções%20de%20Alinhamento/SUMARIO_CORRECAO_DISCREPANCIA.md) apresenta uma visão consolidada de todas as correções realizadas.
+
+**Por que ler**: Demonstra o processo de REFINAMENTO E MELHORIA CONTÍNUA da documentação, evidenciando a preocupação com a consistência e qualidade dos artefatos produzidos ao longo do projeto.
+
+---
+
+## 🧪 Testes de Requisitos nas Interfaces
+
+**O que é**: Relatórios de testes funcionais executados diretamente nas interfaces gráficas de cada módulo do sistema.
+
+**Conteúdo**:
+
+A pasta [`Testes de requisitos nas interfaces`](./Testes%20de%20requisitos%20nas%20interfaces/) contém relatórios detalhados dos testes realizados:
+
+- **Módulo de Cadastro** ([`RELATORIO_TESTE_MODULO_CADASTRO.md`](./Testes%20de%20requisitos%20nas%20interfaces/RELATORIO_TESTE_MODULO_CADASTRO.md)):
+  - Testes de cadastro de pacientes, médicos, secretárias e convênios
+  - Validações de campos obrigatórios
+  - Testes de edição e exclusão
+  - Evidências visuais em `imagens-cadastro/`
+
+- **Módulo de Agendamento** ([`RELATORIO_TESTE_MODULO_AGENDAMENTO.md`](./Testes%20de%20requisitos%20nas%20interfaces/RELATORIO_TESTE_MODULO_AGENDAMENTO.md)):
+  - Testes de agendamento de consultas, exames e procedimentos
+  - Testes de bloqueio de agenda
+  - Validações de regras de negócio
+  - Evidências visuais em `imagens-agendamento/`
+
+- **Módulo de Estoque** ([`RELATORIO_TESTE_MODULO_ESTOQUE.md`](./Testes%20de%20requisitos%20nas%20interfaces/RELATORIO_TESTE_MODULO_ESTOQUE.md)):
+  - Testes de controle de medicamentos, alimentos e materiais hospitalares
+  - Testes de entrada de notas fiscais e baixa de estoque
+  - Validações de alertas e controle de validade
+  - Evidências visuais em `imagens-estoque/`
+
+**Por que ler**: Comprova a EXECUÇÃO PRÁTICA DOS TESTES nas interfaces reais do sistema, demonstrando que o software atende aos requisitos funcionais especificados através de evidências visuais e resultados documentados.
+
+---
+
+## 💾 Teste de Instalação
+
+**O que é**: Documentação do processo de instalação e execução do sistema SimpleHealth.
+
+**Conteúdo**:
+
+A pasta [`Teste de Instalacao`](./Teste%20de%20Instalacao/) contém:
+
+- **Relatório de Instalação** ([`relatorio_de_instalacao_e_execucao_do_projeto (1).md`](./Teste%20de%20Instalacao/relatorio_de_instalacao_e_execucao_do_projeto%20(1).md)):
+  - Pré-requisitos de software e hardware
+  - Passo a passo detalhado da instalação
+  - Configuração do ambiente de desenvolvimento
+  - Execução dos módulos backend e frontend
+  - Verificação do funcionamento do sistema
+  - Troubleshooting de problemas comuns
+  - Capturas de tela do processo em `imagens/`
+
+**Por que ler**: Fornece um GUIA PRÁTICO E COMPLETO para instalação e execução do sistema, permitindo que qualquer pessoa consiga configurar e executar o SimpleHealth seguindo instruções claras e ilustradas.
+
+---
+
+## 👥 Relatórios Individuais
+
+**O que é**: Relatórios individuais de cada membro da equipe documentando suas contribuições ao longo do projeto.
+
+**Conteúdo**:
+
+A pasta [`relatorios-individuais`](./relatorios-individuais/) está organizada por entregas:
+
+- **1-entrega**: Relatórios da primeira fase do projeto
+- **2-entrega**: Relatórios da segunda fase do projeto
+- **3-entrega**: Relatórios da terceira fase do projeto
+- **4-entrega**: Relatórios da quarta fase do projeto
+
+Cada relatório individual documenta:
+- Atividades realizadas pelo membro da equipe
+- Artefatos produzidos
+- Contribuições para o projeto
+- Desafios enfrentados e soluções aplicadas
+- Aprendizados adquiridos
+
+**Por que ler**: Demonstra a CONTRIBUIÇÃO INDIVIDUAL de cada membro da equipe e proporciona transparência sobre a divisão de trabalho e responsabilidades ao longo do desenvolvimento do projeto.
+
+---
+
 ## 🗂️ Ordem Sugerida de Leitura
 
 Para uma compreensão progressiva e didática do projeto, recomenda-se a seguinte ordem:
@@ -214,6 +343,10 @@ Para uma compreensão progressiva e didática do projeto, recomenda-se a seguint
 6. **3.7/3.9/3.10. Modelagens** - Aprofunde-se nos detalhes de implementação
 7. **3.8. Boas Práticas e Padrões** - Avalie a qualidade técnica e padrões aplicados
 8. **QA - Qualidade e Testes** - Compreenda a estratégia de garantia de qualidade
+9. **Correções de Alinhamento** - Veja o processo de refinamento dos artefatos
+10. **Testes de Requisitos nas Interfaces** - Confira os testes práticos realizados
+11. **Teste de Instalação** - Aprenda a instalar e executar o sistema
+12. **Relatórios Individuais** - Conheça as contribuições de cada membro da equipe
 
 ---
 
