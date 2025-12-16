@@ -1,0 +1,46 @@
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra_estoque
+    environment:
+      CASSANDRA_USERNAME: simplehealth
+      CASSANDRA_PASSWORD: simplehealth
+      CASSANDRA_CLUSTER_NAME: simplehealth_db
+      HEAP_NEWSIZE: 128M
+      MAX_HEAP_SIZE: 512M
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    restart: always
+    networks:
+      - simplehealth-network
+
+  app-estoque:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simplehealth-estoque
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_CASSANDRA_CONTACT_POINTS: cassandra
+      SPRING_CASSANDRA_PORT: 9042
+      SPRING_CASSANDRA_USERNAME: simplehealth
+      SPRING_CASSANDRA_PASSWORD: simplehealth
+      SPRING_CASSANDRA_LOCAL_DATACENTER: datacenter1
+      SPRING_DATA_REDIS_HOST: simplehealth_redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - cassandra
+    restart: always
+    networks:
+      - simplehealth-network
+
+volumes:
+  cassandra_data:
+
+networks:
+  simplehealth-network:
+    name: grupo4_simplehealth-network
+    external: true

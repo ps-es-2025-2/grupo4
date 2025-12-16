@@ -1,0 +1,25 @@
+services:
+  # Redis compartilhado por todas as aplicações
+  redis:
+    image: redis:7
+    container_name: simplehealth_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simplehealth-network
+
+volumes:
+  redis_data:
+
+networks:
+  simplehealth-network:
+    driver: bridge
