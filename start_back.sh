@@ -31,7 +31,7 @@ docker compose up -d --build
 # 2. Iniciar Backend Cadastro
 echo "[2/4] Iniciando Backend Cadastro (PostgreSQL + App)..."
 cd "$ROOT_DIR/simplehealth-back/simplehealth-back-cadastro"
-docker-compose up -d --build
+docker compose up -d --build
 if [ $? -ne 0 ]; then
     echo "❌ Erro ao iniciar Backend Cadastro!"
     exit 1
@@ -43,7 +43,7 @@ docker compose up -d --build
 # 3. Iniciar Backend Agendamento
 echo "[3/4] Iniciando Backend Agendamento (MongoDB + App)..."
 cd "$ROOT_DIR/simplehealth-back/simplehealth-back-agendamento"
-docker-compose up -d --build
+docker compose up -d --build
 if [ $? -ne 0 ]; then
     echo "❌ Erro ao iniciar Backend Agendamento!"
     exit 1
