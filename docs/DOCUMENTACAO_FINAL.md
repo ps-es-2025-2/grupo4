@@ -8,6 +8,10 @@ Este documento serve como guia de navegação para toda a documentação técnic
 
 ## 📋 Índice da Documentação
 
+## 📂 Entrevistas com Stakeholders
+
+As entrevistas realizadas com stakeholders, contendo informações valiosas sobre requisitos, expectativas e processos do sistema, estão disponíveis na pasta [`entrevista_stake_holder`](./entrevista_stake_holder/).
+
 ### [3.1. Documento de Visão do Projeto](./documentos-finais-definitivos/3.1.%20Documento%20de%20Visão%20do%20Projeto/)
 
 **O que é**: Documento inicial que apresenta o contexto, motivação e objetivos do projeto.
