@@ -241,17 +241,25 @@ public class PedidoController extends AbstractCrudController<Pedido> {
                 .ifPresent(cbFornecedor::setValue);
         }
         
-        // Carregar itens do pedido
+        // Recarregar todos os itens disponíveis antes de selecionar
+        carregarItens();
         itensSelecionados.clear();
+        
+        // Carregar itens do pedido
         if (pedido.getItemIds() != null && !pedido.getItemIds().isEmpty()) {
             for (UUID itemId : pedido.getItemIds()) {
-                itensDisponiveis.stream()
-                    .filter(item -> item.getIdItem().equals(itemId))
-                    .findFirst()
-                    .ifPresent(item -> {
-                        itensSelecionados.add(item);
-                        itensDisponiveis.remove(item);
-                    });
+                // Buscar na lista carregada e mover para selecionados
+                Item itemEncontrado = null;
+                for (Item item : itensDisponiveis) {
+                    if (item.getIdItem().equals(itemId)) {
+                        itemEncontrado = item;
+                        break;
+                    }
+                }
+                if (itemEncontrado != null) {
+                    itensSelecionados.add(itemEncontrado);
+                    itensDisponiveis.remove(itemEncontrado);
+                }
             }
         }
     }
