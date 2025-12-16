@@ -30,7 +30,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simplehealth_db
       SPRING_DATASOURCE_USERNAME: simplehealth
       SPRING_DATASOURCE_PASSWORD: simplehealth
-      SPRING_DATA_REDIS_HOST: redis_shared
+      SPRING_DATA_REDIS_HOST: simplehealth_redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       postgres:
@@ -44,5 +44,5 @@ volumes:
 
 networks:
   simplehealth-network:
+    name: grupo4_simplehealth-network
     external: true
-    name: simplehealth-network

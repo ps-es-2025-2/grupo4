@@ -17,33 +17,30 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # 1. Parar Backend Estoque
 echo "[1/4] Parando Backend Estoque..."
 cd "$ROOT_DIR/simplehealth-back/simplehealth-back-estoque"
-docker compose down
+docker compose -f docker-compose_all.yml down
 echo "✅ Backend Estoque parado!"
 echo ""
 
 # 2. Parar Backend Agendamento
 echo "[2/4] Parando Backend Agendamento..."
 cd "$ROOT_DIR/simplehealth-back/simplehealth-back-agendamento"
-docker compose down
+docker compose -f docker-compose_all.yml down
 echo "✅ Backend Agendamento parado!"
 echo ""
 
 # 3. Parar Backend Cadastro
 echo "[3/4] Parando Backend Cadastro..."
 cd "$ROOT_DIR/simplehealth-back/simplehealth-back-cadastro"
-docker compose down
+docker compose -f docker-compose_all.yml down
 echo "✅ Backend Cadastro parado!"
 echo ""
 
-# 4. Parar infraestrutura compartilhada (Redis + Rede)
-echo "[4/4] Parando infraestrutura compartilhada..."
+# 4. Parar Redis compartilhado
+echo "[4/4] Parando Redis compartilhado..."
 cd "$ROOT_DIR"
-docker compose down
+docker compose -f docker-compose_all.yml down
 echo "✅ Redis compartilhado parado!"
 echo ""
-
-# Voltar ao diretório raiz
-cd "$ROOT_DIR"
 
 echo "========================================"
 echo "  ✅ Todos os backends foram parados!"

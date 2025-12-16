@@ -30,7 +30,7 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://simplehealth:simplehealth@mongodb:27017/simplehealth_db?authSource=admin
       SPRING_DATA_MONGODB_DATABASE: simplehealth_db
-      SPRING_DATA_REDIS_HOST: redis_shared
+      SPRING_DATA_REDIS_HOST: simplehealth_redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       mongodb:
@@ -45,5 +45,5 @@ volumes:
 
 networks:
   simplehealth-network:
+    name: grupo4_simplehealth-network
     external: true
-    name: simplehealth-network

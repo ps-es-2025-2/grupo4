@@ -13,8 +13,8 @@ echo ""
 echo ">>> BACKENDS (Docker Containers) <<<"
 echo ""
 
-if docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "simplehealth|redis_shared|postgres|mongodb|cassandra" > /dev/null 2>&1; then
-    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "NAMES|simplehealth|redis_shared|postgres|mongodb|cassandra"
+if docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "simplehealth|redis|postgres|mongodb|cassandra" > /dev/null 2>&1; then
+    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "NAMES|simplehealth|redis|postgres|mongodb|cassandra"
     echo ""
     
     # Contar containers rodando
@@ -22,7 +22,7 @@ if docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "sim
     dbCount=$(($(docker ps --filter "name=postgres_cadastro" --format "{{.Names}}" | wc -l) + \
                $(docker ps --filter "name=mongodb_agendamento" --format "{{.Names}}" | wc -l) + \
                $(docker ps --filter "name=cassandra_estoque" --format "{{.Names}}" | wc -l)))
-    redisCount=$(docker ps --filter "name=redis_shared" --format "{{.Names}}" | wc -l)
+    redisCount=$(docker ps --filter "name=simplehealth_redis" --format "{{.Names}}" | wc -l)
     
     echo "📊 Resumo Backends:"
     echo "  • Aplicações Backend: $backendCount/3"

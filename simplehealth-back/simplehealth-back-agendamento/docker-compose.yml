@@ -1,0 +1,29 @@
+services:
+  simplehealth_db:
+    image: mongo:7
+    container_name: simplehealth_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: simplehealth
+      MONGO_INITDB_ROOT_PASSWORD: simplehealth
+      MONGO_INITDB_DATABASE: simplehealth_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+
+  redis:
+    image: redis:7
+    container_name: redis_agendamento
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  mongo_data:
+  mongo_config:
+  redis_data:

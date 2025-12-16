@@ -1,18 +1,13 @@
-version: '3.8'
-
-# Este docker-compose cria a infraestrutura compartilhada (Redis e rede)
-# Execute primeiro: docker-compose -f docker-compose-shared.yml up -d
-# Depois execute cada backend individualmente
-
 services:
-  redis-shared:
+  # Redis compartilhado por todas as aplicações
+  redis:
     image: redis:7
-    container_name: redis_shared
+    container_name: simplehealth_redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
-      - redis_shared_data:/data
+      - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -23,9 +18,8 @@ services:
       - simplehealth-network
 
 volumes:
-  redis_shared_data:
+  redis_data:
 
 networks:
   simplehealth-network:
     driver: bridge
-    name: simplehealth-network
