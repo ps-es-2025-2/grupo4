@@ -42,7 +42,6 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     @FXML private ListView<Item> listItensSelecionados;
     @FXML private Button btnAdicionarItem;
     @FXML private Button btnRemoverItem;
-    @FXML private TextArea txtObservacoes;
     
     @FXML
     private Button btnCriar;
@@ -370,7 +369,6 @@ public class PedidoController extends AbstractCrudController<Pedido> {
         dtDataPedido.setValue(null);
         cbStatus.setValue(null);
         cbFornecedor.setValue(null);
-        txtObservacoes.clear();
         tablePedidos.getSelectionModel().clearSelection();
         
         // Limpar listas de itens
@@ -383,7 +381,6 @@ public class PedidoController extends AbstractCrudController<Pedido> {
         dtDataPedido.setDisable(!habilitar);
         cbStatus.setDisable(!habilitar);
         cbFornecedor.setDisable(!habilitar);
-        txtObservacoes.setDisable(!habilitar);
         listItensDisponiveis.setDisable(!habilitar);
         listItensSelecionados.setDisable(!habilitar);
         btnAdicionarItem.setDisable(!habilitar);

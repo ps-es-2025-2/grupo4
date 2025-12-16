@@ -64,9 +64,6 @@
                             </HBox>
                             <ListView fx:id="listItensSelecionados" prefHeight="150" />
                         </VBox>
-                        
-                        <Label text="Observações:" GridPane.rowIndex="4"/>
-                        <TextArea fx:id="txtObservacoes" promptText="Observações adicionais" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->
