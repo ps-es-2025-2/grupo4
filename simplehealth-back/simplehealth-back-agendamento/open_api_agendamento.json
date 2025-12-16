@@ -1432,6 +1432,19 @@
           "antecedenciaMinima": {
             "type": "integer",
             "format": "int32"
+          },
+          "medicoCrm": {
+            "type": "string"
+          },
+          "usuarioCriadorLogin": {
+            "type": "string"
+          },
+          "dataCriacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ativo": {
+            "type": "boolean"
           }
         }
       },
