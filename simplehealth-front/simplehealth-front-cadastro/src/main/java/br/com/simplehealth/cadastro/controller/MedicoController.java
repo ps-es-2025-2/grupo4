@@ -125,7 +125,7 @@ public class MedicoController extends AbstractCrudController<Medico> {
             listaMedicos.addAll(medicoService.listarTodos());
         } catch (Exception e) {
             logger.error("Erro ao carregar médicos", e);
-            mostrarErro("Erro", "Não foi possível carregar os médicos: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível carregar os médicos: " + extrairMensagemErro(e));
         }
     }
 
@@ -178,7 +178,7 @@ public class MedicoController extends AbstractCrudController<Medico> {
             resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar médico", e);
-            mostrarErro("Erro", "Não foi possível deletar o médico: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível deletar o médico: " + extrairMensagemErro(e));
         }
     }
 
@@ -207,7 +207,7 @@ public class MedicoController extends AbstractCrudController<Medico> {
             modoEdicao = null;
         } catch (Exception e) {
             logger.error("Erro ao confirmar operação", e);
-            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível completar a operação: " + extrairMensagemErro(e));
         }
     }
 

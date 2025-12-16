@@ -21,8 +21,20 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     @FXML private TableView<Fornecedor> tableFornecedores;
     @FXML private TableColumn<Fornecedor, UUID> colId;
     @FXML private TableColumn<Fornecedor, String> colCnpj;
+    @FXML private TableColumn<Fornecedor, String> colNome;
+    @FXML private TableColumn<Fornecedor, String> colTelefone;
+    @FXML private TableColumn<Fornecedor, String> colEmail;
     
     @FXML private TextField txtCnpj;
+    @FXML private TextField txtNome;
+    @FXML private TextField txtTelefone;
+    @FXML private TextField txtEmail;
+    @FXML private TextField txtEndereco;
+    
+    // Campos de busca
+    @FXML private TextField txtBuscarNome;
+    @FXML private Button btnBuscar;
+    @FXML private Button btnLimparBusca;
     
     @FXML
     private Button btnCriar;
@@ -62,6 +74,9 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idFornecedor"));
         colCnpj.setCellValueFactory(new PropertyValueFactory<>("cnpj"));
+        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colTelefone.setCellValueFactory(new PropertyValueFactory<>("telefone"));
+        colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         tableFornecedores.setItems(fornecedores);
     }
     
@@ -79,6 +94,7 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     
     private void setupRefreshListener() {
         RefreshManager.getInstance().addListener(source -> {
+            // Sempre recarrega quando houver notificação de outros módulos
             if (!"Fornecedor".equals(source)) {
                 carregarDados();
             }
@@ -90,15 +106,20 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
         try {
             fornecedores.clear();
             fornecedores.addAll(service.listar());
+            tableFornecedores.refresh(); // Forçar atualização visual
             logger.info("Fornecedores carregados: {}", fornecedores.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar fornecedores", e);
-            mostrarErro("Erro", "Erro ao carregar fornecedores: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar fornecedores: " + extrairMensagemErro(e));
         }
     }
     
     private void preencherFormulario(Fornecedor fornecedor) {
         txtCnpj.setText(fornecedor.getCnpj());
+        txtNome.setText(fornecedor.getNome());
+        txtTelefone.setText(fornecedor.getTelefone());
+        txtEmail.setText(fornecedor.getEmail());
+        txtEndereco.setText(fornecedor.getEndereco());
     }
     
     @FXML
@@ -153,16 +174,19 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
                 mostrarSucesso("Sucesso", "Fornecedor atualizado com sucesso!");
             }
             
+            // Atualizar tabela imediatamente
             carregarDados();
             limparFormulario();
             resetarBotoes();
             habilitarCampos(false);
             modoEdicao = null;
+            
+            // Notificar outros módulos
             RefreshManager.getInstance().notifyRefresh("Fornecedor");
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     
@@ -191,6 +215,34 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
             return false;
         }
         
+        // Validar formato do CNPJ
+        if (!ValidationUtils.validarCNPJ(txtCnpj.getText())) {
+            mostrarErro("Validação", "CNPJ inválido. Digite um CNPJ válido (14 dígitos).");
+            return false;
+        }
+        
+        // Validar Nome obrigatório
+        if (!ValidationUtils.validarCampoObrigatorio(txtNome.getText(), "Nome")) {
+            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Nome"));
+            return false;
+        }
+        
+        // Validar Email (se preenchido)
+        if (txtEmail.getText() != null && !txtEmail.getText().trim().isEmpty()) {
+            if (!ValidationUtils.validarEmail(txtEmail.getText())) {
+                mostrarErro("Validação", "E-mail inválido. Digite um e-mail válido.");
+                return false;
+            }
+        }
+        
+        // Validar Telefone (se preenchido)
+        if (txtTelefone.getText() != null && !txtTelefone.getText().trim().isEmpty()) {
+            if (!ValidationUtils.validarTelefone(txtTelefone.getText())) {
+                mostrarErro("Validação", "Telefone inválido. Digite um telefone válido (10 ou 11 dígitos).");
+                return false;
+            }
+        }
+        
         return true;
     }
     
@@ -198,17 +250,69 @@ public class FornecedorController extends AbstractCrudController<Fornecedor> {
     protected void limparFormulario() {
         itemSelecionado = null;
         txtCnpj.clear();
+        txtNome.clear();
+        txtTelefone.clear();
+        txtEmail.clear();
+        txtEndereco.clear();
         tableFornecedores.getSelectionModel().clearSelection();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         txtCnpj.setDisable(!habilitar);
+        txtNome.setDisable(!habilitar);
+        txtTelefone.setDisable(!habilitar);
+        txtEmail.setDisable(!habilitar);
+        txtEndereco.setDisable(!habilitar);
     }
     
     private Fornecedor construirFornecedorDoFormulario() {
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setCnpj(txtCnpj.getText().replaceAll("[./-]", "")); // Salva sem formatação
+        fornecedor.setNome(txtNome.getText());
+        fornecedor.setTelefone(txtTelefone.getText());
+        fornecedor.setEmail(txtEmail.getText());
+        fornecedor.setEndereco(txtEndereco.getText());
         return fornecedor;
+    }
+    
+    /**
+     * Busca fornecedores por nome usando a API
+     */
+    @FXML
+    public void handleBuscar() {
+        String nome = txtBuscarNome.getText();
+        
+        if (nome == null || nome.trim().isEmpty()) {
+            mostrarErro("Busca", "Digite um nome para buscar.");
+            return;
+        }
+        
+        try {
+            logger.info("Buscando fornecedores por nome: {}", nome);
+            var resultados = service.buscarPorNome(nome.trim());
+            
+            fornecedores.clear();
+            fornecedores.addAll(resultados);
+            tableFornecedores.refresh();
+            
+            logger.info("Busca concluída. {} fornecedor(es) encontrado(s)", resultados.size());
+            
+            if (resultados.isEmpty()) {
+                mostrarErro("Busca", "Nenhum fornecedor encontrado com o nome: " + nome);
+            }
+        } catch (Exception e) {
+            logger.error("Erro ao buscar fornecedores", e);
+            mostrarErro("Erro", "Erro ao buscar fornecedores: " + extrairMensagemErro(e));
+        }
+    }
+    
+    /**
+     * Limpa a busca e recarrega todos os fornecedores
+     */
+    @FXML
+    public void handleLimparBusca() {
+        txtBuscarNome.clear();
+        carregarDados();
     }
 }

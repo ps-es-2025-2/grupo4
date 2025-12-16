@@ -22,8 +22,8 @@ public class ItemController extends AbstractCrudController<Item> {
     @FXML private TableColumn<Item, String> colNome;
     @FXML private TableColumn<Item, String> colTipo;
     @FXML private TableColumn<Item, Integer> colQuantidade;
+    @FXML private TableColumn<Item, String> colEstoque;
     @FXML private TableColumn<Item, LocalDateTime> colValidade;
-    @FXML private TableColumn<Item, String> colLote;
     
     @FXML private TextField txtBusca;
     
@@ -39,10 +39,12 @@ public class ItemController extends AbstractCrudController<Item> {
     private Button btnCancelar;
     
     private final ItemService service;
+    private final br.com.simplehealth.estoque.service.EstoqueService estoqueService;
     private final ObservableList<Item> itens;
     
     public ItemController() {
         this.service = new ItemService();
+        this.estoqueService = new br.com.simplehealth.estoque.service.EstoqueService();
         this.itens = FXCollections.observableArrayList();
     }
     
@@ -66,8 +68,22 @@ public class ItemController extends AbstractCrudController<Item> {
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidadeTotal"));
+        colEstoque.setCellValueFactory(cellData -> {
+            try {
+                java.util.UUID estoqueId = cellData.getValue().getEstoqueId();
+                if (estoqueId != null) {
+                    return estoqueService.listar().stream()
+                        .filter(e -> e.getIdEstoque().equals(estoqueId))
+                        .findFirst()
+                        .map(e -> new javafx.beans.property.SimpleStringProperty(e.getNome()))
+                        .orElse(new javafx.beans.property.SimpleStringProperty("N/A"));
+                }
+            } catch (Exception e) {
+                logger.error("Erro ao buscar estoque", e);
+            }
+            return new javafx.beans.property.SimpleStringProperty("N/A");
+        });
         colValidade.setCellValueFactory(new PropertyValueFactory<>("validade"));
-        colLote.setCellValueFactory(new PropertyValueFactory<>("lote"));
         
         tableItens.setItems(itens);
     }
@@ -99,7 +115,7 @@ public class ItemController extends AbstractCrudController<Item> {
             logger.info("Itens carregados: {}", itens.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar itens", e);
-            mostrarErro("Erro", "Erro ao carregar itens: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar itens: " + extrairMensagemErro(e));
         }
     }
     
@@ -125,7 +141,7 @@ public class ItemController extends AbstractCrudController<Item> {
             
         } catch (Exception e) {
             logger.error("Erro ao buscar itens", e);
-            mostrarErro("Erro", "Erro ao buscar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao buscar: " + extrairMensagemErro(e));
         }
     }
     
@@ -147,7 +163,7 @@ public class ItemController extends AbstractCrudController<Item> {
                 RefreshManager.getInstance().notifyRefresh("Item");
             } catch (Exception e) {
                 logger.error("Erro ao deletar item", e);
-                mostrarErro("Erro", "Erro ao deletar: " + e.getMessage());
+                mostrarErro("Erro", "Erro ao deletar: " + extrairMensagemErro(e));
             }
         }
     }

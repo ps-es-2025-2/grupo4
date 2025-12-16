@@ -27,10 +27,11 @@
                 
                 <TableView fx:id="tableAlimentos" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
-                        <TableColumn fx:id="colNome" text="Nome" prefWidth="250"/>
-                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="120"/>
-                        <TableColumn fx:id="colAlergenicos" text="Alérgênicos" prefWidth="250"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colQuantidade" text="Quantidade" prefWidth="100"/>
+                        <TableColumn fx:id="colEstoque" text="Estoque" prefWidth="150"/>
+                        <TableColumn fx:id="colAlergenicos" text="Alérgênicos" prefWidth="200"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -52,8 +53,14 @@
                         <Label text="Quantidade:*" GridPane.rowIndex="1"/>
                         <TextField fx:id="txtQuantidade" promptText="Quantidade total" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                         
-                        <Label text="Alérgênicos:" GridPane.rowIndex="2"/>
-                        <TextArea fx:id="txtAlergenicos" promptText="Lista de alérgênicos" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        <Label text="Validade:*" GridPane.rowIndex="2"/>
+                        <DatePicker fx:id="dpValidade" promptText="Data de validade" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        
+                        <Label text="Estoque:*" GridPane.rowIndex="3"/>
+                        <ComboBox fx:id="cbEstoque" promptText="Selecione o estoque" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="9999"/>
+                        
+                        <Label text="Alérgênicos:" GridPane.rowIndex="4"/>
+                        <TextArea fx:id="txtAlergenicos" promptText="Lista de alérgênicos" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

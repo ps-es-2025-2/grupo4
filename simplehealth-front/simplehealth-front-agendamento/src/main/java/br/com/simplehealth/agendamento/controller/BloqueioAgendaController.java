@@ -133,7 +133,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                 logger.info("Dados carregados: {} bloqueios", bloqueios.size());
             } catch (Exception e) {
                 logger.error("Erro ao carregar bloqueios", e);
-                mostrarErro("Erro ao carregar dados", e.getMessage());
+                mostrarErro("Erro ao carregar dados", extrairMensagemErro(e));
             }
         });
     }
@@ -222,8 +222,11 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                 service.criar(bloqueio);
                 mostrarSucesso("Sucesso", "Bloqueio criado com sucesso!");
             } else if ("ALTERAR".equals(modoEdicao)) {
-                mostrarErro("Erro", "Alteração de bloqueios ainda não implementada no serviço.");
-                return;
+                BloqueioAgenda bloqueio = construirBloqueioAgendaDoFormulario();
+                bloqueio.setId(itemSelecionado.getId());
+                bloqueio.setDataCriacao(itemSelecionado.getDataCriacao());
+                service.atualizar(itemSelecionado.getId(), bloqueio);
+                mostrarSucesso("Sucesso", "Bloqueio atualizado com sucesso!");
             }
 
             carregarDados();
@@ -235,7 +238,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
 
         } catch (Exception e) {
             logger.error("Erro ao salvar bloqueio", e);
-            mostrarErro("Erro ao salvar", e.getMessage());
+            mostrarErro("Erro ao salvar", extrairMensagemErro(e));
         }
     }
 
@@ -271,7 +274,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                     limparFormulario();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir bloqueio", e);
-                    mostrarErro("Erro ao excluir", e.getMessage());
+                    mostrarErro("Erro ao excluir", extrairMensagemErro(e));
                 }
             }
         });
@@ -302,7 +305,7 @@ public class BloqueioAgendaController extends AbstractCrudController<BloqueioAge
                     limparFormulario();
                 } catch (Exception e) {
                     logger.error("Erro ao desativar bloqueio", e);
-                    mostrarErro("Erro ao desativar", e.getMessage());
+                    mostrarErro("Erro ao desativar", extrairMensagemErro(e));
                 }
             }
         });

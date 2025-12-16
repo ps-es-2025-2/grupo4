@@ -29,4 +29,11 @@ public class FornecedorService {
   public void deletar(UUID id) {
     repository.deleteById(id);
   }
+
+  public List<Fornecedor> buscarPorNome(String nome) {
+    return repository.findAll().stream()
+        .filter(f -> f.getNome() != null &&
+            f.getNome().toLowerCase().contains(nome.toLowerCase()))
+        .toList();
+  }
 }

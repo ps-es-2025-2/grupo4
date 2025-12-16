@@ -6,6 +6,7 @@
 
 ## 📋 Sumário
 
+0. [Notas Técnicas - Correções de Discrepâncias](#notas-técnicas---correções-de-discrepâncias)
 1. [Introdução](#1-introdução)
    - 1.1 [Propósito do Documento](#11-propósito-do-documento)
    - 1.2 [Escopo do Sistema](#12-escopo-do-sistema)
@@ -19,6 +20,26 @@
 6. [Restrições](#6-restrições)
 7. [Requisitos de Qualidade](#7-requisitos-de-qualidade)
 8. [Modelo de Inovação](#8-modelo-de-inovação)
+
+---
+
+## Notas Técnicas - Correções de Discrepâncias
+
+Este documento foi atualizado para corrigir discrepâncias identificadas entre a documentação e a implementação real do sistema. Abaixo estão as correções aplicadas:
+
+### Discrepância 4.3: Usuario ↔ PerfilUsuario (Enum Incompleto)
+
+**Discrepância:** A documentação mostrava enum `EPerfilUsuario` com apenas 3-4 valores (MEDICO, SECRETARIA, GESTOR), mas o backend possui 5 valores incluindo FINANCEIRO e TESOURARIA.
+
+**Mudança Feita:** Adicionados os perfis FINANCEIRO e TESOURARIA no enum de perfis de usuário em todas as ocorrências deste documento.
+
+**Justificativa:** Sincronizar documentação com implementação real do backend (EPerfilUsuario.java tem 5 valores).
+
+**Documento Detalhado:** [📄 CORRECAO_DISCREPANCIA_4.3.md](../../Correções%20de%20Alinhamento/CORRECAO_DISCREPANCIA_4.3.md)
+
+---
+
+Para consultar todas as correções de discrepâncias do projeto, acesse o [📑 Sumário de Correções](../../Correções%20de%20Alinhamento/SUMARIO_CORRECAO_DISCREPANCIA.md).
 
 ---
 
@@ -102,7 +123,7 @@ Clínicas e hospitais de pequeno porte no Brasil frequentemente utilizam sistema
 | **Recepcionistas/Secretárias** | Agilizar cadastros e agendamentos | Alta |
 | **Médicos** | Visualizar agenda e histórico de pacientes | Média |
 | **Farmacêuticos/Técnicos** | Controlar estoque de forma precisa | Alta |
-| **Gestores Administrativos** | Relatórios e auditoria | Média |
+| **Gestores Administrativos** | Relatórios gerenciais | Média |
 
 ### 3.2 Perfis de Usuário
 
@@ -188,10 +209,12 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
          ▼                       ▼                       ▼
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │  PostgreSQL +   │     │   MongoDB +     │     │  Cassandra +    │
-│  Cassandra +    │     │     Redis       │     │     Redis       │
-│     Redis       │     │                 │     │                 │
+│     Redis       │     │     Redis       │     │     Redis       │
+│                 │     │                 │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
+
+> **⚠️ NOTA - Redução de Escopo:** Cassandra foi removido do módulo de Cadastro (Discrepância 1.2). O módulo usa apenas PostgreSQL + Redis.
 
 ### 4.2 Resumo das Capacidades
 
@@ -201,7 +224,6 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 | Agendamento inteligente | Evita conflitos e otimiza agenda | Agendamento |
 | Controle de estoque em tempo real | Reduz perdas e garante disponibilidade | Estoque |
 | Integração entre módulos | Visão completa do negócio | Todos |
-| Auditoria completa | Rastreabilidade de operações | Todos |
 
 ### 4.3 Suposições e Dependências
 
@@ -242,7 +264,7 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 
 4. **UC04 - Cadastrar Usuário do Sistema**
    - Criação de usuários para acesso ao sistema
-   - Definição de perfis (ADMINISTRADOR, SECRETARIA, MEDICO, FARMACEUTICO)
+   - Definição de perfis (ADMINISTRADOR, SECRETARIA, MEDICO, FARMACEUTICO, FINANCEIRO, TESOURARIA)
    - Associação com pessoa (médico ou funcionário)
 
 5. **UC05 - Cadastrar Convênio Médico**
@@ -252,9 +274,10 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 **Tecnologias**:
 - Backend: Spring Boot 3.5.6, Java 17
 - Banco de Dados Principal: PostgreSQL 16
-- Auditoria: Cassandra 5
-- Cache: Redis 7
+- Comunicação entre Módulos: Redis 7 (Pub/Sub)
 - Frontend: JavaFX 17
+
+> **📝 Nota (Discrepância 1.3):** Redis implementado apenas para Pub/Sub, não para cache.
 
 ### 5.2 Módulo de Agendamento (✅ Implementado)
 
@@ -340,9 +363,11 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 
 **Tecnologias**:
 - Backend: Spring Boot 3.5.6, Java 17
-- Banco de Dados: Cassandra 5
+- Banco de Dados: Cassandra 5 (para movimentações e histórico)
 - Cache: Redis 7
 - Frontend: JavaFX 17
+
+> **📝 Nota:** O módulo de Estoque mantém Cassandra pois foi implementado com este banco.
 
 ### 5.4 Módulo de Gestão Financeira (❌ NÃO IMPLEMENTADO)
 
@@ -369,7 +394,6 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 
 - **Medicamentos Controlados**: Seguir regulamentações de controle (campo prescrição, tarja)
 - **LGPD**: Dados pessoais devem ser protegidos (planejado para versão futura)
-- **Auditoria**: Rastreabilidade de operações críticas
 
 ### 6.3 Restrições de Integração
 
@@ -391,7 +415,6 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 
 - Sistema deve estar disponível 99% do tempo durante horário comercial
 - Dados críticos (cadastros, agendamentos, estoque) devem ter backup diário
-- Auditoria completa de operações em Cassandra
 
 ### 7.3 Desempenho
 
@@ -402,7 +425,7 @@ O SimpleHealth é um **sistema desktop** desenvolvido com arquitetura de micross
 ### 7.4 Segurança
 
 - Autenticação obrigatória (login/senha)
-- Controle de acesso por perfil (ADMINISTRADOR, SECRETARIA, MEDICO, FARMACEUTICO)
+- Controle de acesso por perfil (ADMINISTRADOR, SECRETARIA, MEDICO, FARMACEUTICO, FINANCEIRO, TESOURARIA)
 - Dados sensíveis protegidos no banco de dados
 
 ---
@@ -418,8 +441,11 @@ O SimpleHealth adota **persistência poliglota**, uma abordagem onde cada módul
 | **Cadastro** | PostgreSQL 16 | Consistência ACID para dados mestres, queries relacionais complexas |
 | **Agendamento** | MongoDB 6.0 | Flexibilidade de schema, documentos com estruturas variadas |
 | **Estoque** | Cassandra 5 | Alta disponibilidade, write-heavy workload, time-series |
-| **Auditoria** | Cassandra 5 | Logs de auditoria distribuídos, alta disponibilidade |
-| **Cache** | Redis 7 | Performance em leituras frequentes, pub/sub entre módulos |
+| **Comunicação** | Redis 7 | Pub/Sub entre módulos (event-driven) |
+
+> **⚠️ Notas de Discrepâncias:**
+> - **1.2:** Auditoria com Cassandra foi removida do Cadastro
+> - **1.3:** Redis no Cadastro é usado apenas para Pub/Sub, não cache
 
 ### 8.2 Arquitetura de Microsserviços
 

@@ -20,8 +20,8 @@ public class FinalizarConsultaUseCase {
     Consulta consulta = consultaRepository.findById(dto.getId())
         .orElseThrow(() -> new AgendamentoException("Consulta não encontrada com ID: " + dto.getId()));
 
-    if (consulta.getStatus() != StatusAgendamentoEnum.ATIVO) {
-      throw new IllegalStateException("Apenas consultas ativas podem ser finalizadas");
+    if (consulta.getStatus() != StatusAgendamentoEnum.ATIVO && consulta.getStatus() != StatusAgendamentoEnum.INICIADO) {
+      throw new IllegalStateException("Apenas consultas ativas ou iniciadas podem ser finalizadas");
     }
 
     if (consulta.getDataHoraInicioExecucao() == null) {
@@ -35,7 +35,7 @@ public class FinalizarConsultaUseCase {
     consulta.setDataHoraFimExecucao(LocalDateTime.now());
     consulta.setUsuarioFinalizouServicoLogin(dto.getUsuarioLogin());
     consulta.setStatus(StatusAgendamentoEnum.FINALIZADO);
-    
+
     if (dto.getObservacoes() != null && !dto.getObservacoes().isBlank()) {
       String observacoesAtuais = consulta.getObservacoes() != null ? consulta.getObservacoes() + "\n" : "";
       consulta.setObservacoes(observacoesAtuais + dto.getObservacoes());

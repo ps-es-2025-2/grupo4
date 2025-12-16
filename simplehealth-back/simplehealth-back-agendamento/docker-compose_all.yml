@@ -1,0 +1,49 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb_agendamento
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: simplehealth
+      MONGO_INITDB_ROOT_PASSWORD: simplehealth
+      MONGO_INITDB_DATABASE: simplehealth_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simplehealth-network
+
+  app-agendamento:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simplehealth-agendamento
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://simplehealth:simplehealth@mongodb:27017/simplehealth_db?authSource=admin
+      SPRING_DATA_MONGODB_DATABASE: simplehealth_db
+      SPRING_DATA_REDIS_HOST: simplehealth_redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: always
+    networks:
+      - simplehealth-network
+
+volumes:
+  mongo_data:
+  mongo_config:
+
+networks:
+  simplehealth-network:
+    name: grupo4_simplehealth-network
+    external: true

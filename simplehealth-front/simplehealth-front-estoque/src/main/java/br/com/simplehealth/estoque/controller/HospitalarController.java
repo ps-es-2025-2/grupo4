@@ -1,6 +1,8 @@
 package br.com.simplehealth.estoque.controller;
 
+import br.com.simplehealth.estoque.model.Estoque;
 import br.com.simplehealth.estoque.model.Hospitalar;
+import br.com.simplehealth.estoque.service.EstoqueService;
 import br.com.simplehealth.estoque.service.HospitalarService;
 import br.com.simplehealth.estoque.util.RefreshManager;
 import br.com.simplehealth.estoque.util.ValidationUtils;
@@ -9,9 +11,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.UUID;
 
 public class HospitalarController extends AbstractCrudController<Hospitalar> {
@@ -22,10 +28,13 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     @FXML private TableColumn<Hospitalar, UUID> colId;
     @FXML private TableColumn<Hospitalar, String> colNome;
     @FXML private TableColumn<Hospitalar, Integer> colQuantidade;
-    @FXML private TableColumn<Hospitalar, Boolean> colDescartavel;
+    @FXML private TableColumn<Hospitalar, String> colEstoque;
+    @FXML private TableColumn<Hospitalar, String> colDescartavel;
     
     @FXML private TextField txtNome;
     @FXML private TextField txtQuantidade;
+    @FXML private DatePicker dpValidade;
+    @FXML private ComboBox<Estoque> cbEstoque;
     @FXML private CheckBox chkDescartabilidade;
     
     @FXML
@@ -40,10 +49,12 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     private Button btnCancelar;
     
     private final HospitalarService service;
+    private final EstoqueService estoqueService;
     private final ObservableList<Hospitalar> hospitalares;
     
     public HospitalarController() {
         this.service = new HospitalarService();
+        this.estoqueService = new EstoqueService();
         this.hospitalares = FXCollections.observableArrayList();
     }
     
@@ -56,6 +67,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
         super.btnCancelar = this.btnCancelar;
 
         setupTableColumns();
+        setupComboBoxEstoque();
         carregarDados();
         setupTableSelection();
         setupRefreshListener();
@@ -63,10 +75,45 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
         habilitarCampos(false);
     }
     
+    private void setupComboBoxEstoque() {
+        try {
+            cbEstoque.setItems(FXCollections.observableArrayList(estoqueService.listar()));
+            cbEstoque.setConverter(new StringConverter<Estoque>() {
+                @Override
+                public String toString(Estoque estoque) {
+                    return estoque != null ? estoque.getNome() + " - " + estoque.getLocalizacao() : "";
+                }
+                
+                @Override
+                public Estoque fromString(String string) {
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Erro ao carregar estoques", e);
+            mostrarErro("Erro", "Erro ao carregar estoques: " + extrairMensagemErro(e));
+        }
+    }
+    
     private void setupTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idItem"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colQuantidade.setCellValueFactory(new PropertyValueFactory<>("quantidadeTotal"));
+        colEstoque.setCellValueFactory(cellData -> {
+            try {
+                UUID estoqueId = cellData.getValue().getEstoqueId();
+                if (estoqueId != null) {
+                    return estoqueService.listar().stream()
+                        .filter(e -> e.getIdEstoque().equals(estoqueId))
+                        .findFirst()
+                        .map(e -> new javafx.beans.property.SimpleStringProperty(e.getNome()))
+                        .orElse(new javafx.beans.property.SimpleStringProperty("N/A"));
+                }
+            } catch (Exception e) {
+                logger.error("Erro ao buscar estoque", e);
+            }
+            return new javafx.beans.property.SimpleStringProperty("N/A");
+        });
         colDescartavel.setCellValueFactory(new PropertyValueFactory<>("descartabilidade"));
         tableHospitalares.setItems(hospitalares);
     }
@@ -99,13 +146,27 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             logger.info("Hospitalares carregados: {}", hospitalares.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar hospitalares", e);
-            mostrarErro("Erro", "Erro ao carregar itens hospitalares: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar itens hospitalares: " + extrairMensagemErro(e));
         }
     }
     
     private void preencherFormulario(Hospitalar hospitalar) {
         txtNome.setText(hospitalar.getNome());
         txtQuantidade.setText(String.valueOf(hospitalar.getQuantidadeTotal()));
+        
+        if (hospitalar.getValidade() != null) {
+            LocalDate localDate = hospitalar.getValidade().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+            dpValidade.setValue(localDate);
+        }
+        
+        if (hospitalar.getEstoqueId() != null) {
+            cbEstoque.getItems().stream()
+                .filter(e -> e.getIdEstoque().equals(hospitalar.getEstoqueId()))
+                .findFirst()
+                .ifPresent(cbEstoque::setValue);
+        }
+        
         chkDescartabilidade.setSelected(hospitalar.getDescartabilidade() != null && hospitalar.getDescartabilidade());
     }
     
@@ -170,7 +231,7 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     
@@ -203,6 +264,16 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
             return false;
         }
         
+        if (dpValidade.getValue() == null) {
+            mostrarErro("Validação", "A data de validade é obrigatória.");
+            return false;
+        }
+        
+        if (cbEstoque.getValue() == null) {
+            mostrarErro("Validação", "Selecione um estoque.");
+            return false;
+        }
+        
         return true;
     }
     
@@ -211,6 +282,8 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
         itemSelecionado = null;
         txtNome.clear();
         txtQuantidade.clear();
+        dpValidade.setValue(null);
+        cbEstoque.setValue(null);
         chkDescartabilidade.setSelected(false);
         tableHospitalares.getSelectionModel().clearSelection();
     }
@@ -219,6 +292,8 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
     protected void habilitarCampos(boolean habilitar) {
         txtNome.setDisable(!habilitar);
         txtQuantidade.setDisable(!habilitar);
+        dpValidade.setDisable(!habilitar);
+        cbEstoque.setDisable(!habilitar);
         chkDescartabilidade.setDisable(!habilitar);
     }
     
@@ -226,7 +301,12 @@ public class HospitalarController extends AbstractCrudController<Hospitalar> {
         Hospitalar hospitalar = new Hospitalar();
         hospitalar.setNome(txtNome.getText());
         hospitalar.setQuantidadeTotal(Integer.parseInt(txtQuantidade.getText()));
-        hospitalar.setValidade(new java.util.Date()); // Data atual
+        
+        LocalDate localDate = dpValidade.getValue();
+        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        hospitalar.setValidade(date);
+        
+        hospitalar.setEstoqueId(cbEstoque.getValue().getIdEstoque());
         hospitalar.setDescartabilidade(chkDescartabilidade.isSelected());
         return hospitalar;
     }

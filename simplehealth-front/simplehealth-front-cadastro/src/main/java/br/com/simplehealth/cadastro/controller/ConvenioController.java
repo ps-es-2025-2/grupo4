@@ -109,7 +109,7 @@ public class ConvenioController extends AbstractCrudController<Convenio> {
             listaConvenios.addAll(convenioService.listarTodos());
         } catch (Exception e) {
             logger.error("Erro ao carregar convênios", e);
-            mostrarErro("Erro", "Não foi possível carregar os convênios: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível carregar os convênios: " + extrairMensagemErro(e));
         }
     }
 
@@ -160,7 +160,7 @@ public class ConvenioController extends AbstractCrudController<Convenio> {
             resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar convênio", e);
-            mostrarErro("Erro", "Não foi possível deletar o convênio: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível deletar o convênio: " + extrairMensagemErro(e));
         }
     }
 
@@ -189,7 +189,7 @@ public class ConvenioController extends AbstractCrudController<Convenio> {
             modoEdicao = null;
         } catch (Exception e) {
             logger.error("Erro ao confirmar operação", e);
-            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível completar a operação: " + extrairMensagemErro(e));
         }
     }
 

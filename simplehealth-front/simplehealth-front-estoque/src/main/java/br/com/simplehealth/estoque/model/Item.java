@@ -27,14 +27,18 @@ public abstract class Item {
     @JsonDeserialize(using = DateDeserializer.class)
     private Date validade;
     
+    @JsonProperty("estoqueId")
+    private UUID estoqueId;
+    
     // Construtores
     public Item() {
     }
     
-    public Item(String nome, Integer quantidadeTotal, Date validade) {
+    public Item(String nome, Integer quantidadeTotal, Date validade, UUID estoqueId) {
         this.nome = nome;
         this.quantidadeTotal = quantidadeTotal;
         this.validade = validade;
+        this.estoqueId = estoqueId;
     }
     
     // Getters e Setters
@@ -68,6 +72,14 @@ public abstract class Item {
     
     public void setValidade(Date validade) {
         this.validade = validade;
+    }
+    
+    public UUID getEstoqueId() {
+        return estoqueId;
+    }
+    
+    public void setEstoqueId(UUID estoqueId) {
+        this.estoqueId = estoqueId;
     }
     
     @Override

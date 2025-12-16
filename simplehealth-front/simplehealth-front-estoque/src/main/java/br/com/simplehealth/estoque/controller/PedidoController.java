@@ -1,6 +1,12 @@
 package br.com.simplehealth.estoque.controller;
 
+import br.com.simplehealth.estoque.model.Fornecedor;
+import br.com.simplehealth.estoque.model.Item;
 import br.com.simplehealth.estoque.model.Pedido;
+import br.com.simplehealth.estoque.service.AlimentoService;
+import br.com.simplehealth.estoque.service.FornecedorService;
+import br.com.simplehealth.estoque.service.HospitalarService;
+import br.com.simplehealth.estoque.service.MedicamentoService;
 import br.com.simplehealth.estoque.service.PedidoService;
 import br.com.simplehealth.estoque.util.RefreshManager;
 import br.com.simplehealth.estoque.util.ValidationUtils;
@@ -9,9 +15,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class PedidoController extends AbstractCrudController<Pedido> {
@@ -20,14 +31,17 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     
     @FXML private TableView<Pedido> tablePedidos;
     @FXML private TableColumn<Pedido, UUID> colId;
-    @FXML private TableColumn<Pedido, LocalDateTime> colData;
+    @FXML private TableColumn<Pedido, Date> colData;
     @FXML private TableColumn<Pedido, String> colStatus;
     @FXML private TableColumn<Pedido, String> colFornecedor;
     
     @FXML private DatePicker dtDataPedido;
     @FXML private ComboBox<String> cbStatus;
-    @FXML private TextField txtIdFornecedor;
-    @FXML private TextArea txtObservacoes;
+    @FXML private ComboBox<Fornecedor> cbFornecedor;
+    @FXML private ListView<Item> listItensDisponiveis;
+    @FXML private ListView<Item> listItensSelecionados;
+    @FXML private Button btnAdicionarItem;
+    @FXML private Button btnRemoverItem;
     
     @FXML
     private Button btnCriar;
@@ -41,11 +55,23 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     private Button btnCancelar;
     
     private final PedidoService service;
+    private final FornecedorService fornecedorService;
+    private final AlimentoService alimentoService;
+    private final MedicamentoService medicamentoService;
+    private final HospitalarService hospitalarService;
     private final ObservableList<Pedido> pedidos;
+    private final ObservableList<Item> itensDisponiveis;
+    private final ObservableList<Item> itensSelecionados;
     
     public PedidoController() {
         this.service = new PedidoService();
+        this.fornecedorService = new FornecedorService();
+        this.alimentoService = new AlimentoService();
+        this.medicamentoService = new MedicamentoService();
+        this.hospitalarService = new HospitalarService();
         this.pedidos = FXCollections.observableArrayList();
+        this.itensDisponiveis = FXCollections.observableArrayList();
+        this.itensSelecionados = FXCollections.observableArrayList();
     }
     
     @FXML
@@ -58,7 +84,9 @@ public class PedidoController extends AbstractCrudController<Pedido> {
 
         setupTableColumns();
         setupComboBox();
+        setupListViews();
         carregarDados();
+        carregarItens();
         setupTableSelection();
         setupRefreshListener();
         configurarEstadoInicialBotoes();
@@ -69,12 +97,21 @@ public class PedidoController extends AbstractCrudController<Pedido> {
         colId.setCellValueFactory(new PropertyValueFactory<>("idPedido"));
         colData.setCellValueFactory(new PropertyValueFactory<>("dataPedido"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        colFornecedor.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getFornecedorId() != null ? 
-                cellData.getValue().getFornecedorId().toString() : "N/A"
-            )
-        );
+        colFornecedor.setCellValueFactory(cellData -> {
+            try {
+                UUID fornecedorId = cellData.getValue().getFornecedorId();
+                if (fornecedorId != null) {
+                    return fornecedorService.listar().stream()
+                        .filter(f -> f.getIdFornecedor().equals(fornecedorId))
+                        .findFirst()
+                        .map(f -> new javafx.beans.property.SimpleStringProperty(f.getNome()))
+                        .orElse(new javafx.beans.property.SimpleStringProperty("N/A"));
+                }
+            } catch (Exception e) {
+                logger.error("Erro ao buscar fornecedor", e);
+            }
+            return new javafx.beans.property.SimpleStringProperty("N/A");
+        });
         tablePedidos.setItems(pedidos);
     }
     
@@ -86,6 +123,57 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             "Entregue",
             "Cancelado"
         ));
+        
+        try {
+            cbFornecedor.setItems(FXCollections.observableArrayList(fornecedorService.listar()));
+            cbFornecedor.setConverter(new StringConverter<Fornecedor>() {
+                @Override
+                public String toString(Fornecedor fornecedor) {
+                    return fornecedor != null ? fornecedor.getNome() + " (" + fornecedor.getCnpj() + ")" : "";
+                }
+                
+                @Override
+                public Fornecedor fromString(String string) {
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Erro ao carregar fornecedores", e);
+            mostrarErro("Erro", "Erro ao carregar fornecedores: " + extrairMensagemErro(e));
+        }
+    }
+    
+    private void setupListViews() {
+        listItensDisponiveis.setItems(itensDisponiveis);
+        listItensSelecionados.setItems(itensSelecionados);
+        
+        listItensDisponiveis.setCellFactory(lv -> new javafx.scene.control.ListCell<Item>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNome() + " (Qt: " + item.getQuantidadeTotal() + ")");
+            }
+        });
+        
+        listItensSelecionados.setCellFactory(lv -> new javafx.scene.control.ListCell<Item>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNome() + " (Qt: " + item.getQuantidadeTotal() + ")");
+            }
+        });
+    }
+    
+    private void carregarItens() {
+        try {
+            itensDisponiveis.clear();
+            itensDisponiveis.addAll(alimentoService.listar());
+            itensDisponiveis.addAll(medicamentoService.listar());
+            itensDisponiveis.addAll(hospitalarService.listar());
+        } catch (Exception e) {
+            logger.error("Erro ao carregar itens", e);
+            mostrarErro("Erro", "Erro ao carregar itens: " + extrairMensagemErro(e));
+        }
     }
     
     private void setupTableSelection() {
@@ -116,18 +204,63 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             logger.info("Pedidos carregados: {}", pedidos.size());
         } catch (Exception e) {
             logger.error("Erro ao carregar pedidos", e);
-            mostrarErro("Erro", "Erro ao carregar pedidos: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao carregar pedidos: " + extrairMensagemErro(e));
+        }
+    }
+    
+    @FXML
+    private void handleAdicionarItem() {
+        Item itemSelecionado = listItensDisponiveis.getSelectionModel().getSelectedItem();
+        if (itemSelecionado != null) {
+            itensSelecionados.add(itemSelecionado);
+            itensDisponiveis.remove(itemSelecionado);
+        }
+    }
+    
+    @FXML
+    private void handleRemoverItem() {
+        Item itemSelecionado = listItensSelecionados.getSelectionModel().getSelectedItem();
+        if (itemSelecionado != null) {
+            itensDisponiveis.add(itemSelecionado);
+            itensSelecionados.remove(itemSelecionado);
         }
     }
     
     private void preencherFormulario(Pedido pedido) {
         if (pedido.getDataPedido() != null) {
-            // Converter Date para LocalDate
-            dtDataPedido.setValue(new java.sql.Date(pedido.getDataPedido().getTime()).toLocalDate());
+            LocalDate localDate = pedido.getDataPedido().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+            dtDataPedido.setValue(localDate);
         }
         cbStatus.setValue(pedido.getStatus());
+        
         if (pedido.getFornecedorId() != null) {
-            txtIdFornecedor.setText(String.valueOf(pedido.getFornecedorId()));
+            cbFornecedor.getItems().stream()
+                .filter(f -> f.getIdFornecedor().equals(pedido.getFornecedorId()))
+                .findFirst()
+                .ifPresent(cbFornecedor::setValue);
+        }
+        
+        // Recarregar todos os itens disponíveis antes de selecionar
+        carregarItens();
+        itensSelecionados.clear();
+        
+        // Carregar itens do pedido
+        if (pedido.getItemIds() != null && !pedido.getItemIds().isEmpty()) {
+            for (UUID itemId : pedido.getItemIds()) {
+                // Buscar na lista carregada e mover para selecionados
+                Item itemEncontrado = null;
+                for (Item item : itensDisponiveis) {
+                    if (item.getIdItem().equals(itemId)) {
+                        itemEncontrado = item;
+                        break;
+                    }
+                }
+                if (itemEncontrado != null) {
+                    itensSelecionados.add(itemEncontrado);
+                    itensDisponiveis.remove(itemEncontrado);
+                }
+            }
         }
     }
     
@@ -192,7 +325,7 @@ public class PedidoController extends AbstractCrudController<Pedido> {
             
         } catch (Exception e) {
             logger.error("Erro ao processar operação", e);
-            mostrarErro("Erro", "Erro ao salvar: " + e.getMessage());
+            mostrarErro("Erro", "Erro ao salvar: " + extrairMensagemErro(e));
         }
     }
     
@@ -215,8 +348,23 @@ public class PedidoController extends AbstractCrudController<Pedido> {
     }
     
     protected boolean validarFormulario() {
+        if (dtDataPedido.getValue() == null) {
+            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Data"));
+            return false;
+        }
+        
         if (cbStatus.getValue() == null) {
             mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Status"));
+            return false;
+        }
+        
+        if (cbFornecedor.getValue() == null) {
+            mostrarErro("Validação", ValidationUtils.mensagemCampoObrigatorio("Fornecedor"));
+            return false;
+        }
+        
+        if (itensSelecionados.isEmpty()) {
+            mostrarErro("Validação", "Selecione pelo menos um item para o pedido.");
             return false;
         }
         
@@ -228,29 +376,41 @@ public class PedidoController extends AbstractCrudController<Pedido> {
         itemSelecionado = null;
         dtDataPedido.setValue(null);
         cbStatus.setValue(null);
-        txtIdFornecedor.clear();
-        txtObservacoes.clear();
+        cbFornecedor.setValue(null);
         tablePedidos.getSelectionModel().clearSelection();
+        
+        // Limpar listas de itens
+        itensSelecionados.clear();
+        carregarItens();
     }
     
     @Override
     protected void habilitarCampos(boolean habilitar) {
         dtDataPedido.setDisable(!habilitar);
         cbStatus.setDisable(!habilitar);
-        txtIdFornecedor.setDisable(!habilitar);
-        txtObservacoes.setDisable(!habilitar);
+        cbFornecedor.setDisable(!habilitar);
+        listItensDisponiveis.setDisable(!habilitar);
+        listItensSelecionados.setDisable(!habilitar);
+        btnAdicionarItem.setDisable(!habilitar);
+        btnRemoverItem.setDisable(!habilitar);
     }
     
     private Pedido construirPedidoDoFormulario() {
         Pedido pedido = new Pedido();
-        if (dtDataPedido.getValue() != null) {
-            // Converter LocalDate para Date
-            pedido.setDataPedido(java.sql.Date.valueOf(dtDataPedido.getValue()));
-        } else {
-            pedido.setDataPedido(new java.util.Date());
-        }
+        
+        LocalDate localDate = dtDataPedido.getValue();
+        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        pedido.setDataPedido(date);
+        
         pedido.setStatus(cbStatus.getValue());
-        // Note: Fornecedor e Itens devem ser configurados via relacionamento no backend
+        pedido.setFornecedorId(cbFornecedor.getValue().getIdFornecedor());
+        
+        // Extrair UUIDs dos itens selecionados
+        List<UUID> itemIds = itensSelecionados.stream()
+            .map(Item::getIdItem)
+            .collect(java.util.stream.Collectors.toList());
+        pedido.setItemIds(itemIds);
+        
         return pedido;
     }
 }

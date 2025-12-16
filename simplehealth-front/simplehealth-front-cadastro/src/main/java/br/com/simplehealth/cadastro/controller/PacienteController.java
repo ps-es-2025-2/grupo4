@@ -138,7 +138,7 @@ public class PacienteController extends AbstractCrudController<Paciente> {
             listaPacientes.addAll(pacienteService.listarTodos());
         } catch (Exception e) {
             logger.error("Erro ao carregar pacientes", e);
-            mostrarErro("Erro", "Não foi possível carregar os pacientes: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível carregar os pacientes: " + extrairMensagemErro(e));
         }
     }
 
@@ -237,7 +237,7 @@ public class PacienteController extends AbstractCrudController<Paciente> {
             resetarBotoes();
         } catch (Exception e) {
             logger.error("Erro ao deletar paciente", e);
-            mostrarErro("Erro", "Não foi possível deletar o paciente: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível deletar o paciente: " + extrairMensagemErro(e));
         }
     }
 
@@ -266,7 +266,7 @@ public class PacienteController extends AbstractCrudController<Paciente> {
             modoEdicao = null;
         } catch (Exception e) {
             logger.error("Erro ao confirmar operação", e);
-            mostrarErro("Erro", "Não foi possível completar a operação: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível completar a operação: " + extrairMensagemErro(e));
         }
     }
 
@@ -365,7 +365,7 @@ public class PacienteController extends AbstractCrudController<Paciente> {
             exibirHistorico(historico);
         } catch (Exception e) {
             logger.error("Erro ao consultar histórico", e);
-            mostrarErro("Erro", "Não foi possível consultar o histórico: " + e.getMessage());
+            mostrarErro("Erro", "Não foi possível consultar o histórico: " + extrairMensagemErro(e));
         }
     }
 

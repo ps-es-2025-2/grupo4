@@ -30,12 +30,15 @@ public class ItemDTO {
     @JsonProperty("confirmacaoGestor")
     private Boolean confirmacaoGestor;
     
+    @JsonProperty("estoqueId")
+    private UUID estoqueId;
+    
     // Construtores
     public ItemDTO() {
     }
     
     public ItemDTO(UUID itemId, String nome, Integer quantidade, Date validade, 
-                   String tipo, String lote, Boolean confirmacaoGestor) {
+                   String tipo, String lote, Boolean confirmacaoGestor, UUID estoqueId) {
         this.itemId = itemId;
         this.nome = nome;
         this.quantidade = quantidade;
@@ -43,6 +46,7 @@ public class ItemDTO {
         this.tipo = tipo;
         this.lote = lote;
         this.confirmacaoGestor = confirmacaoGestor;
+        this.estoqueId = estoqueId;
     }
     
     // Getters e Setters
@@ -100,5 +104,13 @@ public class ItemDTO {
     
     public void setConfirmacaoGestor(Boolean confirmacaoGestor) {
         this.confirmacaoGestor = confirmacaoGestor;
+    }
+    
+    public UUID getEstoqueId() {
+        return estoqueId;
+    }
+    
+    public void setEstoqueId(UUID estoqueId) {
+        this.estoqueId = estoqueId;
     }
 }

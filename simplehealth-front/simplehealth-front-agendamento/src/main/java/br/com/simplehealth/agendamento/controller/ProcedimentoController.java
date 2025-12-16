@@ -137,7 +137,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
                 logger.info("Dados carregados: {} procedimentos", procedimentos.size());
             } catch (Exception e) {
                 logger.error("Erro ao carregar procedimentos", e);
-                mostrarErro("Erro ao carregar dados", e.getMessage());
+                mostrarErro("Erro ao carregar dados", extrairMensagemErro(e));
             }
         });
     }
@@ -268,7 +268,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
 
         } catch (Exception e) {
             logger.error("Erro ao salvar procedimento", e);
-            mostrarErro("Erro ao salvar", e.getMessage());
+            mostrarErro("Erro ao salvar", extrairMensagemErro(e));
         }
     }
 
@@ -308,7 +308,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao excluir procedimento", e);
-                    mostrarErro("Erro ao excluir", e.getMessage());
+                    mostrarErro("Erro ao excluir", extrairMensagemErro(e));
                 }
             }
         });
@@ -575,7 +575,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
             }
         } catch (Exception e) {
             logger.error("Erro ao iniciar procedimento", e);
-            mostrarErro("Erro ao iniciar", e.getMessage());
+            mostrarErro("Erro ao iniciar", extrairMensagemErro(e));
         }
     }
     
@@ -620,7 +620,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
             
         } catch (Exception e) {
             logger.error("Erro ao finalizar procedimento", e);
-            mostrarErro("Erro ao finalizar", e.getMessage());
+            mostrarErro("Erro ao finalizar", extrairMensagemErro(e));
         }
     }
     
@@ -670,7 +670,7 @@ public class ProcedimentoController extends AbstractCrudController<Procedimento>
             
         } catch (Exception e) {
             logger.error("Erro ao cancelar procedimento", e);
-            mostrarErro("Erro ao cancelar", e.getMessage());
+            mostrarErro("Erro ao cancelar", extrairMensagemErro(e));
         }
     }
 

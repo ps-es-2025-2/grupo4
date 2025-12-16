@@ -151,7 +151,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
                 logger.info("Dados carregados: {} consultas", consultas.size());
             } catch (Exception e) {
                 logger.error("Erro ao carregar consultas", e);
-                mostrarErro("Erro ao carregar dados", e.getMessage());
+                mostrarErro("Erro ao carregar dados", extrairMensagemErro(e));
             }
         });
     }
@@ -291,7 +291,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
 
         } catch (Exception e) {
             logger.error("Erro ao salvar consulta", e);
-            mostrarErro("Erro ao salvar", e.getMessage());
+            mostrarErro("Erro ao salvar", extrairMensagemErro(e));
         }
     }
 
@@ -331,7 +331,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
                     RefreshManager.getInstance().notifyRefresh();
                 } catch (Exception e) {
                     logger.error("Erro ao deletar consulta", e);
-                    mostrarErro("Erro ao deletar", e.getMessage());
+                    mostrarErro("Erro ao deletar", extrairMensagemErro(e));
                 }
             }
         });
@@ -615,7 +615,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
             }
         } catch (Exception e) {
             logger.error("Erro ao iniciar consulta", e);
-            mostrarErro("Erro ao iniciar", e.getMessage());
+            mostrarErro("Erro ao iniciar", extrairMensagemErro(e));
         }
     }
     
@@ -660,7 +660,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
             
         } catch (Exception e) {
             logger.error("Erro ao finalizar consulta", e);
-            mostrarErro("Erro ao finalizar", e.getMessage());
+            mostrarErro("Erro ao finalizar", extrairMensagemErro(e));
         }
     }
     
@@ -710,7 +710,7 @@ public class ConsultaController extends AbstractCrudController<Consulta> impleme
             
         } catch (Exception e) {
             logger.error("Erro ao cancelar consulta", e);
-            mostrarErro("Erro ao cancelar", e.getMessage());
+            mostrarErro("Erro ao cancelar", extrairMensagemErro(e));
         }
     }
 

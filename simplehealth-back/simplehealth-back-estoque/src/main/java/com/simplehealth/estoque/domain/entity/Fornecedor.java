@@ -1,6 +1,5 @@
 package com.simplehealth.estoque.domain.entity;
 
-
 import java.util.UUID;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.Column;
@@ -17,5 +16,16 @@ public class Fornecedor {
   @Column
   private String cnpj;
 
+  @Column
+  private String nome;
+
+  @Column
+  private String telefone;
+
+  @Column
+  private String email;
+
+  @Column
+  private String endereco;
 
 }

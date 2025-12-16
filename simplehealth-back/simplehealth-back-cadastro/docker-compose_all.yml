@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_cadastro
+    environment:
+      POSTGRES_USER: simplehealth
+      POSTGRES_PASSWORD: simplehealth
+      POSTGRES_DB: simplehealth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simplehealth -d simplehealth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simplehealth-network
+
+  app-cadastro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simplehealth-cadastro
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simplehealth_db
+      SPRING_DATASOURCE_USERNAME: simplehealth
+      SPRING_DATASOURCE_PASSWORD: simplehealth
+      SPRING_DATA_REDIS_HOST: simplehealth_redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+    networks:
+      - simplehealth-network
+
+volumes:
+  postgres_data:
+
+networks:
+  simplehealth-network:
+    name: grupo4_simplehealth-network
+    external: true

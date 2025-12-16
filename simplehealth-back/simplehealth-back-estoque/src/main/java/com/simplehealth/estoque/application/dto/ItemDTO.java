@@ -21,5 +21,6 @@ public class ItemDTO {
   private TipoItem tipo;
   private String lote;
   private Boolean confirmacaoGestor;
+  private UUID estoqueId;
 
 }

@@ -3,6 +3,7 @@ package br.com.simplehealth.estoque.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Modelo para medicamentos (extends Item)
@@ -23,8 +24,8 @@ public class Medicamento extends Item {
     }
     
     public Medicamento(String nome, Integer quantidadeTotal, Date validade,
-                      String prescricao, String targa) {
-        super(nome, quantidadeTotal, validade);
+                      UUID estoqueId, String prescricao, String targa) {
+        super(nome, quantidadeTotal, validade, estoqueId);
         this.prescricao = prescricao;
         this.targa = targa;
     }

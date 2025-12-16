@@ -27,8 +27,10 @@
                 
                 <TableView fx:id="tableEstoques" VBox.vgrow="ALWAYS" minHeight="400">
                     <columns>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
-                        <TableColumn fx:id="colLocal" text="Local" prefWidth="400"/>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="150"/>
+                        <TableColumn fx:id="colNome" text="Nome" prefWidth="200"/>
+                        <TableColumn fx:id="colLocalizacao" text="Localização" prefWidth="200"/>
+                        <TableColumn fx:id="colSetor" text="Setor" prefWidth="150"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -44,8 +46,14 @@
                             <ColumnConstraints hgrow="ALWAYS"/>
                         </columnConstraints>
                         
-                        <Label text="Local:*" GridPane.rowIndex="0"/>
-                        <TextField fx:id="txtLocal" promptText="Localização do estoque" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        <Label text="Nome:*" GridPane.rowIndex="0"/>
+                        <TextField fx:id="txtNome" promptText="Nome do estoque" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                        
+                        <Label text="Localização:*" GridPane.rowIndex="1"/>
+                        <TextField fx:id="txtLocalizacao" promptText="Localização física" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        
+                        <Label text="Setor:" GridPane.rowIndex="2"/>
+                        <TextField fx:id="txtSetor" promptText="Setor/Departamento" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                     </GridPane>
                     
                     <!-- Botões de Ação -->

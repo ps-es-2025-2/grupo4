@@ -76,7 +76,6 @@ public class EntradaItensUseCase {
     return itensProcessados;
   }
 
-
   private Item processarItemEntrada(ItemDTO dto, String nfNumero, Fornecedor fornecedor) {
     Item item = null;
 
@@ -84,7 +83,6 @@ public class EntradaItensUseCase {
       try {
         item = itemService.buscarPorId(dto.getItemId(), dto.getTipo());
       } catch (IllegalArgumentException e) {
-        // ignora, item será criado
       }
     }
 
@@ -105,8 +103,7 @@ public class EntradaItensUseCase {
         quantidadeAnterior,
         nfNumero,
         fornecedor,
-        dto.getLote()
-    );
+        dto.getLote());
 
     return item;
   }
@@ -114,6 +111,19 @@ public class EntradaItensUseCase {
   private Item criarNovoItem(ItemDTO dto) {
     if (dto.getTipo() == null) {
       throw new IllegalArgumentException("Tipo de item é obrigatório para novos itens.");
+    }
+
+    UUID estoqueIdFinal;
+    if (dto.getEstoqueId() != null) {
+      try {
+        estoqueService.buscarPorId(dto.getEstoqueId());
+        estoqueIdFinal = dto.getEstoqueId();
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Estoque informado não encontrado: " + dto.getEstoqueId());
+      }
+    } else {
+      var estoquePrincipal = estoqueService.buscarEstoquePrincipal();
+      estoqueIdFinal = estoquePrincipal.getIdEstoque();
     }
 
     Item item;
@@ -125,6 +135,7 @@ public class EntradaItensUseCase {
         alimento.setNome(dto.getNome());
         alimento.setQuantidadeTotal(0);
         alimento.setValidade(dto.getValidade());
+        alimento.setEstoqueId(estoqueIdFinal);
         item = alimento;
         break;
 
@@ -134,6 +145,7 @@ public class EntradaItensUseCase {
         medicamento.setNome(dto.getNome());
         medicamento.setQuantidadeTotal(0);
         medicamento.setValidade(dto.getValidade());
+        medicamento.setEstoqueId(estoqueIdFinal);
         item = medicamento;
         break;
 
@@ -143,6 +155,7 @@ public class EntradaItensUseCase {
         hospitalar.setNome(dto.getNome());
         hospitalar.setQuantidadeTotal(0);
         hospitalar.setValidade(dto.getValidade());
+        hospitalar.setEstoqueId(estoqueIdFinal);
         item = hospitalar;
         break;
 
